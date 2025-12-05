@@ -1,0 +1,140 @@
+import { create } from 'zustand';
+import type { CharacterData, GameState, PlayerStats } from '../types';
+import charactersData from '../data/characters.json';
+import weaponsData from '../data/weapons.json';
+import enemiesData from '../data/enemies.json';
+import wavesData from '../data/waves.json';
+import uiData from '../data/ui.json';
+
+// Type assertions for imported JSONs
+const characters = charactersData as unknown as CharacterData[];
+
+interface GameStore extends GameState {
+  // Actions
+  startGame: (characterId: string) => void;
+  pauseGame: () => void;
+  resumeGame: () => void;
+  endGame: () => void;
+  updateTimer: (delta: number) => void;
+  addXp: (amount: number) => void;
+  addGold: (amount: number) => void;
+  levelUp: () => void;
+  
+  // Player State (Runtime)
+  currentHealth: number;
+  playerStats: PlayerStats;
+  playerPosition: { x: number; y: number };
+  playerDirection: { x: number; y: number };
+  setPlayerPosition: (x: number, y: number) => void;
+  setPlayerDirection: (x: number, y: number) => void;
+  takeDamage: (amount: number) => void;
+  heal: (amount: number) => void;
+}
+
+const INITIAL_STATE: GameState = {
+  isRunning: false,
+  isPaused: false,
+  isGameOver: false,
+  runTimer: 0,
+  level: 1,
+  xp: 0,
+  nextLevelXp: 100,
+  gold: 0,
+  killCount: 0,
+  selectedCharacterId: null,
+  activeWeapons: [],
+  activeItems: [],
+};
+
+const INITIAL_PLAYER_STATS: PlayerStats = {
+  maxHealth: 100,
+  moveSpeed: 5,
+  might: 1,
+  area: 1,
+  cooldown: 1,
+  recovery: 0,
+  luck: 1,
+  growth: 1,
+  greed: 1,
+  curse: 1,
+  revivals: 0,
+};
+
+export const useGameStore = create<GameStore>((set, get) => ({
+  ...INITIAL_STATE,
+  
+  currentHealth: 100,
+  playerStats: INITIAL_PLAYER_STATS,
+  playerPosition: { x: 0, y: 0 },
+  playerDirection: { x: 1, y: 0 },
+
+  startGame: (characterId: string) => {
+    const character = characters.find(c => c.id === characterId);
+    if (!character) return;
+
+    set({
+      ...INITIAL_STATE,
+      isRunning: true,
+      selectedCharacterId: characterId,
+      playerStats: { ...character.stats },
+      currentHealth: character.stats.maxHealth,
+      activeWeapons: [character.starting_weapon_id],
+    });
+  },
+
+  pauseGame: () => set({ isPaused: true }),
+  resumeGame: () => set({ isPaused: false }),
+  endGame: () => set({ isRunning: false, isGameOver: true }),
+
+  updateTimer: (delta: number) => {
+    const { isRunning, isPaused, runTimer } = get();
+    if (isRunning && !isPaused) {
+      set({ runTimer: runTimer + delta });
+    }
+  },
+
+  addXp: (amount: number) => {
+    const { xp, nextLevelXp, growth } = get(); // access growth from stats later
+    // TODO: Apply growth multiplier
+    const newXp = xp + amount;
+    if (newXp >= nextLevelXp) {
+      get().levelUp();
+    } else {
+      set({ xp: newXp });
+    }
+  },
+
+  levelUp: () => {
+    const { level, nextLevelXp, xp } = get();
+    set({
+      level: level + 1,
+      xp: xp - nextLevelXp,
+      nextLevelXp: Math.floor(nextLevelXp * 1.2), // Simple exponential curve
+      isPaused: true, // Pause for selection screen
+    });
+  },
+
+  addGold: (amount: number) => {
+    set(state => ({ gold: state.gold + amount }));
+  },
+
+  setPlayerPosition: (x: number, y: number) => set({ playerPosition: { x, y } }),
+  setPlayerDirection: (x: number, y: number) => set({ playerDirection: { x, y } }),
+
+  takeDamage: (amount: number) => {
+    set(state => {
+      const newHealth = Math.max(0, state.currentHealth - amount);
+      if (newHealth === 0) {
+        state.endGame();
+      }
+      return { currentHealth: newHealth };
+    });
+  },
+
+  heal: (amount: number) => {
+    set(state => ({
+      currentHealth: Math.min(state.playerStats.maxHealth, state.currentHealth + amount),
+    }));
+  },
+}));
+

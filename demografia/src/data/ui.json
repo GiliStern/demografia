@@ -1,0 +1,56 @@
+{
+  "common": {
+    "back": "חזור",
+    "buy": "קנה",
+    "resume": "המשך",
+    "restart": "התחל מחדש",
+    "main_menu": "תפריט ראשי",
+    "level": "רמה",
+    "gold": "מטבעות זהב",
+    "xp": "נקודות",
+    "select": "בחר",
+    "locked": "נעול",
+    "unlocked": "נפתח",
+    "press_to_start": "לחץ להתחיל"
+  },
+  "menu": {
+    "play": "שחק",
+    "settings": "הגדרות",
+    "meta_shop": "חנות שדרוגים",
+    "achievements": "הישגים",
+    "exit": "צא",
+    "version": "גרסה"
+  },
+  "character_select": {
+    "title": "בחר דמות",
+    "passive": "יכולת פסיבית",
+    "starting_weapon": "נשק פתיחה",
+    "unlock_req": "דרישת פתיחה"
+  },
+  "stage_select": {
+    "title": "בחר שלב"
+  },
+  "hud": {
+    "timer": "זמן",
+    "level": "רמה",
+    "gold": "מטבעות זהב"
+  },
+  "level_up": {
+    "title": "עליית רמה",
+    "choose_one": "בחר אחד"
+  },
+  "chest": {
+    "title": "פיצויים!"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "music_volume": "ווליום מוזיקה",
+    "sfx_volume": "ווליום אפקטים",
+    "language": "שפה",
+    "fullscreen": "מסך מלא",
+    "pixel_scale": "סקייל פיקסלים"
+  },
+  "achievements": {
+    "title": "הישגים"
+  }
+}
