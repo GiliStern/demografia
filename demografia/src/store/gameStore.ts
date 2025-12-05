@@ -1,10 +1,6 @@
 import { create } from 'zustand';
 import type { CharacterData, GameState, PlayerStats } from '../types';
 import charactersData from '../data/characters.json';
-import weaponsData from '../data/weapons.json';
-import enemiesData from '../data/enemies.json';
-import wavesData from '../data/waves.json';
-import uiData from '../data/ui.json';
 
 // Type assertions for imported JSONs
 const characters = charactersData as unknown as CharacterData[];
@@ -18,6 +14,7 @@ interface GameStore extends GameState {
   updateTimer: (delta: number) => void;
   addXp: (amount: number) => void;
   addGold: (amount: number) => void;
+  addKill: () => void;
   levelUp: () => void;
   
   // Player State (Runtime)
@@ -116,6 +113,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   addGold: (amount: number) => {
     set(state => ({ gold: state.gold + amount }));
+  },
+
+  addKill: () => {
+    set(state => ({ killCount: state.killCount + 1 }));
   },
 
   setPlayerPosition: (x: number, y: number) => set({ playerPosition: { x, y } }),

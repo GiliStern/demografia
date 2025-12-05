@@ -73,6 +73,8 @@ export interface WaveData {
   }[];
 }
 
+export type WavesConfig = Record<string, WaveData[]>;
+
 export interface GameState {
   isRunning: boolean;
   isPaused: boolean;

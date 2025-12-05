@@ -1,50 +1,88 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Enemy } from './Enemy';
 import { useGameStore } from '../store/gameStore';
 import wavesData from '../data/waves.json';
+import type { WavesConfig, WaveData } from '../types';
 
-// @ts-ignore
-const waves = wavesData as any; // Simplified for prototype
+type ActiveEnemy = {
+  id: string;
+  typeId: string;
+  position: [number, number, number];
+};
+
+type SpawnTracker = Record<
+  string,
+  {
+    lastSpawn: number;
+  }
+>;
+
+const waves = wavesData as unknown as WavesConfig;
+const DEFAULT_STAGE = 'stage_1';
+const SPAWN_DISTANCE = 20;
 
 export const WaveManager = () => {
-  const [enemies, setEnemies] = useState<any[]>([]);
-  const { runTimer, playerPosition, isPaused } = useGameStore();
-  
-  // Spawn logic
+  const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
+  const spawnTrackerRef = useRef<SpawnTracker>({});
+  const { runTimer, playerPosition, isPaused, addKill } = useGameStore();
+
+  const currentWave: WaveData | undefined = useMemo(() => {
+    const stageWaves = waves[DEFAULT_STAGE] ?? [];
+    return stageWaves.find(
+      w => runTimer >= w.time_start && runTimer < w.time_end,
+    );
+  }, [runTimer]);
+
   useFrame(() => {
-    if (isPaused) return;
-    
-    // Find current wave based on timer
-    // For now, just simple spawn logic for testing
-    if (enemies.length < 5 && Math.random() < 0.02) {
-        spawnEnemy();
-    }
+    if (isPaused || !currentWave) return;
+
+    currentWave.enemies.forEach(config => {
+      const tracker = spawnTrackerRef.current[config.id] ?? { lastSpawn: 0 };
+
+      // Count current active of this type
+      const activeOfType = enemies.filter(e => e.typeId === config.id).length;
+      if (activeOfType >= config.max_active) {
+        return;
+      }
+
+      const now = runTimer;
+      if (now - tracker.lastSpawn >= config.spawn_interval) {
+        spawnEnemy(config.id);
+        spawnTrackerRef.current[config.id] = { lastSpawn: now };
+      }
+    });
   });
 
-  const spawnEnemy = () => {
+  const spawnEnemy = (typeId: string) => {
     const angle = Math.random() * Math.PI * 2;
-    const distance = 15; // Spawn outside camera view
+    const distance = SPAWN_DISTANCE;
     const x = playerPosition.x + Math.cos(angle) * distance;
     const y = playerPosition.y + Math.sin(angle) * distance;
-    
-    const newEnemy = {
-      id: Math.random().toString(),
-      typeId: 'street_cats', // Default for testing
-      position: [x, y, 0] as [number, number, number]
+
+    const id = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2);
+
+    const newEnemy: ActiveEnemy = {
+      id,
+      typeId,
+      position: [x, y, 0],
     };
-    
+
     setEnemies(prev => [...prev, newEnemy]);
   };
 
-  const removeEnemy = (id: string) => {
+  const removeEnemy = (id: string, rewardGold = 1, rewardXp = 10) => {
     setEnemies(prev => prev.filter(e => e.id !== id));
+    addKill();
+    // TODO: connect rewards to store when XP/Gold drop entities exist
   };
 
   return (
     <>
       {enemies.map(e => (
-        <Enemy 
+        <Enemy
           key={e.id}
           {...e}
           onDeath={() => removeEnemy(e.id)}
