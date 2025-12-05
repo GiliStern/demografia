@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hebrew Vampire Survivors</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23000'/%3E%3Ctext x='8' y='11' font-size='10' text-anchor='middle' fill='%23fff'%3EHV%3C/text%3E%3C/svg%3E"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="gameContainer">
+      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+      <div id="uiOverlay"></div>
+      <div id="debugInfo" class="debug-hidden"></div>
+    </div>
+
+    <!-- Audio handled by AudioManager; removing static <audio> to avoid 404s -->
+
+    <div id="loadingScreen">
+      <div class="loading-content">
+        <h2>טוען...</h2>
+        <div class="loading-bar">
+          <div class="loading-progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>  </body>
+</html>

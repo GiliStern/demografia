@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audio Debug Test - Hebrew Vampire Survivors</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #222;
+        color: #fff;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        background: #444;
+        color: #fff;
+        border: 1px solid #666;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #666;
+      }
+      .section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #444;
+        border-radius: 5px;
+      }
+      .log {
+        background: #111;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 3px;
+        font-family: monospace;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Audio Debug Test</h1>
+
+    <div class="section">
+      <h2>Sound Generator Test</h2>
+      <button onclick="testSoundGenerator()">Initialize Sound Generator</button>
+      <button onclick="testSound('weapon_fire')">Test Weapon Fire</button>
+      <button onclick="testSound('enemy_hit')">Test Enemy Hit</button>
+      <button onclick="testSound('enemy_death')">Test Enemy Death</button>
+      <button onclick="testSound('pickup_item')">Test Pickup Item</button>
+      <button onclick="testSound('button_click')">Test Button Click</button>
+    </div>
+
+    <div class="section">
+      <h2>Audio Manager Test</h2>
+      <button onclick="testAudioManager()">Initialize Audio Manager</button>
+      <button onclick="testAudioManagerSounds()">
+        Test All Sounds via AudioManager
+      </button>
+    </div>
+
+    <div class="section">
+      <h2>Debug Log</h2>
+      <div id="log" class="log"></div>
+      <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/soundGenerator.js"></script>
+    <script src="js/audio.js"></script>
+
+    <script>
+      let generator = null;
+      let audioManager = null;
+
+      function log(message) {
+        const logDiv = document.getElementById("log");
+        const timestamp = new Date().toLocaleTimeString();
+        logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+        console.log(message);
+      }
+
+      function clearLog() {
+        document.getElementById("log").innerHTML = "";
+      }
+
+      function testSoundGenerator() {
+        log("Initializing sound generator...");
+        try {
+          generator = window.initializeSoundGenerator();
+          setTimeout(() => {
+            if (generator && generator.sounds) {
+              log(
+                `Sound generator initialized with ${generator.sounds.size} sounds`
+              );
+              log(
+                `Available sounds: ${Array.from(generator.sounds.keys()).join(
+                  ", "
+                )}`
+              );
+            } else {
+              log("Sound generator initialization failed - no sounds map");
+            }
+          }, 100);
+        } catch (error) {
+          log(`Error initializing sound generator: ${error.message}`);
+        }
+      }
+
+      function testSound(soundId) {
+        if (!generator) {
+          log("Sound generator not initialized, initializing now...");
+          testSoundGenerator();
+          setTimeout(() => testSound(soundId), 200);
+          return;
+        }
+
+        log(`Testing sound: ${soundId}`);
+        try {
+          const sound = generator.getSound(soundId);
+          if (sound) {
+            log(`Found sound ${soundId}, playing...`);
+            sound.play(0.5, 1.0);
+            log(`Sound ${soundId} played successfully`);
+          } else {
+            log(`Sound ${soundId} not found in generator`);
+          }
+        } catch (error) {
+          log(`Error playing sound ${soundId}: ${error.message}`);
+        }
+      }
+
+      function testAudioManager() {
+        log("Initializing audio manager...");
+        try {
+          // First initialize sound generator
+          if (!generator) {
+            testSoundGenerator();
+          }
+
+          // Then initialize audio manager
+          audioManager = new AudioManager();
+          log("Audio manager initialized");
+        } catch (error) {
+          log(`Error initializing audio manager: ${error.message}`);
+        }
+      }
+
+      function testAudioManagerSounds() {
+        if (!audioManager) {
+          log("Audio manager not initialized, initializing now...");
+          testAudioManager();
+          setTimeout(() => testAudioManagerSounds(), 1000);
+          return;
+        }
+
+        const sounds = [
+          "weapon_fire",
+          "enemy_hit",
+          "enemy_death",
+          "pickup_item",
+          "button_click",
+        ];
+
+        sounds.forEach((soundId, index) => {
+          setTimeout(() => {
+            log(`Testing ${soundId} via AudioManager...`);
+            try {
+              audioManager.playSound(soundId, 0.5, 1.0);
+              log(`AudioManager played ${soundId} successfully`);
+            } catch (error) {
+              log(
+                `Error playing ${soundId} via AudioManager: ${error.message}`
+              );
+            }
+          }, index * 500);
+        });
+      }
+
+      // Auto-initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        log("Page loaded, ready for testing");
+      });
+
+      // Initialize on first click
+      document.addEventListener(
+        "click",
+        function () {
+          if (!generator) {
+            testSoundGenerator();
+          }
+        },
+        { once: true }
+      );
+    </script>
+  </body>
+</html>
