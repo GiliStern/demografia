@@ -1,0 +1,33 @@
+import type { CharacterData } from "../../types";
+
+export const CHARACTERS: CharacterData[] = [
+  {
+    id: "sruLik",
+    name_he: "שרוליק",
+    description_he: "הדמות האיקונית, גרסת פיקסל קומית.",
+    starting_weapon_id: "magic_wand",
+    passive_id: "TBD_passive",
+    stats: {
+      maxHealth: 100,
+      moveSpeed: 5,
+      might: 1,
+      area: 1,
+      cooldown: 1,
+      recovery: 0,
+      luck: 1,
+      growth: 1,
+      greed: 1,
+      curse: 1,
+      revivals: 0,
+    },
+    sprite_config: {
+      texture: "characters",
+      textureUrl: "/assets/sprites/srulik_512x512.png",
+      index: 0,
+      scale: 3,
+      spriteFrameSize: 512,
+    },
+  },
+];
+
+export type CharacterId = (typeof CHARACTERS)[number]["id"];

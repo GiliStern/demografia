@@ -1,5 +1,5 @@
 import { useGameStore } from '../store/gameStore';
-import uiData from '../data/ui.json';
+import { UI_STRINGS } from '../data/config/ui';
 
 export const InGameHUD = () => {
   const { 
@@ -40,7 +40,7 @@ export const InGameHUD = () => {
         {/* Level & XP */}
         <div style={{ width: '30%' }}>
             <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-                {uiData.common.level}: {level}
+                {UI_STRINGS.common.level}: {level}
             </div>
             <div style={{ 
                 width: '100%', 
@@ -65,7 +65,7 @@ export const InGameHUD = () => {
 
         {/* Gold */}
         <div style={{ width: '30%', textAlign: 'left', fontSize: '24px', color: 'gold' }}>
-            {uiData.common.gold}: {gold}
+            {UI_STRINGS.common.gold}: {gold}
         </div>
       </div>
 

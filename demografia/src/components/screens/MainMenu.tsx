@@ -1,5 +1,5 @@
 import { useGameStore } from '../../store/gameStore';
-import uiData from '../../data/ui.json';
+import { UI_STRINGS } from '../../data/config/ui';
 
 export const MainMenu = () => {
   const { startGame } = useGameStore();
@@ -38,7 +38,7 @@ export const MainMenu = () => {
             borderRadius: '8px'
           }}
         >
-          {uiData.menu.play}
+          {UI_STRINGS.menu.play}
         </button>
 
         <button 
@@ -53,7 +53,7 @@ export const MainMenu = () => {
             borderRadius: '8px'
           }}
         >
-          {uiData.menu.meta_shop} ({uiData.common.locked})
+          {UI_STRINGS.menu.meta_shop} ({UI_STRINGS.common.locked})
         </button>
 
         <button 
@@ -68,12 +68,12 @@ export const MainMenu = () => {
             borderRadius: '8px'
           }}
         >
-          {uiData.menu.settings} ({uiData.common.locked})
+          {UI_STRINGS.menu.settings} ({UI_STRINGS.common.locked})
         </button>
       </div>
 
       <div style={{ position: 'absolute', bottom: '20px', left: '20px', color: '#666' }}>
-        {uiData.menu.version} 0.1.0
+        {UI_STRINGS.menu.version} 0.1.0
       </div>
     </div>
   );

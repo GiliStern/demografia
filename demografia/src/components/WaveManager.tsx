@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Enemy } from './Enemy';
 import { useGameStore } from '../store/gameStore';
-import wavesData from '../data/waves.json';
+import { WAVES } from '../data/config/waves';
 import type { WavesConfig, WaveData } from '../types';
 
 type ActiveEnemy = {
@@ -18,7 +18,7 @@ type SpawnTracker = Record<
   }
 >;
 
-const waves = wavesData as unknown as WavesConfig;
+const waves = WAVES;
 const DEFAULT_STAGE = 'stage_1';
 const SPAWN_DISTANCE = 20;
 

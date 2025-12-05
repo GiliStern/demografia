@@ -21,8 +21,10 @@ export interface CharacterData {
   stats: PlayerStats;
   sprite_config: {
     texture: string;
+    textureUrl?: string;
     index: number;
     scale: number;
+    spriteFrameSize?: number;
   };
 }
 
@@ -42,7 +44,10 @@ export interface WeaponData {
   };
   sprite_config: {
     texture: string;
+    textureUrl?: string;
     index: number;
+    scale?: number;
+    spriteFrameSize?: number;
   };
 }
 
@@ -57,8 +62,10 @@ export interface EnemyData {
   };
   sprite_config: {
     texture: string;
+    textureUrl?: string;
     index: number;
     scale: number;
+    spriteFrameSize?: number;
   };
 }
 

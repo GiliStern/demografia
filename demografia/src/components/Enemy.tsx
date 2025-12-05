@@ -4,7 +4,7 @@ import { RigidBody, RapierRigidBody, CuboidCollider } from '@react-three/rapier'
 import { Sprite } from './Sprite';
 import { useGameStore } from '../store/gameStore';
 import * as THREE from 'three';
-import enemiesData from '../data/enemies.json';
+import { ENEMIES } from '../data/config/enemies';
 
 interface EnemyProps {
   id: string;
@@ -19,15 +19,17 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
   const [isFacingLeft, setFacingLeft] = useState(false);
   
   // Load stats from data
-  // @ts-ignore
-  const data = enemiesData[typeId];
+  const data = ENEMIES[typeId];
   const speed = data?.stats.speed || 2;
   const maxHp = data?.stats.hp || 10;
   const [hp, setHp] = useState(maxHp);
 
-  const textureName = 'enemies';
-  const spriteIndex = data?.sprite_config.index || 0;
-  const spriteScale = data?.sprite_config.scale || 1;
+  const spriteConfig = data?.sprite_config;
+  const textureName = spriteConfig?.texture || 'enemies';
+  const textureUrl = spriteConfig?.textureUrl;
+  const spriteIndex = spriteConfig?.index || 0;
+  const spriteScale = spriteConfig?.scale || 1;
+  const spriteFrameSize = spriteConfig?.spriteFrameSize || 32;
 
   useFrame(() => {
     if (!rigidBody.current || isPaused) return;
@@ -81,11 +83,13 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
       onIntersectionEnter={handleIntersection}
     >
       <CuboidCollider args={[0.3, 0.3, 1]} />
-      <Sprite 
-        textureName={textureName} 
-        index={spriteIndex} 
+      <Sprite
+        textureUrl={textureUrl}
+        textureName={textureName}
+        index={spriteIndex}
         flipX={isFacingLeft}
         scale={spriteScale}
+        spriteFrameSize={spriteFrameSize}
       />
     </RigidBody>
   );

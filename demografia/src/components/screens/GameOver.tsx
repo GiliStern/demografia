@@ -1,5 +1,5 @@
 import { useGameStore } from '../../store/gameStore';
-import uiData from '../../data/ui.json';
+import { UI_STRINGS } from '../../data/config/ui';
 
 export const GameOver = () => {
   const { runTimer, gold, killCount, endGame } = useGameStore();
@@ -29,8 +29,8 @@ export const GameOver = () => {
       </h1>
       
       <div style={{ fontSize: '32px', marginBottom: '40px', textAlign: 'center' }}>
-        <div>{uiData.common.time}: {minutes}:{seconds}</div>
-        <div>{uiData.common.gold}: {gold}</div>
+        <div>{UI_STRINGS.common.time}: {minutes}:{seconds}</div>
+        <div>{UI_STRINGS.common.gold}: {gold}</div>
         <div>הריגות: {killCount}</div>
       </div>
 
@@ -46,7 +46,7 @@ export const GameOver = () => {
           borderRadius: '8px'
         }}
       >
-        {uiData.common.main_menu}
+        {UI_STRINGS.common.main_menu}
       </button>
     </div>
   );

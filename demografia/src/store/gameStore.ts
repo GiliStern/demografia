@@ -1,9 +1,6 @@
 import { create } from 'zustand';
-import type { CharacterData, GameState, PlayerStats } from '../types';
-import charactersData from '../data/characters.json';
-
-// Type assertions for imported JSONs
-const characters = charactersData as unknown as CharacterData[];
+import type { GameState, PlayerStats } from '../types';
+import { CHARACTERS } from '../data/config/characters';
 
 interface GameStore extends GameState {
   // Actions
@@ -66,7 +63,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   playerDirection: { x: 1, y: 0 },
 
   startGame: (characterId: string) => {
-    const character = characters.find(c => c.id === characterId);
+    const character = CHARACTERS.find(c => c.id === characterId);
     if (!character) return;
 
     set({
