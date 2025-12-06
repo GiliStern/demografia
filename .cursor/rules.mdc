@@ -33,6 +33,8 @@ Follow these rules when you write code:
 - Use “class:” instead of the tertiary operator in class tags whenever possible.
 - Use descriptive variable and function/const names. Also, event functions should be named with a “handle” prefix, like “handleClick” for onClick and “handleKeyDown” for onKeyDown.
 - Use consts instead of functions, for example, “const toggle = () =>”. Also, define a type if possible.
+- Prefer extracting nested conditional logic (e.g., multi-level ternaries) into small helper functions for clarity.
+- Keep React components lean: move non-render logic (state machines, frame loops, calculations, condition trees) into helpers or custom hooks; components should primarily compose hooks, helpers, and JSX.
 
 This comprehensive guide outlines best practices, conventions, and standards for development with modern web technologies including ReactJS, NextJS, zustand, TypeScript, JavaScript, HTML, CSS, and UI frameworks.
 

@@ -7,7 +7,7 @@ import { useGameStore } from "./hooks/useGameStore";
 import { PauseReason } from "./types";
 import "./App.css";
 
-function App() {
+const App = () => {
   const {
     isRunning,
     isGameOver,
@@ -47,6 +47,6 @@ function App() {
       {isRunning && !isPaused && !isGameOver && <InGameHUD />}
     </div>
   );
-}
+};
 
 export default App;

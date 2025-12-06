@@ -73,7 +73,7 @@ export const useOrbitWeapon = ({
 
   const runtime = useMemo(
     () => buildOrbitRuntime(stats, playerStats),
-    [stats, playerStats, playerPosition]
+    [stats, playerStats]
   );
 
   const syncOrbiters = useCallback((next: OrbitingOrb[]) => {
