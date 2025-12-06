@@ -29,6 +29,8 @@ export const Player = () => {
     setPlayerDirection,
     takeDamage,
     selectedCharacterId,
+    isRunning,
+    isPaused,
   } = useGameStore();
   const [isFacingLeft, setFacingLeft] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
@@ -38,11 +40,18 @@ export const Player = () => {
   useFrame((state) => {
     if (!rigidBody.current) return;
 
+    if (!isRunning || isPaused) {
+      rigidBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      const translation = rigidBody.current.translation();
+      state.camera.position.set(translation.x, translation.y, 10);
+      return;
+    }
+
     const { x, y } = controls.current;
 
     // 1. Determine State
-    const isRunning = x !== 0 || y !== 0;
-    setIsMoving(isRunning);
+    const isMovingNow = x !== 0 || y !== 0;
+    setIsMoving(isMovingNow);
 
     // Only change vertical look direction if explicitly pressing up/down
     if (y > 0) setIsLookingUp(true);

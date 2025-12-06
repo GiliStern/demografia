@@ -6,6 +6,7 @@ import {
   type IntersectionEnterPayload,
 } from "@react-three/rapier";
 import { Sprite } from "./Sprite";
+import { useGameStore } from "../store/gameStore";
 import type {
   ProjectileProps,
   ProjectileUserData,
@@ -23,11 +24,16 @@ export const Projectile = ({
 }: ProjectileProps) => {
   const rigidBody = useRef<RapierRigidBody>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const { isPaused, isRunning } = useGameStore();
+  const velocityRef = useRef(velocity);
 
   useEffect(() => {
     // Set initial velocity
     if (rigidBody.current) {
-      rigidBody.current.setLinvel({ x: velocity.x, y: velocity.y, z: 0 }, true);
+      rigidBody.current.setLinvel(
+        { x: velocityRef.current.x, y: velocityRef.current.y, z: 0 },
+        true
+      );
     }
 
     // Despawn timer
@@ -37,6 +43,19 @@ export const Projectile = ({
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!rigidBody.current) return;
+
+    if (!isRunning || isPaused) {
+      rigidBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    } else {
+      rigidBody.current.setLinvel(
+        { x: velocityRef.current.x, y: velocityRef.current.y, z: 0 },
+        true
+      );
+    }
+  }, [isPaused, isRunning]);
 
   const handleIntersection = (payload: IntersectionEnterPayload) => {
     // In a real system we'd check tags/layers, but for now assume sensor triggers on enemies

@@ -21,7 +21,8 @@ interface EnemyProps {
 
 export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
   const rigidBody = useRef<RapierRigidBody>(null);
-  const { playerPosition, isPaused, addXp, addGold } = useGameStore();
+  const { playerPosition, isPaused, isRunning, addXp, addGold } =
+    useGameStore();
   const [isFacingLeft, setFacingLeft] = useState(false);
 
   // Load stats from data
@@ -32,7 +33,12 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
   const [hp, setHp] = useState(maxHp);
 
   useFrame(() => {
-    if (!rigidBody.current || isPaused) return;
+    if (!rigidBody.current) return;
+
+    if (isPaused || !isRunning) {
+      rigidBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      return;
+    }
 
     // Simple AI: Move towards player
     const direction = new THREE.Vector3(

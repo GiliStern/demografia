@@ -25,7 +25,8 @@ const SPAWN_DISTANCE = 20;
 export const WaveManager = () => {
   const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
   const spawnTrackerRef = useRef<SpawnTracker>({});
-  const { runTimer, playerPosition, isPaused, addKill } = useGameStore();
+  const { runTimer, playerPosition, isPaused, isRunning, addKill } =
+    useGameStore();
 
   const currentWave: WaveData | undefined = useMemo(() => {
     const stageWaves = waves[DEFAULT_STAGE] ?? [];
@@ -35,7 +36,7 @@ export const WaveManager = () => {
   }, [runTimer]);
 
   useFrame(() => {
-    if (isPaused || !currentWave) return;
+    if (isPaused || !isRunning || !currentWave) return;
 
     currentWave.enemies.forEach((config) => {
       const tracker = spawnTrackerRef.current[config.id] ?? { lastSpawn: 0 };

@@ -8,7 +8,7 @@ import type { ProjectileData } from "@/types";
 export const StarOfDavidWeapon = () => {
   const [projectiles, setProjectiles] = useState<ProjectileData[]>([]);
   const lastFireTime = useRef(0);
-  const { playerPosition, playerDirection, playerStats, isPaused } =
+  const { playerPosition, playerDirection, playerStats, isPaused, isRunning } =
     useGameStore();
 
   const weaponId = WeaponId.Knife;
@@ -22,7 +22,7 @@ export const StarOfDavidWeapon = () => {
   const damage = stats?.damage || 10;
 
   useFrame((state) => {
-    if (isPaused) return;
+    if (isPaused || !isRunning) return;
 
     const time = state.clock.getElapsedTime();
     if (time - lastFireTime.current > cooldown) {

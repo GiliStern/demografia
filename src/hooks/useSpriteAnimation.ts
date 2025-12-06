@@ -6,6 +6,7 @@ import type {
   AnimationType,
   AnimationVariant,
 } from "@/types";
+import { useGameStore } from "../store/gameStore";
 
 interface UseSpriteAnimationProps {
   category: AnimationCategory;
@@ -18,6 +19,7 @@ export const useSpriteAnimation = ({
   variant,
   currentAnimation,
 }: UseSpriteAnimationProps) => {
+  const { isPaused, isRunning } = useGameStore();
   const [frameIndex, setFrameIndex] = useState(0);
   const timer = useRef(0);
 
@@ -27,7 +29,7 @@ export const useSpriteAnimation = ({
   const config = variantData[currentAnimation] ?? variantData.idle;
 
   useFrame((_state, delta) => {
-    if (!config) return;
+    if (!config || !isRunning || isPaused) return;
 
     // Don't animate if frameRate is 0
     if (config.frameRate === 0) return;

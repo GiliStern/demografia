@@ -3,7 +3,8 @@ import { UI_STRINGS } from "../../data/config/ui";
 import { CharacterId } from "@/types";
 
 export const MainMenu = () => {
-  const { startGame } = useGameStore();
+  const { startGame, resumeGame, isPaused, isRunning } = useGameStore();
+  const canResume = isRunning && isPaused;
 
   return (
     <div
@@ -28,6 +29,12 @@ export const MainMenu = () => {
         דמוגרפיה
       </h1>
 
+      {canResume && (
+        <div style={{ marginBottom: "20px", fontSize: "20px" }}>
+          {UI_STRINGS.common.paused}
+        </div>
+      )}
+
       <div
         style={{
           display: "flex",
@@ -36,20 +43,39 @@ export const MainMenu = () => {
           width: "300px",
         }}
       >
-        <button
-          onClick={() => startGame(CharacterId.Srulik)}
-          style={{
-            padding: "15px",
-            fontSize: "24px",
-            background: "#444",
-            color: "white",
-            border: "2px solid #666",
-            cursor: "pointer",
-            borderRadius: "8px",
-          }}
-        >
-          {UI_STRINGS.menu.play}
-        </button>
+        {canResume && (
+          <button
+            onClick={resumeGame}
+            style={{
+              padding: "15px",
+              fontSize: "24px",
+              background: "#444",
+              color: "white",
+              border: "2px solid #666",
+              cursor: "pointer",
+              borderRadius: "8px",
+            }}
+          >
+            {UI_STRINGS.common.resume}
+          </button>
+        )}
+
+        {!canResume && (
+          <button
+            onClick={() => startGame(CharacterId.Srulik)}
+            style={{
+              padding: "15px",
+              fontSize: "24px",
+              background: "#444",
+              color: "white",
+              border: "2px solid #666",
+              cursor: "pointer",
+              borderRadius: "8px",
+            }}
+          >
+            {UI_STRINGS.menu.play}
+          </button>
+        )}
 
         <button
           disabled

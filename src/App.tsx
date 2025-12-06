@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { GameCanvas } from "./components/GameCanvas";
 import { InGameHUD } from "./components/InGameHUD";
 import { MainMenu } from "./components/screens/MainMenu";
@@ -6,17 +7,34 @@ import { useGameStore } from "./store/gameStore";
 import "./App.css";
 
 function App() {
-  const { isRunning, isGameOver } = useGameStore();
+  const { isRunning, isGameOver, isPaused, pauseGame, resumeGame } =
+    useGameStore();
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (!isRunning || isGameOver) return;
+
+      if (isPaused) {
+        resumeGame();
+      } else {
+        pauseGame();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isRunning, isGameOver, isPaused, pauseGame, resumeGame]);
 
   return (
     <div
       className="App"
       style={{ position: "relative", width: "100vw", height: "100vh" }}
     >
-      {!isRunning && !isGameOver && <MainMenu />}
+      {!isGameOver && (!isRunning || isPaused) && <MainMenu />}
       {isGameOver && <GameOver />}
       <GameCanvas />
-      {isRunning && !isGameOver && <InGameHUD />}
+      {isRunning && !isPaused && !isGameOver && <InGameHUD />}
     </div>
   );
 }

@@ -7,6 +7,7 @@ interface GameStore extends GameState {
   startGame: (characterId: CharacterId) => void;
   pauseGame: () => void;
   resumeGame: () => void;
+  togglePause: () => void;
   endGame: () => void;
   updateTimer: (delta: number) => void;
   addXp: (amount: number) => void;
@@ -76,8 +77,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
-  pauseGame: () => set({ isPaused: true }),
-  resumeGame: () => set({ isPaused: false }),
+  pauseGame: () =>
+    set((state) => (state.isRunning ? { isPaused: true } : state)),
+  resumeGame: () =>
+    set((state) => (state.isRunning ? { isPaused: false } : state)),
+  togglePause: () =>
+    set((state) => {
+      if (!state.isRunning || state.isGameOver) return state;
+      return { isPaused: !state.isPaused };
+    }),
   endGame: () => set({ isRunning: false, isGameOver: true }),
 
   updateTimer: (delta: number) => {
