@@ -8,6 +8,11 @@ import {
 import { WEAPONS } from "../data/config/weaponsConfig";
 import { useGameStore } from "./useGameStore";
 import { resolveDirection } from "../utils/weaponUtils";
+import { buildWeaponRuntime, shouldFire } from "@/utils/weaponLifecycle";
+import {
+  buildVelocity,
+  createSpreadProjectiles,
+} from "@/utils/weaponProjectiles";
 
 interface ProjectileWeaponHookParams {
   weaponId: WeaponId;
@@ -30,36 +35,22 @@ export function useProjectileWeapon({
   const weaponData = WEAPONS[weaponId];
   const { sprite_config: spriteConfig } = weaponData;
   const stats = getWeaponStats(weaponId);
-  const damage = stats.damage * (playerStats.might || 1);
-  const speed = stats.speed;
-  const duration = stats.duration;
-  const amount = stats.amount;
-  const cooldown = stats.cooldown;
+  const runtime = buildWeaponRuntime(stats, playerStats);
 
   const fire = (time: number) => {
     lastFireTime.current = time;
 
-    const { x: dirX, y: dirY } = resolveDirection(
-      playerDirection.x,
-      playerDirection.y
-    );
-    const length = Math.sqrt(dirX * dirX + dirY * dirY) || 1;
-    const baseVX = (dirX / length) * speed;
-    const baseVY = (dirY / length) * speed;
+    const direction = resolveDirection(playerDirection.x, playerDirection.y);
+    const baseVelocity = buildVelocity(direction, runtime.speed);
 
-    const newShots = Array.from({ length: amount }).map((_, index) => {
-      // minimal spread for multi-shot
-      const spread = 0.1 * (index - (amount - 1) / 2);
-      const vX = baseVX + spread;
-      const vY = baseVY + spread;
-      const newProjectile: ProjectileData = {
-        id: Math.random().toString(),
-        position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
-        velocity: { x: vX, y: vY },
-        duration,
-        damage,
-      };
-      return newProjectile;
+    const newShots = createSpreadProjectiles({
+      amount: runtime.amount,
+      baseVelocity,
+      spreadStep: 0.1,
+      position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
+      duration: runtime.duration,
+      damage: runtime.damage,
+      idFactory: () => Math.random().toString(),
     });
 
     setProjectiles((prev: ProjectileData[]) => [...prev, ...newShots]);
@@ -73,7 +64,7 @@ export function useProjectileWeapon({
     if (isPaused || !isRunning) return;
 
     const time = state.clock.getElapsedTime();
-    if (time - lastFireTime.current > cooldown) {
+    if (shouldFire(time, lastFireTime.current, runtime.cooldown)) {
       fire(time);
     }
   });
@@ -81,14 +72,13 @@ export function useProjectileWeapon({
   const weaponInstance: ProjectileWeaponInstance = {
     projectiles,
     spriteConfig,
-    damage,
+    damage: runtime.damage,
     removeProjectile,
-    cooldown,
-    speed,
-    duration,
+    cooldown: runtime.cooldown,
+    speed: runtime.speed,
+    duration: runtime.duration,
     shouldSpin: weaponData.shouldSpin,
   };
 
   return weaponInstance;
 }
-

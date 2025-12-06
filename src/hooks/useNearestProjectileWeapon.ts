@@ -6,6 +6,11 @@ import { useGameStore } from "./useGameStore";
 import { resolveDirection } from "../utils/weaponUtils";
 import { nearestEnemyDirection } from "../utils/weaponMath";
 import { WeaponId } from "@/types";
+import { buildWeaponRuntime, shouldFire } from "@/utils/weaponLifecycle";
+import {
+  buildVelocity,
+  createSpreadProjectiles,
+} from "@/utils/weaponProjectiles";
 
 interface ProjectileWeaponHookParams {
   weaponId: WeaponId;
@@ -28,12 +33,8 @@ export function useNearestProjectileWeapon({
 
   const weaponData = WEAPONS[weaponId];
   const spriteConfig = weaponData?.sprite_config;
-  const stats = weaponData ? getWeaponStats(weaponId) : undefined;
-  const damage = (stats?.damage ?? 0) * (playerStats.might || 1);
-  const speed = stats?.speed ?? 0;
-  const duration = stats?.duration ?? 0;
-  const amount = stats?.amount ?? 1;
-  const cooldown = stats?.cooldown ?? Number.POSITIVE_INFINITY;
+  const stats = getWeaponStats(weaponId);
+  const runtime = buildWeaponRuntime(stats, playerStats);
 
   const fire = (time: number) => {
     lastFireTime.current = time;
@@ -42,20 +43,16 @@ export function useNearestProjectileWeapon({
       nearestEnemyDirection(playerPosition, enemiesPositions) ??
       resolveDirection(playerDirection.x, playerDirection.y);
 
-    const length =
-      Math.sqrt(targetDir.x * targetDir.x + targetDir.y * targetDir.y) || 1;
-    const baseVX = (targetDir.x / length) * speed;
-    const baseVY = (targetDir.y / length) * speed;
+    const baseVelocity = buildVelocity(targetDir, runtime.speed);
 
-    const newShots = Array.from({ length: amount }).map(() => {
-      const newProjectile: ProjectileData = {
-        id: Math.random().toString(),
-        position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
-        velocity: { x: baseVX, y: baseVY },
-        duration,
-        damage,
-      };
-      return newProjectile;
+    const newShots = createSpreadProjectiles({
+      amount: runtime.amount || 1,
+      baseVelocity,
+      spreadStep: 0,
+      position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
+      duration: runtime.duration,
+      damage: runtime.damage,
+      idFactory: () => Math.random().toString(),
     });
 
     setProjectiles((prev: ProjectileData[]) => [...prev, ...newShots]);
@@ -69,7 +66,7 @@ export function useNearestProjectileWeapon({
     if (isPaused || !isRunning) return;
 
     const time = state.clock.getElapsedTime();
-    if (time - lastFireTime.current > cooldown) {
+    if (shouldFire(time, lastFireTime.current, runtime.cooldown)) {
       fire(time);
     }
   });
@@ -77,12 +74,11 @@ export function useNearestProjectileWeapon({
   return {
     projectiles,
     spriteConfig,
-    damage,
+    damage: runtime.damage,
     removeProjectile,
-    cooldown,
-    speed,
-    duration,
+    cooldown: runtime.cooldown,
+    speed: runtime.speed,
+    duration: runtime.duration,
     shouldSpin: weaponData.shouldSpin,
   };
 }
-

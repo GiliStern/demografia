@@ -1,66 +1,67 @@
 import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { RigidBody, CuboidCollider, RapierRigidBody } from "@react-three/rapier";
-import type { WeaponComponentProps } from "@/types";
+import {
+  RigidBody,
+  CuboidCollider,
+  RapierRigidBody,
+} from "@react-three/rapier";
+import type { ProjectileData, WeaponComponentProps } from "@/types";
 import { useGameStore } from "@/hooks/useGameStore";
 import { WEAPONS } from "@/data/config/weaponsConfig";
 import { Sprite } from "../Sprite";
 import { radialDirections } from "@/utils/weaponMath";
-import { WeaponId } from "@/types";
+import {
+  buildWeaponRuntime,
+  filterByDuration,
+  shouldFire,
+} from "@/utils/weaponLifecycle";
+import { createDirectionalProjectiles } from "@/utils/weaponProjectiles";
 
-interface RadialProjectile {
-  id: string;
-  direction: { x: number; y: number };
+type RadialProjectile = {
   birth: number;
-}
+} & ProjectileData;
 
 export const RadialWeapon = ({ weaponId }: WeaponComponentProps) => {
   const [projectiles, setProjectiles] = useState<RadialProjectile[]>([]);
   const lastFireTime = useRef(0);
   const bodiesRef = useRef<Map<string, RapierRigidBody>>(new Map());
-  const {
-    playerPosition,
-    playerStats,
-    isPaused,
-    isRunning,
-    getWeaponStats,
-  } = useGameStore();
+  const { playerPosition, playerStats, isPaused, isRunning, getWeaponStats } =
+    useGameStore();
 
   const weapon = WEAPONS[weaponId];
-  const spriteConfig = weapon?.sprite_config;
-  const stats = weapon ? getWeaponStats(weaponId) : undefined;
-  const damage = (stats?.damage ?? 0) * (playerStats.might || 1);
-  const speed = stats?.speed ?? 0;
-  const duration = stats?.duration ?? 0;
-  const amount = stats?.amount ?? 8;
-  const cooldown =
-    (stats?.cooldown ?? Number.POSITIVE_INFINITY) * playerStats.cooldown;
+  const spriteConfig = weapon.sprite_config;
+  const stats = getWeaponStats(weaponId);
+  const runtime = buildWeaponRuntime(stats, playerStats);
 
   const fire = (time: number) => {
     lastFireTime.current = time;
-    const dirs = radialDirections(amount);
-    const shots = dirs.map((d, idx) => ({
-      id: `${time}-${idx}`,
-      direction: d,
-      birth: time,
-    }));
+    const dirs = radialDirections(runtime.amount);
+    const shots: RadialProjectile[] = createDirectionalProjectiles({
+      directions: dirs,
+      speed: runtime.speed,
+      position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
+      damage: runtime.damage,
+      duration: runtime.duration,
+      idFactory: (idx) => `${time}-${idx}`,
+    }).map(
+      (shot: ProjectileData): RadialProjectile => ({
+        ...shot,
+        birth: time,
+      })
+    );
     setProjectiles(shots);
   };
 
   useFrame((state) => {
     if (isPaused || !isRunning) return;
     const time = state.clock.getElapsedTime();
-    if (time - lastFireTime.current > cooldown) {
+    if (shouldFire(time, lastFireTime.current, runtime.cooldown)) {
       fire(time);
     }
 
     // Despawn after duration
-    if (duration > 0) {
-      setProjectiles((prev) => prev.filter((p) => time - p.birth <= duration));
-    }
+    setProjectiles((prev) => filterByDuration(prev, runtime.duration, time));
   });
-
-  if (!spriteConfig) return null;
 
   return (
     <>
@@ -79,12 +80,13 @@ export const RadialWeapon = ({ weaponId }: WeaponComponentProps) => {
             gravityScale={0}
             sensor
             position={[startX, startY, 0]}
-            linearVelocity={[
-              p.direction.x * speed,
-              p.direction.y * speed,
-              0,
-            ]}
-            userData={{ type: "projectile", id: p.id, damage, owner: "player" }}
+            linearVelocity={[p.velocity.x, p.velocity.y, 0]}
+            userData={{
+              type: "projectile",
+              id: p.id,
+              damage: runtime.damage,
+              owner: "player",
+            }}
           >
             <CuboidCollider args={[0.35, 0.35, 0.35]} />
             <Sprite
@@ -101,4 +103,3 @@ export const RadialWeapon = ({ weaponId }: WeaponComponentProps) => {
     </>
   );
 };
-

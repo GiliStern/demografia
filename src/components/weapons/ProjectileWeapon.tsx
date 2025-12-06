@@ -8,8 +8,6 @@ export const ProjectileWeapon = ({ weaponId }: WeaponComponentProps) => {
       weaponId,
     });
 
-  if (!spriteConfig) return null;
-
   return (
     <>
       {projectiles.map((p: ProjectileData) => (

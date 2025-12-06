@@ -1,11 +1,14 @@
 import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { RigidBody, CuboidCollider, RapierRigidBody } from "@react-three/rapier";
+import {
+  RigidBody,
+  CuboidCollider,
+  RapierRigidBody,
+} from "@react-three/rapier";
 import type { WeaponComponentProps } from "@/types";
 import { useGameStore } from "@/hooks/useGameStore";
 import { WEAPONS } from "@/data/config/weaponsConfig";
 import { Sprite } from "../Sprite";
-import { WeaponId } from "@/types";
 
 interface ArcProjectile {
   id: string;
@@ -20,24 +23,19 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
   const [projectiles, setProjectiles] = useState<ArcProjectile[]>([]);
   const lastFireTime = useRef(0);
   const bodiesRef = useRef<Map<string, RapierRigidBody>>(new Map());
-  const {
-    playerPosition,
-    playerStats,
-    isPaused,
-    isRunning,
-    getWeaponStats,
-  } = useGameStore();
+  const { playerPosition, playerStats, isPaused, isRunning, getWeaponStats } =
+    useGameStore();
 
   const weapon = WEAPONS[weaponId];
-  const spriteConfig = weapon?.sprite_config;
-  const stats = weapon ? getWeaponStats(weaponId) : undefined;
-  const damage = (stats?.damage ?? 0) * (playerStats.might || 1);
-  const speed = stats?.speed ?? 0;
-  const duration = stats?.duration ?? 0;
-  const amount = stats?.amount ?? 1;
+  const spriteConfig = weapon.sprite_config;
+  const stats = getWeaponStats(weaponId);
+  const damage = stats.damage * (playerStats.might || 1);
+  const speed = stats.speed;
+  const duration = stats.duration;
+  const amount = stats.amount;
   const cooldown =
-    (stats?.cooldown ?? Number.POSITIVE_INFINITY) * playerStats.cooldown;
-  const pierce = stats?.pierce ?? 0;
+    (stats.cooldown ?? Number.POSITIVE_INFINITY) * playerStats.cooldown;
+  const pierce = stats.pierce;
 
   const fire = (time: number) => {
     lastFireTime.current = time;
@@ -87,8 +85,6 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
     );
   });
 
-  if (!spriteConfig) return null;
-
   return (
     <>
       {projectiles.map((p) => (
@@ -103,7 +99,13 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
           lockRotations
           gravityScale={0}
           sensor
-          userData={{ type: "projectile", id: p.id, damage, owner: "player", pierce }}
+          userData={{
+            type: "projectile",
+            id: p.id,
+            damage,
+            owner: "player",
+            pierce,
+          }}
         >
           <CuboidCollider args={[0.3, 0.3, 0.3]} />
           <Sprite
@@ -119,4 +121,3 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
     </>
   );
 };
-

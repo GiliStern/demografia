@@ -326,13 +326,13 @@ interface PassiveUpgradeOption {
 
 export type UpgradeOption = WeaponUpgradeOption | PassiveUpgradeOption;
 
-interface Position {
+export interface Position {
   x: number;
   y: number;
   z: number;
 }
 
-interface Velocity {
+export interface Velocity {
   x: number;
   y: number;
 }
