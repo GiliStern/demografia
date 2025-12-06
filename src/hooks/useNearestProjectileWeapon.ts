@@ -79,6 +79,7 @@ export function useNearestProjectileWeapon({
     cooldown: runtime.cooldown,
     speed: runtime.speed,
     duration: runtime.duration,
+    amount: runtime.amount,
     shouldSpin: weaponData.shouldSpin,
   };
 }

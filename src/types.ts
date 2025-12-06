@@ -158,6 +158,7 @@ export interface ProjectileWeaponInstance {
   cooldown: number;
   speed: number;
   duration: number;
+  amount: number;
   shouldSpin: boolean;
 }
 
