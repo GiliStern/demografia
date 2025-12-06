@@ -4,7 +4,7 @@ import { Physics } from "@react-three/rapier";
 import { Suspense } from "react";
 
 import { Player } from "./Player";
-import { StarOfDavidWeapon } from "./weapons/StarOfDavidWeapon";
+import { ActiveWeapons } from "./weapons/ActiveWeapons";
 import { WaveManager } from "./WaveManager";
 import { useGameStore } from "../store/gameStore";
 import { InfiniteBackground } from "./InfiniteBackground";
@@ -37,7 +37,7 @@ export const GameCanvas = () => {
           <InfiniteBackground />
           <Physics gravity={[0, 0, 0]}>
             <Player />
-            <StarOfDavidWeapon />
+            <ActiveWeapons />
             <WaveManager />
           </Physics>
         </Suspense>

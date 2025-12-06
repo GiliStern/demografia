@@ -6,7 +6,7 @@ export const CHARACTERS: Record<CharacterId, CharacterData> = {
     id: CharacterId.Srulik,
     name_he: "שרוליק",
     description_he: "הדמות האיקונית, גרסת פיקסל קומית.",
-    starting_weapon_id: WeaponId.MagicWand,
+    starting_weapon_id: WeaponId.Prickly,
     passive_id: "TBD_passive",
     stats: {
       maxHealth: 100,

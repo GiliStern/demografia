@@ -7,7 +7,7 @@ import {
 } from "../types";
 import { CHARACTERS } from "../data/config/characters";
 
-interface GameStore extends GameState {
+export interface GameStore extends GameState {
   // Actions
   startGame: (characterId: CharacterId) => void;
   pauseGame: () => void;

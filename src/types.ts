@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import type { WeaponId } from "./data/config/weapons";
 
 export interface SpriteConfig {
@@ -42,7 +43,7 @@ export interface CharacterData {
   sprite_config: SpriteConfig;
 }
 
-interface WeaponStats {
+export interface WeaponStats {
   damage: number;
   speed: number;
   cooldown: number;
@@ -59,6 +60,36 @@ export interface WeaponData {
   type: string;
   stats: WeaponStats;
   sprite_config: SpriteConfig;
+}
+
+export interface WeaponComponentProps {
+  weaponId: WeaponId;
+}
+
+export type WeaponComponent = ComponentType<WeaponComponentProps>;
+
+export interface ActiveWeaponRenderItem {
+  weaponId: WeaponId;
+  key: string;
+  Component: WeaponComponent;
+}
+
+export type WeaponComponentRegistry = Partial<
+  Record<WeaponId, WeaponComponent>
+>;
+
+export interface ProjectileWeaponHookParams {
+  weaponId: WeaponId;
+}
+
+export interface ProjectileWeaponInstance {
+  projectiles: ProjectileData[];
+  spriteConfig: SpriteConfig;
+  damage: number;
+  removeProjectile: (id: string) => void;
+  cooldown: number;
+  speed: number;
+  duration: number;
 }
 
 interface EnemyStats {

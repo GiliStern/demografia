@@ -1,16 +1,16 @@
 import type { WeaponData } from "../../types";
 
 export enum WeaponId {
-  MagicWand = "magic_wand",
-  Runetracer = "runetracer",
-  KingBible = "king_bible",
-  Axe = "axe",
-  Knife = "knife",
+  Prickly = "prickly",
+  Chair = "chair",
+  ChickenCircle = "chicken_circle",
+  Pita = "pita",
+  StarOfDavid = "star_of_david",
 }
 
 export const WEAPONS: Record<WeaponId, WeaponData> = {
-  [WeaponId.MagicWand]: {
-    id: WeaponId.MagicWand,
+  [WeaponId.Prickly]: {
+    id: WeaponId.Prickly,
     name_he: "צבר",
     description_he: "יורה פירות צבר קוצניים.",
     type: "projectile_closest",
@@ -30,8 +30,8 @@ export const WEAPONS: Record<WeaponId, WeaponData> = {
       scale: 1,
     },
   },
-  [WeaponId.Runetracer]: {
-    id: WeaponId.Runetracer,
+  [WeaponId.Chair]: {
+    id: WeaponId.Chair,
     name_he: "כסאות כתר",
     description_he: "כיסאות פלסטיק לבנים טסים בהחזרה.",
     type: "projectile_bounce",
@@ -51,8 +51,8 @@ export const WEAPONS: Record<WeaponId, WeaponData> = {
       scale: 1,
     },
   },
-  [WeaponId.KingBible]: {
-    id: WeaponId.KingBible,
+  [WeaponId.ChickenCircle]: {
+    id: WeaponId.ChickenCircle,
     name_he: "כפרות",
     description_he: "תרנגולות מסתובבות סביב הדמות.",
     type: "orbital",
@@ -72,8 +72,8 @@ export const WEAPONS: Record<WeaponId, WeaponData> = {
       scale: 1,
     },
   },
-  [WeaponId.Axe]: {
-    id: WeaponId.Axe,
+  [WeaponId.Pita]: {
+    id: WeaponId.Pita,
     name_he: "פיתות",
     description_he: "זורק פיתות בקשת גבוהה.",
     type: "projectile_arc",
@@ -93,8 +93,8 @@ export const WEAPONS: Record<WeaponId, WeaponData> = {
       scale: 1,
     },
   },
-  [WeaponId.Knife]: {
-    id: WeaponId.Knife,
+  [WeaponId.StarOfDavid]: {
+    id: WeaponId.StarOfDavid,
     name_he: "מגן דוד",
     description_he: "כוכבים חדים נורים קדימה.",
     type: "projectile_directional",
