@@ -1,4 +1,10 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useFrame } from "@react-three/fiber";
 import {
   CuboidCollider,
@@ -31,6 +37,7 @@ export const Player = () => {
     selectedCharacterId,
     isRunning,
     isPaused,
+    enemiesPositions,
   } = useGameStore();
   const [isFacingLeft, setFacingLeft] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
@@ -90,6 +97,15 @@ export const Player = () => {
     },
     []
   );
+
+  useEffect(() => {
+    const contacts = activeEnemyContacts.current;
+    contacts.forEach((_, id) => {
+      if (!enemiesPositions[id]) {
+        contacts.delete(id);
+      }
+    });
+  }, [enemiesPositions]);
 
   const playerUserData = useMemo<PlayerUserData>(
     () => ({
