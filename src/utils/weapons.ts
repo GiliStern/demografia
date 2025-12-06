@@ -2,10 +2,11 @@ import type {
   ActiveWeaponRenderItem,
   WeaponComponentRegistry,
   WeaponStats,
-  WeaponData,
+  WeaponDefinition,
   SpriteConfig,
+  WeaponStatDelta,
 } from "../types";
-import { type WeaponId } from "../data/config/weapons";
+import { type WeaponId } from "../types";
 
 interface BuildWeaponRenderListParams {
   activeWeaponIds: WeaponId[];
@@ -53,19 +54,61 @@ export const resolveDirection = (x: number, y: number) => {
 };
 
 export interface ResolvedWeaponData {
-  weaponData: WeaponData;
+  weaponData: WeaponDefinition;
   stats: WeaponStats;
   spriteConfig?: SpriteConfig;
 }
 
+const applyStatDelta = (
+  current: WeaponStats,
+  delta?: WeaponStatDelta
+): WeaponStats => {
+  if (!delta) return current;
+  const next: WeaponStats = { ...current };
+
+  if (delta.add) {
+    for (const key of Object.keys(delta.add) as (keyof WeaponStats)[]) {
+      next[key] = next[key] + (delta.add[key] ?? 0);
+    }
+  }
+
+  if (delta.mult) {
+    for (const key of Object.keys(delta.mult) as (keyof WeaponStats)[]) {
+      next[key] = next[key] * (delta.mult[key] ?? 1);
+    }
+  }
+
+  return next;
+};
+
+export const resolveWeaponStats = (
+  weapon: WeaponDefinition,
+  level: number
+): WeaponStats => {
+  let resolved = { ...DEFAULT_WEAPON_STATS, ...weapon.stats };
+  const maxLevel = weapon.maxLevel ?? 1;
+  const effectiveLevel = Math.max(1, Math.min(level, maxLevel));
+
+  weapon.levels
+    ?.filter((lvl) => lvl.level <= effectiveLevel)
+    .sort((a, b) => a.level - b.level)
+    .forEach((lvl) => {
+      resolved = applyStatDelta(resolved, lvl.statChanges);
+    });
+
+  return resolved;
+};
+
 export const pickWeaponData = (
   weaponId: WeaponId,
-  catalog: Record<WeaponId, WeaponData>
+  catalog: Record<WeaponId, WeaponDefinition>,
+  level = 1
 ): ResolvedWeaponData => {
   const weaponData = catalog[weaponId];
+  const stats = resolveWeaponStats(weaponData, level);
   return {
     weaponData,
-    stats: weaponData.stats ?? DEFAULT_WEAPON_STATS,
+    stats,
     spriteConfig: weaponData.sprite_config,
   };
 };

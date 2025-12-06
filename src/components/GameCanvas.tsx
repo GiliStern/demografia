@@ -8,6 +8,7 @@ import { ActiveWeapons } from "./weapons/ActiveWeapons";
 import { WaveManager } from "./WaveManager";
 import { useGameStore } from "../store/gameStore";
 import { InfiniteBackground } from "./InfiniteBackground";
+import { LevelUpOverlay } from "./LevelUpOverlay";
 
 const GameLoop = () => {
   const updateTimer = useGameStore((state) => state.updateTimer);
@@ -19,7 +20,7 @@ const GameLoop = () => {
 
 export const GameCanvas = () => {
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
+    <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
       <Canvas shadows={false} dpr={[1, 1.5]}>
         <color attach="background" args={["#111"]} />
         <Suspense fallback={null}>
@@ -42,6 +43,7 @@ export const GameCanvas = () => {
           </Physics>
         </Suspense>
       </Canvas>
+      <LevelUpOverlay />
     </div>
   );
 };

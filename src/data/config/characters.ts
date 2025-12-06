@@ -1,5 +1,10 @@
-import { type CharacterData, CharacterId, type PlayerStats } from "../../types";
-import { WeaponId } from "./weapons";
+import {
+  type CharacterData,
+  CharacterId,
+  type PlayerStats,
+  WeaponId,
+  PassiveId,
+} from "../../types";
 
 export const INITIAL_PLAYER_STATS: PlayerStats = {
   maxHealth: 100,
@@ -20,11 +25,12 @@ export const CHARACTERS: Record<CharacterId, CharacterData> = {
     id: CharacterId.Srulik,
     name_he: "שרוליק",
     description_he: "הדמות האיקונית, גרסת פיקסל קומית.",
-    starting_weapon_id: WeaponId.Prickly,
-    passive_id: "TBD_passive",
+    starting_weapon_id: WeaponId.Sabra,
+    passive_id: PassiveId.Privilege,
     stats: INITIAL_PLAYER_STATS,
     sprite_config: {
       textureUrl: "/assets/sprites/srulik_512x512.png",
+      iconUrl: "/assets/icons/srulik_icon.png",
       index: 0,
       scale: 3,
       spriteFrameSize: 512,

@@ -1,9 +1,14 @@
 import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import type { ProjectileData, ProjectileWeaponInstance } from "../types";
-import { WEAPONS, WeaponId } from "../data/config/weapons";
+import {
+  WeaponId,
+  type ProjectileData,
+  type ProjectileWeaponInstance,
+} from "../types";
+import { WEAPONS } from "../data/config/weapons";
+import {} from "../types";
 import { useGameStore } from "../store/gameStore";
-import { DEFAULT_WEAPON_STATS, resolveDirection } from "./weapons";
+import { resolveDirection } from "./weapons";
 
 interface ProjectileWeaponHookParams {
   weaponId: WeaponId;
@@ -14,14 +19,26 @@ export function useProjectileWeapon({
 }: ProjectileWeaponHookParams): ProjectileWeaponInstance {
   const [projectiles, setProjectiles] = useState<ProjectileData[]>([]);
   const lastFireTime = useRef(0);
-  const { playerPosition, playerDirection, playerStats, isPaused, isRunning } =
-    useGameStore();
+  const {
+    playerPosition,
+    playerDirection,
+    playerStats,
+    isPaused,
+    isRunning,
+    weaponLevels,
+    getWeaponStats,
+  } = useGameStore();
 
   const weaponData = WEAPONS[weaponId];
-  const { stats, sprite_config: spriteConfig } = weaponData;
-  const { damage, speed, duration } = stats;
-
-  const cooldown = stats.cooldown * playerStats.cooldown;
+  const spriteConfig = weaponData?.sprite_config;
+  const stats =
+    weaponData && weaponLevels ? getWeaponStats(weaponId) : undefined;
+  const damage = (stats?.damage ?? 0) * (playerStats.might || 1);
+  const speed = stats?.speed ?? 0;
+  const duration = stats?.duration ?? 0;
+  const amount = stats?.amount ?? 1;
+  const cooldown =
+    (stats?.cooldown ?? Number.POSITIVE_INFINITY) * playerStats.cooldown;
 
   const fire = (time: number) => {
     lastFireTime.current = time;
@@ -31,18 +48,25 @@ export function useProjectileWeapon({
       playerDirection.y
     );
     const length = Math.sqrt(dirX * dirX + dirY * dirY) || 1;
-    const vX = (dirX / length) * speed;
-    const vY = (dirY / length) * speed;
+    const baseVX = (dirX / length) * speed;
+    const baseVY = (dirY / length) * speed;
 
-    const newProjectile: ProjectileData = {
-      id: Math.random().toString(),
-      position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
-      velocity: { x: vX, y: vY },
-      duration,
-      damage,
-    };
+    const newShots = Array.from({ length: amount }).map((_, index) => {
+      // minimal spread for multi-shot
+      const spread = 0.1 * (index - (amount - 1) / 2);
+      const vX = baseVX + spread;
+      const vY = baseVY + spread;
+      const newProjectile: ProjectileData = {
+        id: Math.random().toString(),
+        position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
+        velocity: { x: vX, y: vY },
+        duration,
+        damage,
+      };
+      return newProjectile;
+    });
 
-    setProjectiles((prev: ProjectileData[]) => [...prev, newProjectile]);
+    setProjectiles((prev: ProjectileData[]) => [...prev, ...newShots]);
   };
 
   const removeProjectile = (id: string) => {

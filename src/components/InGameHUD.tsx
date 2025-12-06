@@ -146,12 +146,13 @@ export const InGameHUD = () => {
       >
         {activeWeapons.map((weaponId) => {
           const weapon = WEAPONS[weaponId];
+          const iconUrl = weapon.sprite_config.iconUrl;
           return (
             <div
               key={weaponId}
               style={{
-                width: "40px",
-                height: "40px",
+                width: "50px",
+                height: "50px",
                 background: "#333",
                 border: "1px solid white",
                 display: "flex",
@@ -159,8 +160,17 @@ export const InGameHUD = () => {
                 alignItems: "center",
               }}
             >
-              {/* Placeholder for weapon icon */}
-              <span style={{ fontSize: "10px" }}>{weapon?.name_he}</span>
+              {iconUrl && (
+                <img
+                  src={iconUrl}
+                  alt={weapon.name_he}
+                  style={{
+                    width: "40px",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+              )}
             </div>
           );
         })}

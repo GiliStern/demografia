@@ -1,19 +1,29 @@
 import type { ComponentType } from "react";
-import type { WeaponId } from "./data/config/weapons";
 import type { StateCreator } from "zustand";
 
 export interface SpriteConfig {
   textureUrl: string;
+  iconUrl?: string;
   index: number;
   scale: number;
   spriteFrameSize?: number;
 }
 
-export enum ItemId {
-  HealthPotion = "health_potion",
-  ManaPotion = "mana_potion",
-  SpeedPotion = "speed_potion",
-  StrengthPotion = "strength_potion",
+export enum PassiveId {
+  Privilege = "privilege", // Max health
+  Wassach = "wassach", // Cooldown
+  Protection = "protection", // Armor
+  Gat = "gat", // Damage up
+  WingsOfDivinePresence = "wings_divine_presence", // Move speed
+  IncreaseJoy = "increase_joy", // Amount
+  ShabbatCandles = "shabbat_candles", // Area (Pitas evolution)
+  SpittingDistance = "spitting_distance", // Duration (Kaparot evolution)
+  OutstretchedArm = "outstretched_arm", // Projectile speed (Star evolution)
+}
+
+export enum FloorPickupId {
+  Hamin = "hamin",
+  Chest = "chest",
 }
 
 export interface PlayerStats {
@@ -30,8 +40,41 @@ export interface PlayerStats {
   revivals: number;
 }
 
+export interface PassiveEffect {
+  playerStats?: Partial<PlayerStats>;
+  weaponStats?: Partial<WeaponStats>;
+}
+
+export interface PassiveData {
+  id: PassiveId;
+  name_he: string;
+  description_he: string;
+  effect: PassiveEffect;
+  sprite_config: SpriteConfig;
+}
+
+export interface FloorPickupData {
+  id: FloorPickupId;
+  name_he: string;
+  description_he: string;
+  healAmount?: number;
+}
+
 export enum CharacterId {
   Srulik = "sruLik",
+}
+
+export enum WeaponId {
+  Sabra = "sabra",
+  KeterChairs = "keter_chairs",
+  Kaparot = "kaparot",
+  Pitas = "pitas",
+  StarOfDavid = "star_of_david",
+  HolyCactus = "holy_cactus",
+  NoFuture = "no_future",
+  UnholySelichot = "unholy_selichot",
+  BurekasOfDeath = "burekas_of_death",
+  ThousandEdge = "thousand_edge",
 }
 
 export interface CharacterData {
@@ -39,7 +82,7 @@ export interface CharacterData {
   name_he: string;
   description_he: string;
   starting_weapon_id: WeaponId;
-  passive_id: string;
+  passive_id: PassiveId;
   stats: PlayerStats;
   sprite_config: SpriteConfig;
 }
@@ -61,6 +104,28 @@ export interface WeaponData {
   type: string;
   stats: WeaponStats;
   sprite_config: SpriteConfig;
+}
+
+export interface WeaponStatDelta {
+  add?: Partial<WeaponStats>;
+  mult?: Partial<WeaponStats>;
+}
+
+export interface WeaponLevel {
+  level: number;
+  description: string;
+  statChanges?: WeaponStatDelta;
+}
+
+export interface WeaponEvolution {
+  passiveRequired: PassiveId;
+  evolvesTo: WeaponId;
+}
+
+export interface WeaponDefinition extends WeaponData {
+  maxLevel?: number;
+  levels?: WeaponLevel[];
+  evolution?: WeaponEvolution;
 }
 
 export interface WeaponComponentProps {
@@ -171,7 +236,8 @@ export interface GameState {
   killCount: number;
   selectedCharacterId: CharacterId;
   activeWeapons: WeaponId[]; // IDs of active weapons
-  activeItems: ItemId[];
+  activeItems: PassiveId[];
+  upgradeChoices: UpgradeOption[];
 }
 
 export interface PlayerStore {
@@ -194,9 +260,13 @@ export interface EnemiesStore {
 
 export interface WeaponsStore {
   activeWeapons: WeaponId[];
-  activeItems: ItemId[];
+  activeItems: PassiveId[];
+  weaponLevels: Partial<Record<WeaponId, number>>;
   resetWeapons: (weaponIds: WeaponId[]) => void;
   addWeapon: (weaponId: WeaponId) => void;
+  levelUpWeapon: (weaponId: WeaponId) => void;
+  addPassive: (passiveId: PassiveId) => void;
+  getWeaponStats: (weaponId: WeaponId) => WeaponStats;
 }
 
 export type CoreGameState = Omit<
@@ -214,6 +284,9 @@ export interface GameSlice extends CoreGameState {
   addXp: (amount: number) => void;
   addGold: (amount: number) => void;
   levelUp: () => void;
+  applyUpgrade: (choice: UpgradeOption) => void;
+  resumeFromLevelUp: () => void;
+  collectPickup: (pickupId: FloorPickupId) => void;
 }
 
 export type GameStore = GameSlice & PlayerStore & EnemiesStore & WeaponsStore;
@@ -224,6 +297,25 @@ export type StoreCreator<StoreState> = StateCreator<
   [],
   StoreState
 >;
+
+export enum ItemKind {
+  Weapon = "weapon",
+  Passive = "passive",
+}
+
+interface WeaponUpgradeOption {
+  kind: ItemKind.Weapon;
+  weaponId: WeaponId;
+  isNew: boolean;
+}
+
+interface PassiveUpgradeOption {
+  kind: ItemKind.Passive;
+  passiveId: PassiveId;
+  isNew: boolean;
+}
+
+export type UpgradeOption = WeaponUpgradeOption | PassiveUpgradeOption;
 
 interface Position {
   x: number;

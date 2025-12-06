@@ -1,6 +1,7 @@
 import { useGameStore } from "../../store/gameStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { CharacterId } from "@/types";
+import { AppButton } from "../ui/AppButton";
 
 export const MainMenu = () => {
   const { startGame, resumeGame, isPaused, isRunning } = useGameStore();
@@ -16,6 +17,7 @@ export const MainMenu = () => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        gap: "40px",
         justifyContent: "center",
         alignItems: "center",
         background: "rgba(0,0,0,0.8)",
@@ -25,14 +27,16 @@ export const MainMenu = () => {
         zIndex: 100,
       }}
     >
-      <h1 style={{ fontSize: "48px", marginBottom: "40px", color: "#61dafb" }}>
-        דמוגרפיה
-      </h1>
+      {!canResume && (
+        <img
+          src="/assets/main_banner.png"
+          alt={UI_STRINGS.menu.title}
+          style={{ width: "800px", height: "auto" }}
+        />
+      )}
 
       {canResume && (
-        <div style={{ marginBottom: "20px", fontSize: "20px" }}>
-          {UI_STRINGS.common.paused}
-        </div>
+        <div style={{ fontSize: "32px" }}>{UI_STRINGS.common.paused}</div>
       )}
 
       <div
@@ -40,72 +44,26 @@ export const MainMenu = () => {
           display: "flex",
           flexDirection: "column",
           gap: "20px",
-          width: "300px",
+          width: "400px",
         }}
       >
         {canResume && (
-          <button
-            onClick={resumeGame}
-            style={{
-              padding: "15px",
-              fontSize: "24px",
-              background: "#444",
-              color: "white",
-              border: "2px solid #666",
-              cursor: "pointer",
-              borderRadius: "8px",
-            }}
-          >
-            {UI_STRINGS.common.resume}
-          </button>
+          <AppButton onClick={resumeGame}>{UI_STRINGS.common.resume}</AppButton>
         )}
 
         {!canResume && (
-          <button
-            onClick={() => startGame(CharacterId.Srulik)}
-            style={{
-              padding: "15px",
-              fontSize: "24px",
-              background: "#444",
-              color: "white",
-              border: "2px solid #666",
-              cursor: "pointer",
-              borderRadius: "8px",
-            }}
-          >
+          <AppButton onClick={() => startGame(CharacterId.Srulik)}>
             {UI_STRINGS.menu.play}
-          </button>
+          </AppButton>
         )}
 
-        <button
-          disabled
-          style={{
-            padding: "15px",
-            fontSize: "24px",
-            background: "#222",
-            color: "#666",
-            border: "2px solid #333",
-            cursor: "not-allowed",
-            borderRadius: "8px",
-          }}
-        >
+        <AppButton disabled variant="disabled">
           {UI_STRINGS.menu.meta_shop} ({UI_STRINGS.common.locked})
-        </button>
+        </AppButton>
 
-        <button
-          disabled
-          style={{
-            padding: "15px",
-            fontSize: "24px",
-            background: "#222",
-            color: "#666",
-            border: "2px solid #333",
-            cursor: "not-allowed",
-            borderRadius: "8px",
-          }}
-        >
+        <AppButton disabled variant="disabled">
           {UI_STRINGS.menu.settings} ({UI_STRINGS.common.locked})
-        </button>
+        </AppButton>
       </div>
 
       <div

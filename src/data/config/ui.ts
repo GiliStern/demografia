@@ -18,6 +18,7 @@ export const UI_STRINGS = {
     paused: "המשחק בהשהיה",
   },
   menu: {
+    title: "דמוגרפיה",
     play: "שחק",
     settings: "הגדרות",
     meta_shop: "חנות שדרוגים",
@@ -42,6 +43,10 @@ export const UI_STRINGS = {
   level_up: {
     title: "עלית רמה!",
     choose_one: "בחר אחד",
+    weapon_new_prefix: "חדש",
+    weapon_upgrade_prefix: "שדרוג",
+    passive_prefix: "פסיבי: ",
+    no_upgrades: "אין שדרוגים זמינים",
   },
   chest: {
     title: "פיצויים!",

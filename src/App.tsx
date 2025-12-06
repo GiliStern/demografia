@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { GameCanvas } from "./components/GameCanvas";
 import { InGameHUD } from "./components/InGameHUD";
 import { MainMenu } from "./components/screens/MainMenu";
-import { SkillSelectOverlay } from "./components/screens/SkillSelectOverlay";
 import { GameOver } from "./components/screens/GameOver";
 import { useGameStore } from "./store/gameStore";
 import { PauseReason } from "./types";
@@ -43,10 +42,6 @@ function App() {
         (!isRunning || (isPaused && pauseReason === PauseReason.Manual)) && (
           <MainMenu />
         )}
-      {isRunning &&
-        isPaused &&
-        pauseReason === PauseReason.LevelUp &&
-        !isGameOver && <SkillSelectOverlay />}
       {isGameOver && <GameOver />}
       <GameCanvas />
       {isRunning && !isPaused && !isGameOver && <InGameHUD />}

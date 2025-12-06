@@ -1,5 +1,6 @@
 import { useGameStore } from "../../store/gameStore";
 import { UI_STRINGS } from "../../data/config/ui";
+import { AppButton } from "../ui/AppButton";
 
 export const GameOver = () => {
   const { runTimer, gold, killCount } = useGameStore();
@@ -46,20 +47,13 @@ export const GameOver = () => {
         <div>הריגות: {killCount}</div>
       </div>
 
-      <button
+      <AppButton
         onClick={() => window.location.reload()}
-        style={{
-          padding: "15px 40px",
-          fontSize: "24px",
-          background: "#444",
-          color: "white",
-          border: "2px solid white",
-          cursor: "pointer",
-          borderRadius: "8px",
-        }}
+        variant="outline"
+        style={{ border: "2px solid white" }}
       >
         {UI_STRINGS.common.main_menu}
-      </button>
+      </AppButton>
     </div>
   );
 };
