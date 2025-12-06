@@ -4,7 +4,9 @@ import react from "@vitejs/plugin-react";
 import checker from "vite-plugin-checker";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  // Ensure assets resolve correctly when hosted at /demografia/ on GitHub Pages
+  base: mode === "production" ? "/demografia/" : "/",
   plugins: [
     react(),
     checker({
@@ -32,4 +34,4 @@ export default defineConfig({
       ignored: ["./node_modules/**/*"],
     },
   },
-});
+}));
