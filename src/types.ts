@@ -120,9 +120,16 @@ export type RigidBodyUserData =
   | EnemyUserData
   | ProjectileUserData;
 
+export enum PauseReason {
+  None = "none",
+  Manual = "manual",
+  LevelUp = "level_up",
+}
+
 export interface GameState {
   isRunning: boolean;
   isPaused: boolean;
+  pauseReason: PauseReason;
   isGameOver: boolean;
   runTimer: number;
   level: number;

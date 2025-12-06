@@ -1,24 +1,13 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrthographicCamera } from "@react-three/drei";
-import { Physics, RigidBody } from "@react-three/rapier";
+import { Physics } from "@react-three/rapier";
 import { Suspense } from "react";
 
 import { Player } from "./Player";
 import { StarOfDavidWeapon } from "./weapons/StarOfDavidWeapon";
 import { WaveManager } from "./WaveManager";
-import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "../store/gameStore";
-
-const Ground = () => {
-  return (
-    <RigidBody type="fixed" friction={1}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -1]} receiveShadow>
-        <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial color="#2a2a2a" />
-      </mesh>
-    </RigidBody>
-  );
-};
+import { InfiniteBackground } from "./InfiniteBackground";
 
 const GameLoop = () => {
   const updateTimer = useGameStore((state) => state.updateTimer);
@@ -31,7 +20,7 @@ const GameLoop = () => {
 export const GameCanvas = () => {
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <Canvas shadows>
+      <Canvas shadows={false} dpr={[1, 1.5]}>
         <color attach="background" args={["#111"]} />
         <Suspense fallback={null}>
           <GameLoop />
@@ -43,10 +32,10 @@ export const GameCanvas = () => {
             far={1000}
           />
           <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
+          <directionalLight position={[10, 10, 5]} intensity={1} />
 
+          <InfiniteBackground />
           <Physics gravity={[0, 0, 0]}>
-            <Ground />
             <Player />
             <StarOfDavidWeapon />
             <WaveManager />

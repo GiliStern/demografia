@@ -10,7 +10,7 @@ export const CHARACTERS: Record<CharacterId, CharacterData> = {
     passive_id: "TBD_passive",
     stats: {
       maxHealth: 100,
-      moveSpeed: 5,
+      moveSpeed: 3,
       might: 1,
       area: 1,
       cooldown: 1,

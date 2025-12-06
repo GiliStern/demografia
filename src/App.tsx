@@ -2,13 +2,21 @@ import { useEffect } from "react";
 import { GameCanvas } from "./components/GameCanvas";
 import { InGameHUD } from "./components/InGameHUD";
 import { MainMenu } from "./components/screens/MainMenu";
+import { SkillSelectOverlay } from "./components/screens/SkillSelectOverlay";
 import { GameOver } from "./components/screens/GameOver";
 import { useGameStore } from "./store/gameStore";
+import { PauseReason } from "./types";
 import "./App.css";
 
 function App() {
-  const { isRunning, isGameOver, isPaused, pauseGame, resumeGame } =
-    useGameStore();
+  const {
+    isRunning,
+    isGameOver,
+    isPaused,
+    pauseGame,
+    resumeGame,
+    pauseReason,
+  } = useGameStore();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -31,7 +39,14 @@ function App() {
       className="App"
       style={{ position: "relative", width: "100vw", height: "100vh" }}
     >
-      {!isGameOver && (!isRunning || isPaused) && <MainMenu />}
+      {!isGameOver &&
+        (!isRunning || (isPaused && pauseReason === PauseReason.Manual)) && (
+          <MainMenu />
+        )}
+      {isRunning &&
+        isPaused &&
+        pauseReason === PauseReason.LevelUp &&
+        !isGameOver && <SkillSelectOverlay />}
       {isGameOver && <GameOver />}
       <GameCanvas />
       {isRunning && !isPaused && !isGameOver && <InGameHUD />}

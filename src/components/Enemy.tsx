@@ -10,7 +10,15 @@ import { Sprite } from "./Sprite";
 import { useGameStore } from "../store/gameStore";
 import * as THREE from "three";
 import { ENEMIES } from "../data/config/enemies";
-import type { EnemyId, EnemyUserData, RigidBodyUserData } from "@/types";
+import {
+  AnimationCategory,
+  AnimationType,
+  AnimationVariant,
+  type EnemyId,
+  type EnemyUserData,
+  type RigidBodyUserData,
+} from "@/types";
+import { useSpriteAnimation } from "@/hooks/useSpriteAnimation";
 
 interface EnemyProps {
   id: string;
@@ -31,6 +39,11 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
   const maxHp = enemy?.stats.hp ?? 10;
   const contactDamage = enemy?.stats.damage ?? 1;
   const [hp, setHp] = useState(maxHp);
+  const frameIndex = useSpriteAnimation({
+    category: AnimationCategory.Enemies,
+    variant: AnimationVariant.Default,
+    currentAnimation: AnimationType.Run,
+  });
 
   useFrame(() => {
     if (!rigidBody.current) return;
@@ -99,7 +112,11 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
       onIntersectionEnter={handleIntersection}
     >
       <CuboidCollider args={[0.3, 0.3, 1]} />
-      <Sprite flipX={isFacingLeft} {...enemy.sprite_config} />
+      <Sprite
+        flipX={isFacingLeft}
+        {...enemy.sprite_config}
+        index={frameIndex}
+      />
     </RigidBody>
   );
 };

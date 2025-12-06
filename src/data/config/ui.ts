@@ -40,7 +40,7 @@ export const UI_STRINGS = {
     gold: "מטבעות זהב",
   },
   level_up: {
-    title: "עליית רמה",
+    title: "עלית רמה!",
     choose_one: "בחר אחד",
   },
   chest: {
@@ -58,4 +58,3 @@ export const UI_STRINGS = {
     title: "הישגים",
   },
 } as const;
-

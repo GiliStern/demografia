@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { CharacterId, type GameState, type PlayerStats } from "../types";
+import {
+  CharacterId,
+  PauseReason,
+  type GameState,
+  type PlayerStats,
+} from "../types";
 import { CHARACTERS } from "../data/config/characters";
 
 interface GameStore extends GameState {
@@ -29,6 +34,7 @@ interface GameStore extends GameState {
 const INITIAL_STATE: GameState = {
   isRunning: false,
   isPaused: false,
+  pauseReason: PauseReason.None,
   isGameOver: false,
   runTimer: 0,
   level: 1,
@@ -70,6 +76,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       ...INITIAL_STATE,
       isRunning: true,
+      pauseReason: PauseReason.None,
       selectedCharacterId: characterId,
       playerStats: { ...character.stats },
       currentHealth: character.stats.maxHealth,
@@ -78,15 +85,31 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   pauseGame: () =>
-    set((state) => (state.isRunning ? { isPaused: true } : state)),
+    set((state) =>
+      state.isRunning
+        ? { isPaused: true, pauseReason: PauseReason.Manual }
+        : state
+    ),
   resumeGame: () =>
-    set((state) => (state.isRunning ? { isPaused: false } : state)),
+    set((state) =>
+      state.isRunning ? { isPaused: false, pauseReason: PauseReason.None } : state
+    ),
   togglePause: () =>
     set((state) => {
       if (!state.isRunning || state.isGameOver) return state;
-      return { isPaused: !state.isPaused };
+      const shouldPause = !state.isPaused;
+      return {
+        isPaused: shouldPause,
+        pauseReason: shouldPause ? PauseReason.Manual : PauseReason.None,
+      };
     }),
-  endGame: () => set({ isRunning: false, isGameOver: true }),
+  endGame: () =>
+    set({
+      isRunning: false,
+      isGameOver: true,
+      isPaused: false,
+      pauseReason: PauseReason.None,
+    }),
 
   updateTimer: (delta: number) => {
     const { isRunning, isPaused, runTimer } = get();
@@ -113,6 +136,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       xp: xp - nextLevelXp,
       nextLevelXp: Math.floor(nextLevelXp * 1.2), // Simple exponential curve
       isPaused: true, // Pause for selection screen
+      pauseReason: PauseReason.LevelUp,
     });
   },
 

@@ -25,7 +25,7 @@ export const ANIMATIONS_BY_CATEGORY: AnimationsByCategory = {
   [AnimationCategory.Enemies]: {
     [AnimationVariant.Default]: {
       [AnimationType.Idle]: { frames: [0], frameRate: 1, loop: true },
-      [AnimationType.Run]: { frames: [0, 1], frameRate: 6, loop: true },
+      [AnimationType.Run]: { frames: [0, 1], frameRate: 8, loop: true },
     },
   },
   [AnimationCategory.Weapons]: {

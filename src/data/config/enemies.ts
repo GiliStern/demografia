@@ -45,7 +45,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     sprite_config: {
       textureUrl: "/assets/sprites/tourist.png",
       index: 2,
-      scale: 1,
+      scale: 3,
       spriteFrameSize: 512,
     },
   },
@@ -61,7 +61,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     sprite_config: {
       textureUrl: "/assets/sprites/scooter swarm.png",
       index: 3,
-      scale: 0.8,
+      scale: 1,
       spriteFrameSize: 512,
     },
   },
