@@ -2,7 +2,9 @@
 
 Arcade-style survivor game built with Vite, React, TypeScript, and three.js helpers. This guide covers getting the project running locally.
 
-![Demografia banner](./public/assets/main_banner.png)
+Play now: [https://gilistern.github.io/demografia/](https://gilistern.github.io/demografia/)
+
+![Demografia banner](./src/assets/main_banner.png)
 
 ## Prerequisites
 
