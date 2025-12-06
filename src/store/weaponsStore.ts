@@ -1,6 +1,6 @@
 import type { StoreCreator, WeaponsStore, PassiveId, WeaponId } from "../types";
 import { WEAPONS } from "../data/config/weaponsConfig";
-import { resolveWeaponStats, DEFAULT_WEAPON_STATS } from "../utils/weaponUtils";
+import { resolveWeaponStats } from "../utils/weaponUtils";
 
 export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
   activeWeapons: [],
@@ -44,7 +44,6 @@ export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
 
   getWeaponStats: (weaponId) => {
     const weaponDef = WEAPONS[weaponId];
-    if (!weaponDef) return DEFAULT_WEAPON_STATS;
     const level = get().weaponLevels[weaponId] ?? 1;
     return resolveWeaponStats(weaponDef, level);
   },

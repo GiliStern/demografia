@@ -13,6 +13,10 @@ import {
   buildVelocity,
   createSpreadProjectiles,
 } from "@/utils/weaponProjectiles";
+import {
+  enqueueStaggeredShots,
+  releaseStaggeredShots,
+} from "@/utils/projectileStagger";
 
 interface ProjectileWeaponHookParams {
   weaponId: WeaponId;
@@ -23,6 +27,8 @@ export function useProjectileWeapon({
 }: ProjectileWeaponHookParams): ProjectileWeaponInstance {
   const [projectiles, setProjectiles] = useState<ProjectileData[]>([]);
   const lastFireTime = useRef(0);
+  const pendingShots = useRef<ProjectileData[]>([]);
+  const nextStaggerTime = useRef<number | null>(null);
   const {
     playerPosition,
     playerDirection,
@@ -38,8 +44,6 @@ export function useProjectileWeapon({
   const runtime = buildWeaponRuntime(stats, playerStats);
 
   const fire = (time: number) => {
-    lastFireTime.current = time;
-
     const direction = resolveDirection(playerDirection.x, playerDirection.y);
     const baseVelocity = buildVelocity(direction, runtime.speed);
 
@@ -53,7 +57,17 @@ export function useProjectileWeapon({
       idFactory: () => Math.random().toString(),
     });
 
-    setProjectiles((prev: ProjectileData[]) => [...prev, ...newShots]);
+    const immediateShots = enqueueStaggeredShots({
+      shots: newShots,
+      time,
+      pendingShots,
+      nextStaggerTime,
+    });
+    if (immediateShots.length > 0) {
+      setProjectiles((prev: ProjectileData[]) => [...prev, ...immediateShots]);
+    }
+
+    lastFireTime.current = time;
   };
 
   const removeProjectile = (id: string) => {
@@ -67,6 +81,13 @@ export function useProjectileWeapon({
     if (shouldFire(time, lastFireTime.current, runtime.cooldown)) {
       fire(time);
     }
+
+    releaseStaggeredShots({
+      time,
+      pendingShots,
+      nextStaggerTime,
+      setProjectiles,
+    });
   });
 
   const weaponInstance: ProjectileWeaponInstance = {

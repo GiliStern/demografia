@@ -6,20 +6,29 @@ interface Velocity {
 }
 
 interface CommonProjectileParams {
+  /** World position where the projectiles start. */
   position: Position;
+  /** Damage dealt by each projectile instance. */
   damage: number;
+  /** Lifespan of each projectile in milliseconds. */
   duration: number;
+  /** Optional custom id generator; receives the projectile index. */
   idFactory?: (index: number) => string;
 }
 
 interface SpreadParams extends CommonProjectileParams {
+  /** Number of projectiles to create in the spread. */
   amount: number;
+  /** Base velocity before applying spread offsets. */
   baseVelocity: Velocity;
+  /** Offset delta applied per projectile to create the spread. */
   spreadStep: number;
 }
 
 interface DirectionParams extends CommonProjectileParams {
+  /** Unit-ish direction vectors for each projectile. */
   directions: Velocity[];
+  /** Speed multiplier applied to each direction. */
   speed: number;
 }
 
