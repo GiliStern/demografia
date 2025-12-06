@@ -10,7 +10,6 @@ import { useGameStore } from "@/hooks/useGameStore";
 import { WEAPONS } from "@/data/config/weaponsConfig";
 import { reflectInBounds } from "@/utils/weaponMath";
 import { Sprite } from "../Sprite";
-import { WeaponId } from "@/types";
 
 interface BounceProjectile extends ProjectileData {
   velocity: { x: number; y: number };

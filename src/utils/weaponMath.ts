@@ -1,5 +1,3 @@
-import type { EnemyUserData } from "@/types";
-
 export interface Vec2 {
   x: number;
   y: number;
@@ -59,4 +57,3 @@ export const radialDirections = (count: number): Vec2[] => {
   }
   return dirs;
 };
-

@@ -75,6 +75,7 @@ export const WaveManager = () => {
     setEnemies((prev) => [...prev, newEnemy]);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removeEnemy = (id: string, rewardGold = 1, rewardXp = 10) => {
     setEnemies((prev) => prev.filter((e) => e.id !== id));
     addKill();

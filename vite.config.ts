@@ -16,9 +16,6 @@ export default defineConfig({
         // Use ESLint flat config directly
         lintCommand: 'eslint "./src/**/*.{ts,tsx}" --max-warnings 0',
         useFlatConfig: true,
-        dev: {
-          logLevel: ["error"],
-        },
       },
     }),
   ],
