@@ -25,7 +25,9 @@ const computeOrbitPosition = (
   radius: number,
   playerPosition: { x: number; y: number }
 ) => {
+  // Angle = per-orb offset plus shared base angle so all orbiters rotate together.
   const angle = orb.angleOffset + baseAngle;
+  // Convert polar coordinates (angle, radius) around the player into world x/y.
   return {
     x: playerPosition.x + Math.cos(angle) * radius,
     y: playerPosition.y + Math.sin(angle) * radius,
@@ -41,14 +43,18 @@ export const OrbitingBody = ({
   spriteConfig,
 }: OrbitingBodyProps) => {
   const bodyRef = useRef<RapierRigidBody>(null);
+  const positionRef = useRef<[number, number, number]>([0, 0, 0]);
 
   useFrame(() => {
+    // keep the kinematic body awake so orbiting continues while idle
+    bodyRef.current?.wakeUp();
     const { x, y } = computeOrbitPosition(
       orb,
       baseAngle.current,
       radius,
       playerPosition
     );
+    positionRef.current = [x, y, 0];
     bodyRef.current?.setNextKinematicTranslation({ x, y, z: 0 });
   });
 
@@ -59,12 +65,9 @@ export const OrbitingBody = ({
       lockRotations
       sensor
       gravityScale={0}
+      canSleep={false}
       userData={{ type: "projectile", id: orb.id, damage, owner: "player" }}
-      position={[
-        playerPosition.x + Math.cos(orb.angleOffset) * radius,
-        playerPosition.y + Math.sin(orb.angleOffset) * radius,
-        0,
-      ]}
+      position={positionRef.current}
     >
       <CuboidCollider args={[0.35, 0.35, 0.35]} />
       <Sprite

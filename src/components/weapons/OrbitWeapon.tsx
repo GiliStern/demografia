@@ -12,8 +12,6 @@ export const OrbitWeapon = ({ weaponId }: WeaponComponentProps) => {
     playerPosition,
   } = useOrbitWeapon({ weaponId });
 
-  if (!spriteConfig) return null;
-
   return (
     <>
       {orbiters.map((orb) => (

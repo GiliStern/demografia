@@ -20,7 +20,7 @@ export interface OrbitingOrb {
 
 export interface OrbitWeaponInstance {
   orbiters: OrbitingOrb[];
-  spriteConfig?: SpriteConfig;
+  spriteConfig: SpriteConfig;
   damage: number;
   radius: number;
   baseAngleRef: MutableRefObject<number>;
@@ -29,6 +29,7 @@ export interface OrbitWeaponInstance {
 
 const ORBIT_RADIUS_MULTIPLIER = 1.5;
 
+// Generate evenly spread orbiters around the player at a given spawn time.
 const createOrbiters = (amount: number, time: number): OrbitingOrb[] => {
   const directions = radialDirections(amount);
   return directions.map((dir, idx) => ({
@@ -38,18 +39,18 @@ const createOrbiters = (amount: number, time: number): OrbitingOrb[] => {
   }));
 };
 
+// Compute runtime values that already include player stat multipliers.
 const buildOrbitRuntime = (stats: WeaponStats, playerStats: PlayerStats) => {
   const cooldownStat =
     stats.cooldownPause ?? stats.cooldown ?? Number.POSITIVE_INFINITY;
   const cooldownMultiplier = playerStats.cooldown || 1;
   return {
-    damage: (stats.damage ?? 0) * (playerStats.might || 1),
-    angularSpeed: stats.speed ?? 0,
-    radius:
-      (stats.area ?? 1) * (playerStats.area || 1) * ORBIT_RADIUS_MULTIPLIER,
+    damage: stats.damage * (playerStats.might || 1),
+    angularSpeed: stats.speed,
+    radius: stats.area * playerStats.area * ORBIT_RADIUS_MULTIPLIER,
     respawnDelay: cooldownStat * cooldownMultiplier,
-    waveDuration: stats.duration ?? 0,
-    amount: stats.amount ?? 0,
+    waveDuration: stats.duration,
+    amount: stats.amount,
   };
 };
 
@@ -67,22 +68,12 @@ export const useOrbitWeapon = ({
     useGameStore();
 
   const weapon = WEAPONS[weaponId];
-  const spriteConfig = weapon?.sprite_config;
-  const stats = weapon ? getWeaponStats(weaponId) : undefined;
+  const spriteConfig = weapon.sprite_config;
+  const stats = getWeaponStats(weaponId);
 
   const runtime = useMemo(
-    () =>
-      stats && playerStats
-        ? buildOrbitRuntime(stats, playerStats)
-        : {
-            damage: 0,
-            angularSpeed: 0,
-            radius: 0,
-            respawnDelay: Number.POSITIVE_INFINITY,
-            waveDuration: 0,
-            amount: 0,
-          },
-    [stats, playerStats]
+    () => buildOrbitRuntime(stats, playerStats),
+    [stats, playerStats, playerPosition]
   );
 
   const syncOrbiters = useCallback((next: OrbitingOrb[]) => {
@@ -113,12 +104,14 @@ export const useOrbitWeapon = ({
   );
 
   useEffect(() => {
+    // Spawn the initial ring as soon as the hook mounts.
     spawnOrbiters(performance.now() / 1000);
   }, [spawnOrbiters]);
 
   useFrame((state, delta) => {
     if (isPaused || !isRunning) return;
 
+    // Advance the orbit angle each frame.
     baseAngleRef.current += runtime.angularSpeed * delta;
 
     const time = state.clock.getElapsedTime();
@@ -141,4 +134,3 @@ export const useOrbitWeapon = ({
     playerPosition,
   };
 };
-

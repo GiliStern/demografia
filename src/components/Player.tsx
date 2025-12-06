@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type MutableRefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import {
   RigidBody,
@@ -20,6 +20,87 @@ import {
   AnimationVariant,
   type PlayerUserData,
 } from "../types";
+
+const updateCameraPosition = ({
+  camera,
+  translation,
+}: {
+  camera: THREE.Camera;
+  translation: { x: number; y: number };
+}) => {
+  camera.position.set(translation.x, translation.y, 10);
+};
+
+const haltPlayerAndCamera = ({
+  body,
+  camera,
+}: {
+  body: RapierRigidBody;
+  camera: THREE.Camera;
+}) => {
+  body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+  const translation = body.translation();
+  updateCameraPosition({ camera, translation });
+};
+
+const buildMoveVector = ({
+  input,
+  moveSpeed,
+}: {
+  input: { x: number; y: number };
+  moveSpeed: number;
+}) => {
+  const moveDir = new THREE.Vector3(input.x, input.y, 0);
+  if (moveDir.length() > 0) {
+    moveDir.normalize().multiplyScalar(moveSpeed);
+  }
+  return moveDir;
+};
+
+const updateFacingAndDirection = ({
+  input,
+  isFacingLeft,
+  setFacingLeft,
+  setPlayerDirection,
+}: {
+  input: { x: number; y: number };
+  isFacingLeft: boolean;
+  setFacingLeft: (val: boolean) => void;
+  setPlayerDirection: (dir: { x: number; y: number }) => void;
+}) => {
+  if (input.x < 0 && !isFacingLeft) setFacingLeft(true);
+  if (input.x > 0 && isFacingLeft) setFacingLeft(false);
+
+  setPlayerDirection({
+    x: input.x !== 0 ? Math.sign(input.x) : isFacingLeft ? -1 : 1,
+    y: input.y !== 0 ? Math.sign(input.y) : 0,
+  });
+};
+
+const applyContactDamage = ({
+  contacts,
+  lastDamageTime,
+  takeDamage,
+  now,
+  intervalMs,
+}: {
+  contacts: Map<string, number>;
+  lastDamageTime: MutableRefObject<number>;
+  takeDamage: (amount: number) => number | void;
+  now: number;
+  intervalMs: number;
+}) => {
+  if (contacts.size === 0) return;
+  if (now - lastDamageTime.current < intervalMs) return;
+
+  const totalDamage = Array.from(contacts.values()).reduce(
+    (sum, damage) => sum + damage,
+    0
+  );
+
+  takeDamage(totalDamage);
+  lastDamageTime.current = now;
+};
 
 export const Player = () => {
   const rigidBody = useRef<RapierRigidBody>(null);
@@ -43,13 +124,12 @@ export const Player = () => {
     if (!rigidBody.current) return;
 
     if (!isRunning || isPaused) {
-      rigidBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
-      const translation = rigidBody.current.translation();
-      state.camera.position.set(translation.x, translation.y, 10);
+      haltPlayerAndCamera({ body: rigidBody.current, camera: state.camera });
       return;
     }
 
-    const { x, y } = controls.current;
+    const input = controls.current;
+    const { x, y } = input;
 
     // 1. Determine State
     const isMovingNow = x !== 0 || y !== 0;
@@ -60,12 +140,16 @@ export const Player = () => {
     else if (y < 0) setIsLookingUp(false);
 
     // Normalize movement vector
-    const moveDir = new THREE.Vector3(x, y, 0);
-    if (moveDir.length() > 0) {
-      moveDir.normalize().multiplyScalar(playerStats.moveSpeed);
-      setPlayerDirection({
-        x: x !== 0 ? Math.sign(x) : isFacingLeft ? -1 : 1,
-        y: y !== 0 ? Math.sign(y) : 0,
+    const moveDir = buildMoveVector({
+      input,
+      moveSpeed: playerStats.moveSpeed,
+    });
+    if (isMovingNow) {
+      updateFacingAndDirection({
+        input,
+        isFacingLeft,
+        setFacingLeft,
+        setPlayerDirection,
       });
     }
 
@@ -77,24 +161,16 @@ export const Player = () => {
 
     // Camera follow
     // Smooth lerp could be added here, but direct set is fine for pixel perfect
-    state.camera.position.set(translation.x, translation.y, 10);
-
-    // Facing direction
-    if (x < 0 && !isFacingLeft) setFacingLeft(true);
-    if (x > 0 && isFacingLeft) setFacingLeft(false);
+    updateCameraPosition({ camera: state.camera, translation });
 
     // Apply contact damage at intervals while any enemies overlap
-    const now = Date.now();
-    if (
-      activeEnemyContacts.current.size > 0 &&
-      now - lastDamageTime.current >= 500
-    ) {
-      const totalDamage = Array.from(
-        activeEnemyContacts.current.values()
-      ).reduce((sum, dmg) => sum + dmg, 0);
-      takeDamage(totalDamage);
-      lastDamageTime.current = now;
-    }
+    applyContactDamage({
+      contacts: activeEnemyContacts.current,
+      lastDamageTime,
+      takeDamage,
+      now: Date.now(),
+      intervalMs: 500,
+    });
   });
 
   // Determine Animation Name
