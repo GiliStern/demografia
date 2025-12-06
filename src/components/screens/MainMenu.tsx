@@ -2,6 +2,7 @@ import { useGameStore } from "../../hooks/useGameStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { CharacterId } from "@/types";
 import { AppButton } from "../ui/AppButton";
+import { banners } from "@/assets/assetPaths";
 
 export const MainMenu = () => {
   const { startGame, resumeGame, isPaused, isRunning } = useGameStore();
@@ -29,7 +30,7 @@ export const MainMenu = () => {
     >
       {!canResume && (
         <img
-          src="/assets/main_banner.png"
+          src={banners.main}
           alt={UI_STRINGS.menu.title}
           style={{ width: "800px", height: "auto" }}
         />

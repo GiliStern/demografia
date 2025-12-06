@@ -5,6 +5,7 @@ import {
   WeaponId,
   PassiveId,
 } from "../../types";
+import { icons, sprites } from "../../assets/assetPaths";
 
 export const INITIAL_PLAYER_STATS: PlayerStats = {
   maxHealth: 100,
@@ -29,8 +30,8 @@ export const CHARACTERS: Record<CharacterId, CharacterData> = {
     passive_id: PassiveId.Privilege,
     stats: INITIAL_PLAYER_STATS,
     sprite_config: {
-      textureUrl: "/assets/sprites/srulik_512x512.png",
-      iconUrl: "/assets/icons/srulik_icon.png",
+      textureUrl: sprites.srulik512,
+      iconUrl: icons.srulik,
       index: 0,
       scale: 3,
       spriteFrameSize: 512,

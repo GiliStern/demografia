@@ -4,6 +4,7 @@ import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
 import { useGameStore } from "../hooks/useGameStore";
+import { bg } from "@/assets/assetPaths";
 import {
   getRepeatedTextureOffsets,
   setupRepeatingTexture,
@@ -13,7 +14,7 @@ const GRID_UNIT_SIZE = 20; // 1 world unit ~= 32px tile in art direction
 const BG_PLANE_SIZE = 80;
 
 export const InfiniteBackground = () => {
-  const texture = useTexture("/assets/bg/tel_aviv_loop.png");
+  const texture = useTexture(bg.telAvivLoop);
   // Unlit material keeps the background cheap to render (no lighting/shadows).
   const materialRef = useRef<THREE.MeshBasicMaterial>(null);
   const meshRef = useRef<THREE.Mesh>(null);

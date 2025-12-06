@@ -1,5 +1,21 @@
+import { icons, sprites } from "../../assets/assetPaths";
 import type { WeaponDefinition } from "../../types";
 import { PassiveId, WeaponId } from "../../types";
+
+const weaponSprites = {
+  prickly: sprites.prickly,
+  chair: sprites.chair,
+  chicken: sprites.chicken,
+  pita: sprites.pita,
+  star: sprites.starOfDavid,
+};
+
+const weaponIcons = {
+  chair: icons.chair,
+  chicken: icons.chicken,
+  pita: icons.pita,
+  star: icons.starOfDavid,
+};
 
 export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
   [WeaponId.Sabra]: {
@@ -48,8 +64,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       evolvesTo: WeaponId.HolyCactus,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/prickly.png",
-      iconUrl: "/assets/sprites/prickly.png",
+      textureUrl: weaponSprites.prickly,
+      iconUrl: weaponSprites.prickly,
       index: 0,
       spriteFrameSize: 512,
       scale: 1.5,
@@ -97,8 +113,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       evolvesTo: WeaponId.NoFuture,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/chair.png",
-      iconUrl: "/assets/icons/chair_icon.png",
+      textureUrl: weaponSprites.chair,
+      iconUrl: weaponIcons.chair,
       index: 0,
       spriteFrameSize: 512,
       scale: 3,
@@ -162,8 +178,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       evolvesTo: WeaponId.UnholySelichot,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/chicken.png",
-      iconUrl: "/assets/icons/chicken_circle.png",
+      textureUrl: weaponSprites.chicken,
+      iconUrl: weaponIcons.chicken,
       index: 0,
       spriteFrameSize: 512,
       scale: 1,
@@ -219,8 +235,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       evolvesTo: WeaponId.BurekasOfDeath,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/Pita.png",
-      iconUrl: "/assets/icons/pita_icon.png",
+      textureUrl: weaponSprites.pita,
+      iconUrl: weaponIcons.pita,
       index: 0,
       spriteFrameSize: 512,
       scale: 1,
@@ -272,8 +288,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       evolvesTo: WeaponId.ThousandEdge,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/star_of_david.png",
-      iconUrl: "/assets/icons/star_of_david_icon.png",
+      textureUrl: weaponSprites.star,
+      iconUrl: weaponIcons.star,
       index: 0,
       spriteFrameSize: 512,
       scale: 1,
@@ -295,7 +311,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       pierce: 2,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/prickly.png",
+      textureUrl: weaponSprites.prickly,
       index: 0,
       spriteFrameSize: 512,
       scale: 1,
@@ -317,7 +333,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       pierce: 99,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/chair.png",
+      textureUrl: weaponSprites.chair,
       index: 0,
       spriteFrameSize: 512,
       scale: 1,
@@ -339,7 +355,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       pierce: 99,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/chicken.png",
+      textureUrl: weaponSprites.chicken,
       index: 0,
       spriteFrameSize: 512,
       scale: 1,
@@ -361,7 +377,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       pierce: 99,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/Pita.png",
+      textureUrl: weaponSprites.pita,
       index: 0,
       spriteFrameSize: 512,
       scale: 1,
@@ -383,7 +399,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       pierce: 2,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/star_of_david.png",
+      textureUrl: weaponSprites.star,
       index: 0,
       spriteFrameSize: 512,
       scale: 1,

@@ -1,3 +1,4 @@
+import { sprites } from "../../assets/assetPaths";
 import { type EnemyData, EnemyId } from "../../types";
 
 export const ENEMIES: Record<EnemyId, EnemyData> = {
@@ -11,7 +12,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       knockback_resistance: 0,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/cat.png",
+      textureUrl: sprites.cat,
       index: 0,
       scale: 2,
       spriteFrameSize: 512,
@@ -27,7 +28,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       knockback_resistance: 0.1,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/hipster.png",
+      textureUrl: sprites.hipster,
       index: 1,
       scale: 3,
       spriteFrameSize: 350,
@@ -43,7 +44,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       knockback_resistance: 0.2,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/tourist.png",
+      textureUrl: sprites.tourist,
       index: 2,
       scale: 3,
       spriteFrameSize: 512,
@@ -59,7 +60,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       knockback_resistance: 0,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/scooter swarm.png",
+      textureUrl: sprites.scooterSwarm,
       index: 3,
       scale: 3,
       spriteFrameSize: 512,
@@ -75,7 +76,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       knockback_resistance: 0.3,
     },
     sprite_config: {
-      textureUrl: "/assets/sprites/tiktok star.png",
+      textureUrl: sprites.tiktokStar,
       index: 4,
       scale: 3,
       spriteFrameSize: 512,

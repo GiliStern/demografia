@@ -1,3 +1,4 @@
+import { placeholders } from "../../assets/assetPaths";
 import { PassiveId, type PassiveData } from "../../types";
 
 export const PASSIVES: Record<PassiveId, PassiveData> = {
@@ -7,7 +8,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     description_he: "מגדיל את בריאותך המקסימלית.",
     effect: { playerStats: { maxHealth: 20 } },
     sprite_config: {
-      textureUrl: "/assets/sprites/privilege.png",
+      textureUrl: placeholders.sprite,
       index: 0,
       scale: 1,
     },
@@ -18,7 +19,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     description_he: "מקצר זמני טעינה.",
     effect: { playerStats: { cooldown: 0.9 } },
     sprite_config: {
-      textureUrl: "/assets/sprites/wassach.png",
+      textureUrl: placeholders.sprite,
       index: 0,
       scale: 1,
     },
@@ -29,7 +30,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     description_he: "הפחתת נזק (Placeholder).",
     effect: { playerStats: { recovery: 0 } },
     sprite_config: {
-      textureUrl: "/assets/sprites/protection.png",
+      textureUrl: placeholders.sprite,
       index: 0,
       scale: 1,
     },
@@ -40,7 +41,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     description_he: "מגביר נזק.",
     effect: { playerStats: { might: 1.1 } },
     sprite_config: {
-      textureUrl: "/assets/sprites/gat.png",
+      textureUrl: placeholders.sprite,
       index: 0,
       scale: 1,
     },
@@ -51,7 +52,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     description_he: "תנועה מהירה יותר.",
     effect: { playerStats: { moveSpeed: 0.5 } },
     sprite_config: {
-      textureUrl: "/assets/sprites/wings_divine_presence.png",
+      textureUrl: placeholders.sprite,
       index: 0,
       scale: 1,
     },
@@ -62,7 +63,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     description_he: "יורה יותר קליעים.",
     effect: { weaponStats: { amount: 1 } },
     sprite_config: {
-      textureUrl: "/assets/sprites/increase_joy.png",
+      textureUrl: placeholders.sprite,
       index: 0,
       scale: 1,
     },
@@ -73,7 +74,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     description_he: "מגדיל שטח פגיעה.",
     effect: { playerStats: { area: 1.2 } },
     sprite_config: {
-      textureUrl: "/assets/sprites/shabbat_candles.png",
+      textureUrl: placeholders.sprite,
       index: 0,
       scale: 1,
     },
@@ -84,7 +85,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     description_he: "מאריך משכי נשקים.",
     effect: { weaponStats: { duration: 0.5 } },
     sprite_config: {
-      textureUrl: "/assets/sprites/spitting_distance.png",
+      textureUrl: placeholders.sprite,
       index: 0,
       scale: 1,
     },
@@ -95,7 +96,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     description_he: "מאיץ קליעים.",
     effect: { weaponStats: { speed: 2 } },
     sprite_config: {
-      textureUrl: "/assets/sprites/outstretched_arm.png",
+      textureUrl: placeholders.sprite,
       index: 0,
       scale: 1,
     },
