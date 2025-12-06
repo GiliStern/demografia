@@ -4,6 +4,7 @@ import {
   RigidBody,
   RapierRigidBody,
   CuboidCollider,
+  type IntersectionEnterPayload,
 } from "@react-three/rapier";
 import { useKeyboardControls } from "../hooks/useKeyboardControls";
 import { useGameStore } from "../store/gameStore";
@@ -11,6 +12,13 @@ import { Sprite } from "./Sprite";
 import * as THREE from "three";
 import { useSpriteAnimation } from "../hooks/useSpriteAnimation";
 import { CHARACTERS } from "../data/config/characters";
+import { isEnemyUserData } from "../utils/userDataGuards";
+import {
+  AnimationCategory,
+  AnimationType,
+  AnimationVariant,
+  type PlayerUserData,
+} from "../types";
 
 export const Player = () => {
   const rigidBody = useRef<RapierRigidBody>(null);
@@ -66,36 +74,40 @@ export const Player = () => {
   });
 
   // Determine Animation Name
-  let animState = "idle";
+  let animState = AnimationType.Idle;
   if (isMoving) {
-    animState = isLookingUp ? "run_up" : "run";
+    animState = isLookingUp ? AnimationType.RunUp : AnimationType.Run;
   } else {
-    animState = isLookingUp ? "idle_up" : "idle";
+    animState = isLookingUp ? AnimationType.IdleUp : AnimationType.Idle;
   }
 
   // Get character specific data
-  const charData = CHARACTERS.find((c) => c.id === selectedCharacterId);
+  const charData = CHARACTERS[selectedCharacterId];
 
   // Get Frame from Hook
-  const frameIndex = useSpriteAnimation(
-    "characters",
-    "default",
-    animState as any
-  );
+  const frameIndex = useSpriteAnimation({
+    category: AnimationCategory.Characters,
+    variant: AnimationVariant.Default,
+    currentAnimation: animState,
+  });
 
-  const handleIntersection = (payload: any) => {
+  const handleIntersection = (payload: IntersectionEnterPayload) => {
     const now = Date.now();
     // Invulnerability frame of 500ms
     if (now - lastDamageTime.current < 500) return;
 
-    if (payload.other.rigidBodyObject?.userData) {
-      const userData = payload.other.rigidBodyObject.userData as any;
-      if (userData.type === "enemy") {
-        takeDamage(10); // Base damage from enemy
-        lastDamageTime.current = now;
-        // Visual feedback needed here
-      }
+    const userData = payload.other.rigidBodyObject?.userData;
+
+    if (isEnemyUserData(userData)) {
+      takeDamage(userData.damage);
+      lastDamageTime.current = now;
+      // Visual feedback needed here
     }
+  };
+
+  const playerUserData: PlayerUserData = {
+    type: "player",
+    characterId: selectedCharacterId,
   };
 
   return (
@@ -106,17 +118,14 @@ export const Player = () => {
       position={[0, 0, 0]}
       type="dynamic"
       friction={0}
-      userData={{ type: "player" }}
+      userData={playerUserData}
       onIntersectionEnter={handleIntersection}
     >
       <CuboidCollider args={[0.3, 0.3, 1]} />
       <Sprite
-        textureUrl={charData?.sprite_config.textureUrl}
-        textureName="characters"
+        {...charData.sprite_config}
         index={frameIndex}
         flipX={isFacingLeft}
-        spriteFrameSize={charData?.sprite_config.spriteFrameSize || 32}
-        scale={charData?.sprite_config.scale || 1}
       />
     </RigidBody>
   );

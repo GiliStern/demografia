@@ -1,11 +1,12 @@
-import type { CharacterData } from "../../types";
+import { type CharacterData, CharacterId } from "../../types";
+import { WeaponId } from "./weapons";
 
-export const CHARACTERS: CharacterData[] = [
-  {
-    id: "sruLik",
+export const CHARACTERS: Record<CharacterId, CharacterData> = {
+  [CharacterId.Srulik]: {
+    id: CharacterId.Srulik,
     name_he: "שרוליק",
     description_he: "הדמות האיקונית, גרסת פיקסל קומית.",
-    starting_weapon_id: "magic_wand",
+    starting_weapon_id: WeaponId.MagicWand,
     passive_id: "TBD_passive",
     stats: {
       maxHealth: 100,
@@ -21,13 +22,10 @@ export const CHARACTERS: CharacterData[] = [
       revivals: 0,
     },
     sprite_config: {
-      texture: "characters",
       textureUrl: "/assets/sprites/srulik_512x512.png",
       index: 0,
       scale: 3,
       spriteFrameSize: 512,
     },
   },
-];
-
-export type CharacterId = (typeof CHARACTERS)[number]["id"];
+};

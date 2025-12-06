@@ -1,37 +1,36 @@
-export type AnimationConfig = {
-  frames: number[];
-  frameRate: number;
-  loop: boolean;
-};
+import {
+  AnimationCategory,
+  AnimationType,
+  type AnimationConfig,
+  AnimationVariant,
+} from "@/types";
 
-type AnimationSet = Record<string, AnimationConfig>;
-type AnimationCategory = Record<string, AnimationSet>;
+interface AnimationVariantData
+  extends Partial<Record<AnimationType, AnimationConfig>> {
+  [AnimationType.Idle]: AnimationConfig;
+}
 
-type AnimationMaps = {
-  characters: AnimationCategory;
-  enemies: AnimationCategory;
-  weapons: AnimationCategory;
-};
+type AnimationCategoryData = Record<AnimationVariant, AnimationVariantData>;
+type AnimationsByCategory = Record<AnimationCategory, AnimationCategoryData>;
 
-export const ANIMATION_MAPS: AnimationMaps = {
-  characters: {
-    default: {
-      idle: { frames: [0], frameRate: 1, loop: true },
-      run: { frames: [0, 1], frameRate: 8, loop: true },
-      idle_up: { frames: [2], frameRate: 1, loop: true },
-      run_up: { frames: [2, 3], frameRate: 8, loop: true },
+export const ANIMATIONS_BY_CATEGORY: AnimationsByCategory = {
+  [AnimationCategory.Characters]: {
+    [AnimationVariant.Default]: {
+      [AnimationType.Idle]: { frames: [0], frameRate: 1, loop: true },
+      [AnimationType.Run]: { frames: [0, 1], frameRate: 8, loop: true },
+      [AnimationType.IdleUp]: { frames: [2], frameRate: 1, loop: true },
+      [AnimationType.RunUp]: { frames: [2, 3], frameRate: 8, loop: true },
     },
   },
-  enemies: {
-    default: {
-      walk: { frames: [0, 1], frameRate: 6, loop: true },
+  [AnimationCategory.Enemies]: {
+    [AnimationVariant.Default]: {
+      [AnimationType.Idle]: { frames: [0], frameRate: 1, loop: true },
+      [AnimationType.Run]: { frames: [0, 1], frameRate: 6, loop: true },
     },
   },
-  weapons: {
-    default: {
-      idle: { frames: [0], frameRate: 0, loop: false },
+  [AnimationCategory.Weapons]: {
+    [AnimationVariant.Default]: {
+      [AnimationType.Idle]: { frames: [0, 1], frameRate: 8, loop: true },
     },
   },
 };
-
-export type AnimationCategoryKey = keyof typeof ANIMATION_MAPS;

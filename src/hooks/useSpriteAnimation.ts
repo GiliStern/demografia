@@ -1,21 +1,30 @@
 import { useState, useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { ANIMATION_MAPS } from "../data/config/animationMaps";
+import { ANIMATIONS_BY_CATEGORY } from "../data/config/animationMaps";
+import type {
+  AnimationCategory,
+  AnimationType,
+  AnimationVariant,
+} from "@/types";
 
-type AnimationType = string;
+interface UseSpriteAnimationProps {
+  category: AnimationCategory;
+  variant: AnimationVariant;
+  currentAnimation: AnimationType;
+}
 
-export const useSpriteAnimation = (
-  category: "characters" | "enemies" | "weapons",
-  variant: string,
-  currentAnimation: AnimationType
-) => {
+export const useSpriteAnimation = ({
+  category,
+  variant,
+  currentAnimation,
+}: UseSpriteAnimationProps) => {
   const [frameIndex, setFrameIndex] = useState(0);
   const timer = useRef(0);
 
   // Get configuration from typed maps
-  const categoryData = ANIMATION_MAPS[category];
-  const variantData = categoryData?.[variant] || categoryData?.default;
-  const config = variantData?.[currentAnimation] || variantData?.idle;
+  const categoryData = ANIMATIONS_BY_CATEGORY[category];
+  const variantData = categoryData[variant];
+  const config = variantData[currentAnimation] ?? variantData.idle;
 
   useFrame((_state, delta) => {
     if (!config) return;
@@ -44,5 +53,5 @@ export const useSpriteAnimation = (
     timer.current = 0;
   }, [currentAnimation]);
 
-  return config?.frames[frameIndex] || 0;
+  return config?.frames[frameIndex] ?? 0;
 };

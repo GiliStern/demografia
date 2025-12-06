@@ -16,22 +16,23 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
 
     /* Additional strict settings from old config */
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "verbatimModuleSyntax": true,
-    "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
 
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["vite/client", "node"]
   },
   "include": ["src"],
+  "exclude": ["vite.config.ts", "node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

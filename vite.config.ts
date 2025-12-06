@@ -1,7 +1,38 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+// @ts-nocheck
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import checker from "vite-plugin-checker";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
-})
+  plugins: [
+    react(),
+    checker({
+      typescript: {
+        tsconfigPath: "./tsconfig.json",
+        buildMode: true,
+      },
+      eslint: {
+        // Use ESLint flat config directly
+        lintCommand: 'eslint "./src/**/*.{ts,tsx}" --max-warnings 0',
+        useFlatConfig: true,
+        dev: {
+          logLevel: ["error"],
+        },
+      },
+    }),
+  ],
+  resolve: {
+    alias: {
+      "@": "/src",
+    },
+  },
+  optimizeDeps: {
+    exclude: ["@react-three/rapier"],
+  },
+  server: {
+    watch: {
+      ignored: ["./node_modules/**/*"],
+    },
+  },
+});

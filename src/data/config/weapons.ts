@@ -1,8 +1,16 @@
 import type { WeaponData } from "../../types";
 
-export const WEAPONS: Record<string, WeaponData> = {
-  magic_wand: {
-    id: "magic_wand",
+export enum WeaponId {
+  MagicWand = "magic_wand",
+  Runetracer = "runetracer",
+  KingBible = "king_bible",
+  Axe = "axe",
+  Knife = "knife",
+}
+
+export const WEAPONS: Record<WeaponId, WeaponData> = {
+  [WeaponId.MagicWand]: {
+    id: WeaponId.MagicWand,
     name_he: "צבר",
     description_he: "יורה פירות צבר קוצניים.",
     type: "projectile_closest",
@@ -16,15 +24,14 @@ export const WEAPONS: Record<string, WeaponData> = {
       pierce: 0,
     },
     sprite_config: {
-      texture: "weapons",
-      textureUrl: "/assets/sprites/prickly pear.png",
+      textureUrl: "/assets/sprites/prickly.png",
       index: 0,
       spriteFrameSize: 512,
       scale: 1,
     },
   },
-  runetracer: {
-    id: "runetracer",
+  [WeaponId.Runetracer]: {
+    id: WeaponId.Runetracer,
     name_he: "כסאות כתר",
     description_he: "כיסאות פלסטיק לבנים טסים בהחזרה.",
     type: "projectile_bounce",
@@ -38,15 +45,14 @@ export const WEAPONS: Record<string, WeaponData> = {
       pierce: 99,
     },
     sprite_config: {
-      texture: "weapons",
       textureUrl: "/assets/sprites/chair.png",
-      index: 1,
+      index: 0,
       spriteFrameSize: 512,
       scale: 1,
     },
   },
-  king_bible: {
-    id: "king_bible",
+  [WeaponId.KingBible]: {
+    id: WeaponId.KingBible,
     name_he: "כפרות",
     description_he: "תרנגולות מסתובבות סביב הדמות.",
     type: "orbital",
@@ -60,15 +66,14 @@ export const WEAPONS: Record<string, WeaponData> = {
       pierce: 99,
     },
     sprite_config: {
-      texture: "weapons",
       textureUrl: "/assets/sprites/chicken.png",
-      index: 2,
+      index: 0,
       spriteFrameSize: 512,
       scale: 1,
     },
   },
-  axe: {
-    id: "axe",
+  [WeaponId.Axe]: {
+    id: WeaponId.Axe,
     name_he: "פיתות",
     description_he: "זורק פיתות בקשת גבוהה.",
     type: "projectile_arc",
@@ -82,15 +87,14 @@ export const WEAPONS: Record<string, WeaponData> = {
       pierce: 1,
     },
     sprite_config: {
-      texture: "weapons",
       textureUrl: "/assets/sprites/Pita.png",
-      index: 3,
+      index: 0,
       spriteFrameSize: 512,
       scale: 1,
     },
   },
-  knife: {
-    id: "knife",
+  [WeaponId.Knife]: {
+    id: WeaponId.Knife,
     name_he: "מגן דוד",
     description_he: "כוכבים חדים נורים קדימה.",
     type: "projectile_directional",
@@ -104,14 +108,10 @@ export const WEAPONS: Record<string, WeaponData> = {
       pierce: 0,
     },
     sprite_config: {
-      texture: "weapons",
-      textureUrl: "/assets/sprites/star of david.png",
-      index: 4,
+      textureUrl: "/assets/sprites/star_of_david.png",
+      index: 0,
       spriteFrameSize: 512,
       scale: 1,
     },
   },
 };
-
-export type WeaponId = keyof typeof WEAPONS;
-

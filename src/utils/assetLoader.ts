@@ -1,4 +1,4 @@
-import { TextureLoader, NearestFilter, SRGBColorSpace, Texture } from 'three';
+import { TextureLoader, NearestFilter, SRGBColorSpace, Texture } from "three";
 
 const loader = new TextureLoader();
 const cache = new Map<string, Texture>();
@@ -9,9 +9,9 @@ export async function loadTexture(path: string): Promise<Texture> {
   const texture = await new Promise<Texture>((resolve, reject) => {
     loader.load(
       path,
-      tex => resolve(tex),
+      (tex) => resolve(tex),
       undefined,
-      err => reject(err),
+      (err) => reject(new Error(String(err)))
     );
   });
 
@@ -25,4 +25,3 @@ export async function loadTexture(path: string): Promise<Texture> {
 export function clearTextureCache() {
   cache.clear();
 }
-

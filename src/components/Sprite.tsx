@@ -1,39 +1,22 @@
+import { type SpriteConfig } from "@/types";
 import { useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo } from "react";
 import * as THREE from "three";
 
-interface SpriteProps {
-  textureName?: string | undefined;
-  textureUrl?: string | undefined;
-  index: number;
+interface SpriteProps extends SpriteConfig {
   flipX?: boolean;
-  scale?: number;
-  spriteFrameSize?: number;
 }
 
-const TEXTURE_PATHS: Record<string, string> = {
-  characters: "/assets/sprites/characters_32x32.png",
-  enemies: "/assets/sprites/enemies_32x32.png",
-  weapons: "/assets/sprites/weapons_32x32.png",
-  items: "/assets/sprites/items_32x32.png",
-  ui: "/assets/sprites/ui_32x32.png",
-};
-
 export const Sprite = ({
-  textureName,
   textureUrl,
   index,
   flipX = false,
   scale = 1,
   spriteFrameSize = 32,
 }: SpriteProps) => {
-  const path = textureUrl || (textureName ? TEXTURE_PATHS[textureName] : "");
-
-  if (!path) return null;
-
   // Preload all textures in a real app, here we lazy load
-  const texture = useTexture(path);
+  const texture = useTexture(textureUrl);
 
   const spriteTexture = useMemo(() => {
     const t = texture.clone();

@@ -2,8 +2,12 @@
   "compilerOptions": {
     "composite": true,
     "skipLibCheck": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "types": ["node"],
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./.types/node",
     "allowSyntheticDefaultImports": true,
     "strict": true
   },

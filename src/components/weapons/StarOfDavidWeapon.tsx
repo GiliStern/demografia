@@ -2,15 +2,16 @@ import { useState, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Projectile } from "../Projectile";
 import { useGameStore } from "../../store/gameStore";
-import { WEAPONS, type WeaponId } from "../../data/config/weapons";
+import { WEAPONS, WeaponId } from "../../data/config/weapons";
+import type { ProjectileData } from "@/types";
 
 export const StarOfDavidWeapon = () => {
-  const [projectiles, setProjectiles] = useState<any[]>([]);
+  const [projectiles, setProjectiles] = useState<ProjectileData[]>([]);
   const lastFireTime = useRef(0);
   const { playerPosition, playerDirection, playerStats, isPaused } =
     useGameStore();
 
-  const weaponId: WeaponId = "knife";
+  const weaponId = WeaponId.Knife;
   const weaponData = WEAPONS[weaponId];
   const stats = weaponData?.stats;
   const spriteConfig = weaponData?.sprite_config;
@@ -42,15 +43,12 @@ export const StarOfDavidWeapon = () => {
     const vX = (dirX / length) * speed;
     const vY = (dirY / length) * speed;
 
-    const newProjectile = {
+    const newProjectile: ProjectileData = {
       id: Math.random().toString(),
-      position: [playerPosition.x, playerPosition.y, 0] as [
-        number,
-        number,
-        number
-      ],
-      velocity: [vX, vY] as [number, number],
+      position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
+      velocity: { x: vX, y: vY },
       duration,
+      damage,
     };
 
     setProjectiles((prev) => [...prev, newProjectile]);
@@ -66,13 +64,7 @@ export const StarOfDavidWeapon = () => {
         <Projectile
           key={p.id}
           {...p}
-          spriteConfig={{
-            textureName: spriteConfig?.texture,
-            textureUrl: spriteConfig?.textureUrl,
-            index: spriteConfig?.index ?? 4,
-            scale: spriteConfig?.scale ?? 0.5,
-            spriteFrameSize: spriteConfig?.spriteFrameSize ?? 32,
-          }}
+          spriteConfig={spriteConfig}
           onDespawn={() => removeProjectile(p.id)}
           damage={damage}
         />

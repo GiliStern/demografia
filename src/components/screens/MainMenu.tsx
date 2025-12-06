@@ -1,81 +1,97 @@
-import { useGameStore } from '../../store/gameStore';
-import { UI_STRINGS } from '../../data/config/ui';
+import { useGameStore } from "../../store/gameStore";
+import { UI_STRINGS } from "../../data/config/ui";
+import { CharacterId } from "@/types";
 
 export const MainMenu = () => {
   const { startGame } = useGameStore();
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      background: 'rgba(0,0,0,0.8)',
-      color: 'white',
-      fontFamily: 'sans-serif',
-      direction: 'rtl',
-      zIndex: 100
-    }}>
-      <h1 style={{ fontSize: '48px', marginBottom: '40px', color: '#61dafb' }}>
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "rgba(0,0,0,0.8)",
+        color: "white",
+        fontFamily: "sans-serif",
+        direction: "rtl",
+        zIndex: 100,
+      }}
+    >
+      <h1 style={{ fontSize: "48px", marginBottom: "40px", color: "#61dafb" }}>
         דמוגרפיה
       </h1>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '300px' }}>
-        <button 
-          onClick={() => startGame('sruLik')}
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px",
+          width: "300px",
+        }}
+      >
+        <button
+          onClick={() => startGame(CharacterId.Srulik)}
           style={{
-            padding: '15px',
-            fontSize: '24px',
-            background: '#444',
-            color: 'white',
-            border: '2px solid #666',
-            cursor: 'pointer',
-            borderRadius: '8px'
+            padding: "15px",
+            fontSize: "24px",
+            background: "#444",
+            color: "white",
+            border: "2px solid #666",
+            cursor: "pointer",
+            borderRadius: "8px",
           }}
         >
           {UI_STRINGS.menu.play}
         </button>
 
-        <button 
+        <button
           disabled
           style={{
-            padding: '15px',
-            fontSize: '24px',
-            background: '#222',
-            color: '#666',
-            border: '2px solid #333',
-            cursor: 'not-allowed',
-            borderRadius: '8px'
+            padding: "15px",
+            fontSize: "24px",
+            background: "#222",
+            color: "#666",
+            border: "2px solid #333",
+            cursor: "not-allowed",
+            borderRadius: "8px",
           }}
         >
           {UI_STRINGS.menu.meta_shop} ({UI_STRINGS.common.locked})
         </button>
 
-        <button 
+        <button
           disabled
           style={{
-            padding: '15px',
-            fontSize: '24px',
-            background: '#222',
-            color: '#666',
-            border: '2px solid #333',
-            cursor: 'not-allowed',
-            borderRadius: '8px'
+            padding: "15px",
+            fontSize: "24px",
+            background: "#222",
+            color: "#666",
+            border: "2px solid #333",
+            cursor: "not-allowed",
+            borderRadius: "8px",
           }}
         >
           {UI_STRINGS.menu.settings} ({UI_STRINGS.common.locked})
         </button>
       </div>
 
-      <div style={{ position: 'absolute', bottom: '20px', left: '20px', color: '#666' }}>
+      <div
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          left: "20px",
+          color: "#666",
+        }}
+      >
         {UI_STRINGS.menu.version} 0.1.0
       </div>
     </div>
   );
 };
-

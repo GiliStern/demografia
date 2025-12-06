@@ -20,15 +20,19 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@types/node": "^24.10.1",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
-    "@typescript-eslint/eslint-plugin": "^6.14.0",
-    "@typescript-eslint/parser": "^6.14.0",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
     "@vitejs/plugin-react": "^4.2.1",
+    "cross-env": "^10.1.0",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "typescript": "^5.2.2",
-    "vite": "^5.0.8"
+    "globals": "^16.5.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8",
+    "vite-plugin-checker": "^0.11.0"
   }
 }

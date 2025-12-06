@@ -1,10 +1,10 @@
-import { create } from 'zustand';
-import type { GameState, PlayerStats } from '../types';
-import { CHARACTERS } from '../data/config/characters';
+import { create } from "zustand";
+import { CharacterId, type GameState, type PlayerStats } from "../types";
+import { CHARACTERS } from "../data/config/characters";
 
 interface GameStore extends GameState {
   // Actions
-  startGame: (characterId: string) => void;
+  startGame: (characterId: CharacterId) => void;
   pauseGame: () => void;
   resumeGame: () => void;
   endGame: () => void;
@@ -13,7 +13,7 @@ interface GameStore extends GameState {
   addGold: (amount: number) => void;
   addKill: () => void;
   levelUp: () => void;
-  
+
   // Player State (Runtime)
   currentHealth: number;
   playerStats: PlayerStats;
@@ -35,7 +35,7 @@ const INITIAL_STATE: GameState = {
   nextLevelXp: 100,
   gold: 0,
   killCount: 0,
-  selectedCharacterId: null,
+  selectedCharacterId: CharacterId.Srulik,
   activeWeapons: [],
   activeItems: [],
 };
@@ -56,14 +56,14 @@ const INITIAL_PLAYER_STATS: PlayerStats = {
 
 export const useGameStore = create<GameStore>((set, get) => ({
   ...INITIAL_STATE,
-  
+
   currentHealth: 100,
   playerStats: INITIAL_PLAYER_STATS,
   playerPosition: { x: 0, y: 0 },
   playerDirection: { x: 1, y: 0 },
 
-  startGame: (characterId: string) => {
-    const character = CHARACTERS.find(c => c.id === characterId);
+  startGame: (characterId: CharacterId) => {
+    const character = CHARACTERS[characterId];
     if (!character) return;
 
     set({
@@ -88,7 +88,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   addXp: (amount: number) => {
-    const { xp, nextLevelXp, growth } = get(); // access growth from stats later
+    const { xp, nextLevelXp } = get(); // access growth from stats later
     // TODO: Apply growth multiplier
     const newXp = xp + amount;
     if (newXp >= nextLevelXp) {
@@ -109,18 +109,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   addGold: (amount: number) => {
-    set(state => ({ gold: state.gold + amount }));
+    set((state) => ({ gold: state.gold + amount }));
   },
 
   addKill: () => {
-    set(state => ({ killCount: state.killCount + 1 }));
+    set((state) => ({ killCount: state.killCount + 1 }));
   },
 
-  setPlayerPosition: (x: number, y: number) => set({ playerPosition: { x, y } }),
-  setPlayerDirection: (x: number, y: number) => set({ playerDirection: { x, y } }),
+  setPlayerPosition: (x: number, y: number) =>
+    set({ playerPosition: { x, y } }),
+  setPlayerDirection: (x: number, y: number) =>
+    set({ playerDirection: { x, y } }),
 
   takeDamage: (amount: number) => {
-    set(state => {
+    set((state) => {
       const newHealth = Math.max(0, state.currentHealth - amount);
       if (newHealth === 0) {
         state.endGame();
@@ -130,9 +132,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   heal: (amount: number) => {
-    set(state => ({
-      currentHealth: Math.min(state.playerStats.maxHealth, state.currentHealth + amount),
+    set((state) => ({
+      currentHealth: Math.min(
+        state.playerStats.maxHealth,
+        state.currentHealth + amount
+      ),
     }));
   },
 }));
-
