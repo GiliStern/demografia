@@ -35,9 +35,10 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
 
   // Load stats from data
   const enemy = ENEMIES[typeId];
-  const speed = enemy?.stats.speed ?? 2;
-  const maxHp = enemy?.stats.hp ?? 10;
-  const contactDamage = enemy?.stats.damage ?? 1;
+
+  const speed = enemy.stats.speed;
+  const maxHp = enemy.stats.hp;
+  const contactDamage = enemy.stats.damage;
   const [hp, setHp] = useState(maxHp);
   const frameIndex = useSpriteAnimation({
     category: AnimationCategory.Enemies,

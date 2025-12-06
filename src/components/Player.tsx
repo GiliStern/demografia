@@ -63,17 +63,17 @@ export const Player = () => {
     const moveDir = new THREE.Vector3(x, y, 0);
     if (moveDir.length() > 0) {
       moveDir.normalize().multiplyScalar(playerStats.moveSpeed);
-      setPlayerDirection(
-        x !== 0 ? Math.sign(x) : isFacingLeft ? -1 : 1,
-        y !== 0 ? Math.sign(y) : 0
-      );
+      setPlayerDirection({
+        x: x !== 0 ? Math.sign(x) : isFacingLeft ? -1 : 1,
+        y: y !== 0 ? Math.sign(y) : 0,
+      });
     }
 
     rigidBody.current.setLinvel({ x: moveDir.x, y: moveDir.y, z: 0 }, true);
 
     // Update store position
     const translation = rigidBody.current.translation();
-    setPlayerPosition(translation.x, translation.y);
+    setPlayerPosition({ x: translation.x, y: translation.y });
 
     // Camera follow
     // Smooth lerp could be added here, but direct set is fine for pixel perfect

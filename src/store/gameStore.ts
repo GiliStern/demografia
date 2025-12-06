@@ -1,37 +1,18 @@
 import { create } from "zustand";
+import { CHARACTERS } from "../data/config/characters";
 import {
   CharacterId,
   PauseReason,
-  type GameState,
-  type PlayerStats,
+  type GameStore,
+  type StoreCreator,
+  type CoreGameState,
+  type GameSlice,
 } from "../types";
-import { CHARACTERS } from "../data/config/characters";
+import { createPlayerStore } from "./playerStore";
+import { createEnemiesStore } from "./enemiesStore";
+import { createWeaponsStore } from "./weaponsStore";
 
-export interface GameStore extends GameState {
-  // Actions
-  startGame: (characterId: CharacterId) => void;
-  pauseGame: () => void;
-  resumeGame: () => void;
-  togglePause: () => void;
-  endGame: () => void;
-  updateTimer: (delta: number) => void;
-  addXp: (amount: number) => void;
-  addGold: (amount: number) => void;
-  addKill: () => void;
-  levelUp: () => void;
-
-  // Player State (Runtime)
-  currentHealth: number;
-  playerStats: PlayerStats;
-  playerPosition: { x: number; y: number };
-  playerDirection: { x: number; y: number };
-  setPlayerPosition: (x: number, y: number) => void;
-  setPlayerDirection: (x: number, y: number) => void;
-  takeDamage: (amount: number) => void;
-  heal: (amount: number) => void;
-}
-
-const INITIAL_STATE: GameState = {
+const INITIAL_GAME_STATE: CoreGameState = {
   isRunning: false,
   isPaused: false,
   pauseReason: PauseReason.None,
@@ -41,46 +22,25 @@ const INITIAL_STATE: GameState = {
   xp: 0,
   nextLevelXp: 100,
   gold: 0,
-  killCount: 0,
   selectedCharacterId: CharacterId.Srulik,
-  activeWeapons: [],
-  activeItems: [],
 };
 
-const INITIAL_PLAYER_STATS: PlayerStats = {
-  maxHealth: 100,
-  moveSpeed: 5,
-  might: 1,
-  area: 1,
-  cooldown: 1,
-  recovery: 0,
-  luck: 1,
-  growth: 1,
-  greed: 1,
-  curse: 1,
-  revivals: 0,
-};
+const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
+  ...INITIAL_GAME_STATE,
 
-export const useGameStore = create<GameStore>((set, get) => ({
-  ...INITIAL_STATE,
-
-  currentHealth: 100,
-  playerStats: INITIAL_PLAYER_STATS,
-  playerPosition: { x: 0, y: 0 },
-  playerDirection: { x: 1, y: 0 },
-
-  startGame: (characterId: CharacterId) => {
+  startGame: (characterId) => {
     const character = CHARACTERS[characterId];
     if (!character) return;
 
+    get().resetPlayer(characterId);
+    get().resetWeapons([character.starting_weapon_id]);
+    get().resetEnemies();
+
     set({
-      ...INITIAL_STATE,
+      ...INITIAL_GAME_STATE,
       isRunning: true,
       pauseReason: PauseReason.None,
       selectedCharacterId: characterId,
-      playerStats: { ...character.stats },
-      currentHealth: character.stats.maxHealth,
-      activeWeapons: [character.starting_weapon_id],
     });
   },
 
@@ -92,7 +52,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     ),
   resumeGame: () =>
     set((state) =>
-      state.isRunning ? { isPaused: false, pauseReason: PauseReason.None } : state
+      state.isRunning
+        ? { isPaused: false, pauseReason: PauseReason.None }
+        : state
     ),
   togglePause: () =>
     set((state) => {
@@ -111,16 +73,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
       pauseReason: PauseReason.None,
     }),
 
-  updateTimer: (delta: number) => {
+  updateTimer: (delta) => {
     const { isRunning, isPaused, runTimer } = get();
     if (isRunning && !isPaused) {
       set({ runTimer: runTimer + delta });
     }
   },
 
-  addXp: (amount: number) => {
+  addXp: (amount) => {
     const { xp, nextLevelXp } = get(); // access growth from stats later
-    // TODO: Apply growth multiplier
     const newXp = xp + amount;
     if (newXp >= nextLevelXp) {
       get().levelUp();
@@ -140,35 +101,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
-  addGold: (amount: number) => {
+  addGold: (amount) => {
     set((state) => ({ gold: state.gold + amount }));
   },
+});
 
-  addKill: () => {
-    set((state) => ({ killCount: state.killCount + 1 }));
-  },
-
-  setPlayerPosition: (x: number, y: number) =>
-    set({ playerPosition: { x, y } }),
-  setPlayerDirection: (x: number, y: number) =>
-    set({ playerDirection: { x, y } }),
-
-  takeDamage: (amount: number) => {
-    set((state) => {
-      const newHealth = Math.max(0, state.currentHealth - amount);
-      if (newHealth === 0) {
-        state.endGame();
-      }
-      return { currentHealth: newHealth };
-    });
-  },
-
-  heal: (amount: number) => {
-    set((state) => ({
-      currentHealth: Math.min(
-        state.playerStats.maxHealth,
-        state.currentHealth + amount
-      ),
-    }));
-  },
+export const useGameStore = create<GameStore>()((...args) => ({
+  ...createGameSlice(...args),
+  ...createPlayerStore(...args),
+  ...createEnemiesStore(...args),
+  ...createWeaponsStore(...args),
 }));

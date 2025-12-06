@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { WeaponId } from "./data/config/weapons";
+import type { StateCreator } from "zustand";
 
 export interface SpriteConfig {
   textureUrl: string;
@@ -172,6 +173,57 @@ export interface GameState {
   activeWeapons: WeaponId[]; // IDs of active weapons
   activeItems: ItemId[];
 }
+
+export interface PlayerStore {
+  currentHealth: number;
+  playerStats: PlayerStats;
+  playerPosition: { x: number; y: number };
+  playerDirection: { x: number; y: number };
+  setPlayerPosition: (position: { x: number; y: number }) => void;
+  setPlayerDirection: (direction: { x: number; y: number }) => void;
+  resetPlayer: (characterId: CharacterId) => void;
+  takeDamage: (amount: number) => number;
+  heal: (amount: number) => void;
+}
+
+export interface EnemiesStore {
+  killCount: number;
+  resetEnemies: () => void;
+  addKill: () => void;
+}
+
+export interface WeaponsStore {
+  activeWeapons: WeaponId[];
+  activeItems: ItemId[];
+  resetWeapons: (weaponIds: WeaponId[]) => void;
+  addWeapon: (weaponId: WeaponId) => void;
+}
+
+export type CoreGameState = Omit<
+  GameState,
+  "activeWeapons" | "activeItems" | "killCount"
+>;
+
+export interface GameSlice extends CoreGameState {
+  startGame: (characterId: CharacterId) => void;
+  pauseGame: () => void;
+  resumeGame: () => void;
+  togglePause: () => void;
+  endGame: () => void;
+  updateTimer: (delta: number) => void;
+  addXp: (amount: number) => void;
+  addGold: (amount: number) => void;
+  levelUp: () => void;
+}
+
+export type GameStore = GameSlice & PlayerStore & EnemiesStore & WeaponsStore;
+
+export type StoreCreator<StoreState> = StateCreator<
+  GameStore,
+  [],
+  [],
+  StoreState
+>;
 
 interface Position {
   x: number;
