@@ -111,7 +111,7 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
       userData={enemyUserData}
       onIntersectionEnter={handleIntersection}
     >
-      <CuboidCollider args={[0.3, 0.3, 1]} />
+      <CuboidCollider args={[0.3, 0.3, 1]} sensor />
       <Sprite
         flipX={isFacingLeft}
         {...enemy.sprite_config}

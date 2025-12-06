@@ -61,7 +61,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     sprite_config: {
       textureUrl: "/assets/sprites/scooter swarm.png",
       index: 3,
-      scale: 1,
+      scale: 3,
       spriteFrameSize: 512,
     },
   },
@@ -77,7 +77,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     sprite_config: {
       textureUrl: "/assets/sprites/tiktok star.png",
       index: 4,
-      scale: 1,
+      scale: 3,
       spriteFrameSize: 512,
     },
   },

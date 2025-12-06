@@ -5,6 +5,7 @@ import {
   RapierRigidBody,
   CuboidCollider,
   type IntersectionEnterPayload,
+  type IntersectionExitPayload,
 } from "@react-three/rapier";
 import { useKeyboardControls } from "../hooks/useKeyboardControls";
 import { useGameStore } from "../store/gameStore";
@@ -36,6 +37,7 @@ export const Player = () => {
   const [isMoving, setIsMoving] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);
   const lastDamageTime = useRef(0);
+  const activeEnemyContacts = useRef(new Map<string, number>());
 
   useFrame((state) => {
     if (!rigidBody.current) return;
@@ -80,6 +82,19 @@ export const Player = () => {
     // Facing direction
     if (x < 0 && !isFacingLeft) setFacingLeft(true);
     if (x > 0 && isFacingLeft) setFacingLeft(false);
+
+    // Apply contact damage at intervals while any enemies overlap
+    const now = Date.now();
+    if (
+      activeEnemyContacts.current.size > 0 &&
+      now - lastDamageTime.current >= 500
+    ) {
+      const totalDamage = Array.from(
+        activeEnemyContacts.current.values()
+      ).reduce((sum, dmg) => sum + dmg, 0);
+      takeDamage(totalDamage);
+      lastDamageTime.current = now;
+    }
   });
 
   // Determine Animation Name
@@ -101,16 +116,19 @@ export const Player = () => {
   });
 
   const handleIntersection = (payload: IntersectionEnterPayload) => {
-    const now = Date.now();
-    // Invulnerability frame of 500ms
-    if (now - lastDamageTime.current < 500) return;
-
     const userData = payload.other.rigidBodyObject?.userData;
 
     if (isEnemyUserData(userData)) {
-      takeDamage(userData.damage);
-      lastDamageTime.current = now;
-      // Visual feedback needed here
+      activeEnemyContacts.current.set(userData.id, userData.damage);
+      // Visual feedback could go here
+    }
+  };
+
+  const handleIntersectionExit = (payload: IntersectionExitPayload) => {
+    const userData = payload.other.rigidBodyObject?.userData;
+
+    if (isEnemyUserData(userData)) {
+      activeEnemyContacts.current.delete(userData.id);
     }
   };
 
@@ -129,8 +147,9 @@ export const Player = () => {
       friction={0}
       userData={playerUserData}
       onIntersectionEnter={handleIntersection}
+      onIntersectionExit={handleIntersectionExit}
     >
-      <CuboidCollider args={[0.3, 0.3, 1]} />
+      <CuboidCollider args={[0.3, 0.3, 1]} sensor />
       <Sprite
         {...charData.sprite_config}
         index={frameIndex}
