@@ -7,6 +7,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "צבר",
     description_he: "יורה פירות צבר קוצניים אל האויב הקרוב.",
     type: "projectile_closest",
+    shouldSpin: false,
     stats: {
       damage: 10,
       speed: 8,
@@ -68,6 +69,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       amount: 1,
       pierce: 99,
     },
+    shouldSpin: true,
     maxLevel: 8,
     levels: [
       {
@@ -107,6 +109,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "כפרות",
     description_he: "תרנגולות מסתובבות בהקפה סביב הדמות.",
     type: "orbital",
+    shouldSpin: true,
     stats: {
       damage: 10,
       speed: 3,
@@ -160,6 +163,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     },
     sprite_config: {
       textureUrl: "/assets/sprites/chicken.png",
+      iconUrl: "/assets/icons/chicken_circle.png",
       index: 0,
       spriteFrameSize: 512,
       scale: 1,
@@ -170,6 +174,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "פיתות",
     description_he: "זורק פיתה בקשת גבוהה עם פגיעה חזקה.",
     type: "projectile_arc",
+    shouldSpin: true,
     stats: {
       damage: 20,
       speed: 8,
@@ -226,6 +231,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "מגן דוד",
     description_he: "כוכבים חדים נורים לכיוון התנועה.",
     type: "projectile_directional",
+    shouldSpin: true,
     stats: {
       damage: 6.5,
       speed: 16,
@@ -278,6 +284,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "קקטוס קדוש",
     description_he: "זרם קבוע של פירות צבר ללא קירור.",
     type: "projectile_closest",
+    shouldSpin: false,
     stats: {
       damage: 20,
       speed: 10,
@@ -299,6 +306,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "אין עתיד",
     description_he: "כיסאות מהירים עם התפוצצות בכל ניתור.",
     type: "projectile_bounce",
+    shouldSpin: false,
     stats: {
       damage: 20,
       speed: 14,
@@ -320,6 +328,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "סליחות לא קדושות",
     description_he: "מגן תרנגולות קבוע ומואץ סביב הדמות.",
     type: "orbital",
+    shouldSpin: false,
     stats: {
       damage: 20,
       speed: 5,
@@ -341,6 +350,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "בורקס המוות",
     description_he: "פיצוץ רדיאלי של בורקסים החודרים הכול.",
     type: "projectile_radial",
+    shouldSpin: false,
     stats: {
       damage: 35,
       speed: 12,
@@ -362,6 +372,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "אלף חיתוכים",
     description_he: "זרם בלתי פוסק של מגני דוד.",
     type: "projectile_directional",
+    shouldSpin: false,
     stats: {
       damage: 12,
       speed: 18,

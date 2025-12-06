@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../hooks/useGameStore";
 import {
   getRepeatedTextureOffsets,
   setupRepeatingTexture,

@@ -68,13 +68,19 @@ const applyStatDelta = (
 
   if (delta.add) {
     for (const key of Object.keys(delta.add) as (keyof WeaponStats)[]) {
-      next[key] = next[key] + (delta.add[key] ?? 0);
+      const val = delta.add[key];
+      if (typeof val === "number") {
+        next[key] = (next[key] ?? 0) + val;
+      }
     }
   }
 
   if (delta.mult) {
     for (const key of Object.keys(delta.mult) as (keyof WeaponStats)[]) {
-      next[key] = next[key] * (delta.mult[key] ?? 1);
+      const val = delta.mult[key];
+      if (typeof val === "number") {
+        next[key] = (next[key] ?? 0) * val;
+      }
     }
   }
 

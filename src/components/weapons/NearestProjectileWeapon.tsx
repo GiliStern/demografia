@@ -1,10 +1,10 @@
 import { Projectile } from "../Projectile";
 import type { ProjectileData, WeaponComponentProps } from "../../types";
-import { useProjectileWeapon } from "../../hooks/useProjectileWeapon";
+import { useNearestProjectileWeapon } from "../../hooks/useNearestProjectileWeapon";
 
-export const ProjectileWeapon = ({ weaponId }: WeaponComponentProps) => {
+export const NearestProjectileWeapon = ({ weaponId }: WeaponComponentProps) => {
   const { projectiles, spriteConfig, damage, removeProjectile, shouldSpin } =
-    useProjectileWeapon({
+    useNearestProjectileWeapon({
       weaponId,
     });
 

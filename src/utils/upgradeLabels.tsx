@@ -1,14 +1,19 @@
 import { ItemKind, type UpgradeOption } from "../types";
 import { UI_STRINGS } from "../data/config/ui";
-import { WEAPONS } from "@/data/config/weapons";
+import { WEAPONS } from "@/data/config/weaponsConfig";
 import { PASSIVES } from "@/data/config/passives";
 import type { ReactNode } from "react";
-import { Sprite } from "@/components/Sprite";
 
 export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
   if (choice.kind === ItemKind.Weapon) {
     const weaponData = WEAPONS[choice.weaponId];
     const iconUrl = weaponData.sprite_config.iconUrl;
+    const nextLevelData = weaponData.levels?.find(
+      (lvl) => lvl.level === choice.currentLevel + 1
+    );
+    const upgradeText = choice.isNew
+      ? UI_STRINGS.level_up.weapon_new_prefix
+      : nextLevelData?.description ?? UI_STRINGS.level_up.weapon_upgrade_prefix;
 
     return (
       <div
@@ -39,9 +44,7 @@ export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
             color: choice.isNew ? "lightGreen" : "lightBlue",
           }}
         >
-          {choice.isNew
-            ? UI_STRINGS.level_up.weapon_new_prefix
-            : UI_STRINGS.level_up.weapon_upgrade_prefix}
+          {upgradeText}
         </div>
       </div>
     );

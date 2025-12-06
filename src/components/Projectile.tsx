@@ -6,12 +6,14 @@ import {
   type IntersectionEnterPayload,
 } from "@react-three/rapier";
 import { Sprite } from "./Sprite";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../hooks/useGameStore";
 import type {
   ProjectileProps,
   ProjectileUserData,
   RigidBodyUserData,
 } from "@/types";
+import { AnimationCategory, AnimationType, AnimationVariant } from "@/types";
+import { useSpriteAnimation } from "@/hooks/useSpriteAnimation";
 
 export const Projectile = ({
   id,
@@ -20,12 +22,19 @@ export const Projectile = ({
   duration,
   damage,
   spriteConfig,
+  shouldSpin,
   onDespawn,
 }: ProjectileProps) => {
   const rigidBody = useRef<RapierRigidBody>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const { isPaused, isRunning } = useGameStore();
   const velocityRef = useRef(velocity);
+
+  const frameIndex = useSpriteAnimation({
+    category: AnimationCategory.Weapons,
+    variant: AnimationVariant.Default,
+    currentAnimation: AnimationType.Idle,
+  });
 
   useEffect(() => {
     // Set initial velocity
@@ -91,7 +100,7 @@ export const Projectile = ({
       <CuboidCollider args={[0.2, 0.2, 0.2]} />
       <Sprite
         textureUrl={spriteConfig.textureUrl}
-        index={spriteConfig.index}
+        index={shouldSpin ? frameIndex : spriteConfig.index}
         scale={spriteConfig.scale}
         spriteFrameSize={spriteConfig.spriteFrameSize ?? 32}
       />

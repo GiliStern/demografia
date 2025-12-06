@@ -6,7 +6,7 @@ import type {
   AnimationType,
   AnimationVariant,
 } from "@/types";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "./useGameStore";
 
 interface UseSpriteAnimationProps {
   category: AnimationCategory;

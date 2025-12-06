@@ -1,4 +1,4 @@
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../hooks/useGameStore";
 import { ItemKind, PauseReason } from "../types";
 import { UI_STRINGS } from "../data/config/ui";
 import { renderUpgradeLabel } from "../utils/upgradeLabels";

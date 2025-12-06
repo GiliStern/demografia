@@ -3,7 +3,7 @@ import { GameCanvas } from "./components/GameCanvas";
 import { InGameHUD } from "./components/InGameHUD";
 import { MainMenu } from "./components/screens/MainMenu";
 import { GameOver } from "./components/screens/GameOver";
-import { useGameStore } from "./store/gameStore";
+import { useGameStore } from "./hooks/useGameStore";
 import { PauseReason } from "./types";
 import "./App.css";
 

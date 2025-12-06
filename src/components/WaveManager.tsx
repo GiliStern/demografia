@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Enemy } from "./Enemy";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../hooks/useGameStore";
 import { WAVES } from "../data/config/waves";
 import type { WaveData, EnemyId } from "../types";
 

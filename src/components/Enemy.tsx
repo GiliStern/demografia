@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import {
   RigidBody,
@@ -7,7 +7,7 @@ import {
   type IntersectionEnterHandler,
 } from "@react-three/rapier";
 import { Sprite } from "./Sprite";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../hooks/useGameStore";
 import * as THREE from "three";
 import { ENEMIES } from "../data/config/enemies";
 import {
@@ -29,8 +29,16 @@ interface EnemyProps {
 
 export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
   const rigidBody = useRef<RapierRigidBody>(null);
-  const { playerPosition, isPaused, isRunning, addXp, addGold } =
-    useGameStore();
+  const {
+    playerPosition,
+    isPaused,
+    isRunning,
+    addXp,
+    addGold,
+    registerEnemy,
+    updateEnemyPosition,
+    removeEnemy,
+  } = useGameStore();
   const [isFacingLeft, setFacingLeft] = useState(false);
 
   // Load stats from data
@@ -45,6 +53,12 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
     variant: AnimationVariant.Default,
     currentAnimation: AnimationType.Run,
   });
+
+  useEffect(() => {
+    const [x, y] = position;
+    registerEnemy(id, { x, y });
+    return () => removeEnemy(id);
+  }, [id, position, registerEnemy, removeEnemy]);
 
   useFrame(() => {
     if (!rigidBody.current) return;
@@ -74,6 +88,9 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
     } else {
       rigidBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
     }
+
+    const translation = rigidBody.current.translation();
+    updateEnemyPosition(id, { x: translation.x, y: translation.y });
   });
 
   const handleIntersection: IntersectionEnterHandler = (payload) => {

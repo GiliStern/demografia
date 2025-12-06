@@ -1,23 +1,26 @@
 import { useMemo } from "react";
-import { buildWeaponRenderList } from "@/utils/weapons";
+import { buildWeaponRenderList } from "@/utils/weaponUtils";
 import type { WeaponComponentRegistry } from "@/types";
-import { useGameStore } from "../../store/gameStore";
+import { useGameStore } from "../../hooks/useGameStore";
 import { WeaponId } from "../../types";
 import { ProjectileWeapon } from "./ProjectileWeapon";
-
-const PlaceholderWeapon = () => null;
+import { NearestProjectileWeapon } from "./NearestProjectileWeapon";
+import { BounceWeapon } from "./BounceWeapon";
+import { OrbitWeapon } from "./OrbitWeapon";
+import { ArcWeapon } from "./ArcWeapon";
+import { RadialWeapon } from "./RadialWeapon";
 
 const weaponComponentRegistry: WeaponComponentRegistry = {
-  [WeaponId.Sabra]: ProjectileWeapon,
-  [WeaponId.KeterChairs]: ProjectileWeapon,
-  [WeaponId.Pitas]: ProjectileWeapon,
+  [WeaponId.Sabra]: NearestProjectileWeapon,
+  [WeaponId.KeterChairs]: BounceWeapon,
+  [WeaponId.Pitas]: ArcWeapon,
   [WeaponId.StarOfDavid]: ProjectileWeapon,
-  [WeaponId.HolyCactus]: ProjectileWeapon,
-  [WeaponId.NoFuture]: ProjectileWeapon,
-  [WeaponId.BurekasOfDeath]: ProjectileWeapon,
+  [WeaponId.HolyCactus]: NearestProjectileWeapon,
+  [WeaponId.NoFuture]: BounceWeapon,
+  [WeaponId.BurekasOfDeath]: RadialWeapon,
   [WeaponId.ThousandEdge]: ProjectileWeapon,
-  [WeaponId.Kaparot]: PlaceholderWeapon,
-  [WeaponId.UnholySelichot]: PlaceholderWeapon,
+  [WeaponId.Kaparot]: OrbitWeapon,
+  [WeaponId.UnholySelichot]: OrbitWeapon,
 };
 
 export const ActiveWeapons = () => {

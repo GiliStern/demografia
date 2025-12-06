@@ -95,6 +95,7 @@ export interface WeaponStats {
   area: number;
   amount: number;
   pierce: number;
+  cooldownPause?: number; // for orbit/other weapons to represent downtime between cycles
 }
 
 export interface WeaponData {
@@ -126,6 +127,7 @@ export interface WeaponDefinition extends WeaponData {
   maxLevel?: number;
   levels?: WeaponLevel[];
   evolution?: WeaponEvolution;
+  shouldSpin: boolean;
 }
 
 export interface WeaponComponentProps {
@@ -156,6 +158,7 @@ export interface ProjectileWeaponInstance {
   cooldown: number;
   speed: number;
   duration: number;
+  shouldSpin: boolean;
 }
 
 interface EnemyStats {
@@ -256,6 +259,10 @@ export interface EnemiesStore {
   killCount: number;
   resetEnemies: () => void;
   addKill: () => void;
+  enemiesPositions: Record<string, { x: number; y: number }>;
+  registerEnemy: (id: string, position: { x: number; y: number }) => void;
+  updateEnemyPosition: (id: string, position: { x: number; y: number }) => void;
+  removeEnemy: (id: string) => void;
 }
 
 export interface WeaponsStore {
@@ -307,12 +314,14 @@ interface WeaponUpgradeOption {
   kind: ItemKind.Weapon;
   weaponId: WeaponId;
   isNew: boolean;
+  currentLevel: number;
 }
 
 interface PassiveUpgradeOption {
   kind: ItemKind.Passive;
   passiveId: PassiveId;
   isNew: boolean;
+  currentLevel: number;
 }
 
 export type UpgradeOption = WeaponUpgradeOption | PassiveUpgradeOption;
@@ -338,6 +347,7 @@ export interface ProjectileData {
 
 export interface ProjectileProps extends ProjectileData {
   spriteConfig: SpriteConfig;
+  shouldSpin: boolean;
   onDespawn: () => void;
 }
 

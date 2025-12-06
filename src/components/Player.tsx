@@ -8,7 +8,7 @@ import {
   type IntersectionExitPayload,
 } from "@react-three/rapier";
 import { useKeyboardControls } from "../hooks/useKeyboardControls";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../hooks/useGameStore";
 import { Sprite } from "./Sprite";
 import * as THREE from "three";
 import { useSpriteAnimation } from "../hooks/useSpriteAnimation";

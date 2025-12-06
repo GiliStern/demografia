@@ -1,6 +1,6 @@
 import type { StoreCreator, WeaponsStore, PassiveId, WeaponId } from "../types";
-import { WEAPONS } from "../data/config/weapons";
-import { resolveWeaponStats, DEFAULT_WEAPON_STATS } from "../utils/weapons";
+import { WEAPONS } from "../data/config/weaponsConfig";
+import { resolveWeaponStats, DEFAULT_WEAPON_STATS } from "../utils/weaponUtils";
 
 export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
   activeWeapons: [],

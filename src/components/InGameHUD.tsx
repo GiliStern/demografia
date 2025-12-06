@@ -1,6 +1,6 @@
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../hooks/useGameStore";
 import { UI_STRINGS } from "../data/config/ui";
-import { WEAPONS } from "../data/config/weapons";
+import { WEAPONS } from "../data/config/weaponsConfig";
 
 export const InGameHUD = () => {
   const {

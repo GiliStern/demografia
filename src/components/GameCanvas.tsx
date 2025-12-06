@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { OrthographicCamera } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
 import { Suspense } from "react";
@@ -6,17 +6,9 @@ import { Suspense } from "react";
 import { Player } from "./Player";
 import { ActiveWeapons } from "./weapons/ActiveWeapons";
 import { WaveManager } from "./WaveManager";
-import { useGameStore } from "../store/gameStore";
 import { InfiniteBackground } from "./InfiniteBackground";
 import { LevelUpOverlay } from "./LevelUpOverlay";
-
-const GameLoop = () => {
-  const updateTimer = useGameStore((state) => state.updateTimer);
-  useFrame((_state, delta) => {
-    updateTimer(delta);
-  });
-  return null;
-};
+import { GameLoop } from "./GameLoop";
 
 export const GameCanvas = () => {
   return (

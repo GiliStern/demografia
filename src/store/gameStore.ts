@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { CHARACTERS } from "../data/config/characters";
-import { WEAPONS } from "../data/config/weapons";
+import { WEAPONS } from "../data/config/weaponsConfig";
 import { PASSIVES } from "../data/config/passives";
 import { FLOOR_PICKUPS } from "../data/config/floorPickups";
 import {
@@ -176,12 +176,14 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
   },
 });
 
-export const useGameStore = create<GameStore>()((...args) => ({
+const useGameStore = create<GameStore>()((...args) => ({
   ...createGameSlice(...args),
   ...createPlayerStore(...args),
   ...createEnemiesStore(...args),
   ...createWeaponsStore(...args),
 }));
+
+export { useGameStore };
 
 const BASE_WEAPON_POOL: WeaponId[] = [
   WeaponId.Sabra,
@@ -201,7 +203,12 @@ const buildUpgradeChoices = (get: () => GameStore): UpgradeOption[] => {
     const level = state.weaponLevels[weaponId] ?? 1;
     const max = def?.maxLevel ?? level;
     if (def && level < max) {
-      choices.push({ kind: ItemKind.Weapon, weaponId, isNew: false });
+      choices.push({
+        kind: ItemKind.Weapon,
+        weaponId,
+        isNew: false,
+        currentLevel: level,
+      });
     } else if (
       def?.evolution &&
       state.activeItems.includes(def.evolution.passiveRequired)
@@ -210,6 +217,7 @@ const buildUpgradeChoices = (get: () => GameStore): UpgradeOption[] => {
         kind: ItemKind.Weapon,
         weaponId: def.evolution.evolvesTo,
         isNew: true,
+        currentLevel: 0,
       });
     }
   });
@@ -217,7 +225,12 @@ const buildUpgradeChoices = (get: () => GameStore): UpgradeOption[] => {
   // New weapons
   BASE_WEAPON_POOL.filter((id) => !state.activeWeapons.includes(id)).forEach(
     (weaponId) => {
-      choices.push({ kind: ItemKind.Weapon, weaponId, isNew: true });
+      choices.push({
+        kind: ItemKind.Weapon,
+        weaponId,
+        isNew: true,
+        currentLevel: 0,
+      });
     }
   );
 
@@ -225,7 +238,12 @@ const buildUpgradeChoices = (get: () => GameStore): UpgradeOption[] => {
   (Object.keys(PASSIVES) as PassiveId[])
     .filter((id) => !state.activeItems.includes(id))
     .forEach((passiveId) =>
-      choices.push({ kind: ItemKind.Passive, passiveId, isNew: true })
+      choices.push({
+        kind: ItemKind.Passive,
+        passiveId,
+        isNew: true,
+        currentLevel: 0,
+      })
     );
 
   return choices.slice(0, 3);

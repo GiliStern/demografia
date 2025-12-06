@@ -1,4 +1,4 @@
-import { useGameStore } from "../../store/gameStore";
+import { useGameStore } from "../../hooks/useGameStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { CharacterId } from "@/types";
 import { AppButton } from "../ui/AppButton";
@@ -52,7 +52,11 @@ export const MainMenu = () => {
         )}
 
         {!canResume && (
-          <AppButton onClick={() => startGame(CharacterId.Srulik)}>
+          <AppButton
+            tabIndex={0}
+            autoFocus
+            onClick={() => startGame(CharacterId.Srulik)}
+          >
             {UI_STRINGS.menu.play}
           </AppButton>
         )}
