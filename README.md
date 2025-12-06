@@ -2,6 +2,8 @@
 
 Arcade-style survivor game built with Vite, React, TypeScript, and three.js helpers. This guide covers getting the project running locally.
 
+![Demografia banner](./public/assets/main_banner.png)
+
 ## Prerequisites
 
 - Node.js 18+ (Vite 5 requires Node 18 or newer)
