@@ -1,12 +1,22 @@
+import { useRef } from "react";
+
 import { useGameStore } from "../../hooks/useGameStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { CharacterId } from "@/types";
 import { AppButton } from "../ui/AppButton";
 import { banners } from "@/assets/assetPaths";
+import { useMenuNavigation } from "@/hooks/useMenuNavigation";
 
 export const MainMenu = () => {
   const { startGame, resumeGame, isPaused, isRunning } = useGameStore();
   const canResume = isRunning && isPaused;
+  const buttonColumnRef = useRef<HTMLDivElement>(null);
+
+  useMenuNavigation({
+    containerRef: buttonColumnRef,
+    isActive: true,
+    focusKey: canResume,
+  });
 
   return (
     <div
@@ -47,17 +57,14 @@ export const MainMenu = () => {
           gap: "20px",
           width: "400px",
         }}
+        ref={buttonColumnRef}
       >
         {canResume && (
           <AppButton onClick={resumeGame}>{UI_STRINGS.common.resume}</AppButton>
         )}
 
         {!canResume && (
-          <AppButton
-            tabIndex={0}
-            autoFocus
-            onClick={() => startGame(CharacterId.Srulik)}
-          >
+          <AppButton onClick={() => startGame(CharacterId.Srulik)}>
             {UI_STRINGS.menu.play}
           </AppButton>
         )}

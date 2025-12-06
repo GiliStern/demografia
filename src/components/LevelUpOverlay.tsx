@@ -1,13 +1,24 @@
+import { useRef } from "react";
+
 import { useGameStore } from "../hooks/useGameStore";
 import { ItemKind, PauseReason } from "../types";
 import { UI_STRINGS } from "../data/config/ui";
 import { renderUpgradeLabel } from "../utils/upgradeLabels";
 import { AppButton } from "./ui/AppButton";
+import { useMenuNavigation } from "@/hooks/useMenuNavigation";
 
 export const LevelUpOverlay = () => {
   const { pauseReason, upgradeChoices, applyUpgrade } = useGameStore();
+  const isLevelUpMenu = pauseReason === PauseReason.LevelUp;
+  const buttonListRef = useRef<HTMLDivElement>(null);
 
-  if (pauseReason !== PauseReason.LevelUp) return null;
+  useMenuNavigation({
+    containerRef: buttonListRef,
+    isActive: isLevelUpMenu,
+    focusKey: upgradeChoices.length,
+  });
+
+  if (!isLevelUpMenu) return null;
 
   return (
     <div
@@ -34,7 +45,10 @@ export const LevelUpOverlay = () => {
         {upgradeChoices.length === 0 && (
           <p>{UI_STRINGS.level_up.no_upgrades}</p>
         )}
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div
+          ref={buttonListRef}
+          style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+        >
           {upgradeChoices.map((choice) => {
             const choiceId =
               choice.kind === ItemKind.Weapon
