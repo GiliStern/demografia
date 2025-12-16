@@ -41,6 +41,11 @@ export const InfiniteBackground = () => {
 
     // Scroll opposite to player position so world appears to move underfoot
     map.offset.set(offsetX, offsetY);
+
+    // Keep background centered on player so it's always visible
+    if (meshRef.current) {
+      meshRef.current.position.set(x, y, -2);
+    }
   });
 
   return (

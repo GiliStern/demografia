@@ -9,6 +9,7 @@ import { WaveManager } from "./WaveManager";
 import { InfiniteBackground } from "./InfiniteBackground";
 import { LevelUpOverlay } from "./LevelUpOverlay";
 import { GameLoop } from "./GameLoop";
+import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
 
 export const GameCanvas = () => {
   return (
@@ -20,7 +21,7 @@ export const GameCanvas = () => {
           <OrthographicCamera
             makeDefault
             position={[0, 0, 10]}
-            zoom={40}
+            zoom={VIEWPORT_CONFIG.CAMERA_ZOOM}
             near={0.1}
             far={1000}
           />

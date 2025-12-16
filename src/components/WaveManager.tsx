@@ -4,6 +4,12 @@ import { Enemy } from "./Enemy";
 import { useGameStore } from "../hooks/useGameStore";
 import { WAVES } from "../data/config/waves";
 import type { WaveData, EnemyId } from "../types";
+import {
+  getSpawnPositionOutsideViewport,
+  getCullDistance,
+} from "../utils/viewportBounds";
+import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
+import { distance } from "../utils/weaponMath";
 
 interface ActiveEnemy {
   id: string;
@@ -20,7 +26,6 @@ type SpawnTracker = Record<
 
 const waves = WAVES;
 const DEFAULT_STAGE = "stage_1";
-const SPAWN_DISTANCE = 20;
 
 export const WaveManager = () => {
   const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
@@ -37,6 +42,26 @@ export const WaveManager = () => {
 
   useFrame(() => {
     if (isPaused || !isRunning || !currentWave) return;
+
+    // Get viewport bounds for culling
+    const viewportBounds = useGameStore.getState().viewportBounds;
+    if (viewportBounds) {
+      // Cull enemies that are too far from player (Vampire Survivors style)
+      const cullDistance = getCullDistance(
+        viewportBounds,
+        VIEWPORT_CONFIG.ENEMY_CULL_MULTIPLIER
+      );
+
+      setEnemies((prev) =>
+        prev.filter((enemy) => {
+          const dist = distance(
+            { x: enemy.position[0], y: enemy.position[1] },
+            playerPosition
+          );
+          return dist <= cullDistance;
+        })
+      );
+    }
 
     currentWave.enemies.forEach((config) => {
       const tracker = spawnTrackerRef.current[config.id] ?? { lastSpawn: 0 };
@@ -56,10 +81,15 @@ export const WaveManager = () => {
   });
 
   const spawnEnemy = (typeId: EnemyId) => {
-    const angle = Math.random() * Math.PI * 2;
-    const distance = SPAWN_DISTANCE;
-    const x = playerPosition.x + Math.cos(angle) * distance;
-    const y = playerPosition.y + Math.sin(angle) * distance;
+    // Get viewport bounds for spawning outside visible frame
+    const viewportBounds = useGameStore.getState().viewportBounds;
+    if (!viewportBounds) return;
+
+    const spawnPos = getSpawnPositionOutsideViewport(
+      playerPosition,
+      viewportBounds,
+      VIEWPORT_CONFIG.ENEMY_SPAWN_MARGIN
+    );
 
     const id =
       typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -69,7 +99,7 @@ export const WaveManager = () => {
     const newEnemy: ActiveEnemy = {
       id,
       typeId,
-      position: [x, y, 0],
+      position: [spawnPos.x, spawnPos.y, 0],
     };
 
     setEnemies((prev) => [...prev, newEnemy]);

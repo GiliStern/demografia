@@ -9,6 +9,12 @@ export const distanceSq = (a: Vec2, b: Vec2) => {
   return dx * dx + dy * dy;
 };
 
+export const distance = (a: Vec2, b: Vec2) => {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
 export const normalize = (v: Vec2): Vec2 => {
   const len = Math.hypot(v.x, v.y);
   if (len === 0) return { x: 0, y: 0 };
@@ -38,12 +44,23 @@ export const nearestEnemyDirection = (
   return dir;
 };
 
-export const reflectInBounds = (pos: Vec2, vel: Vec2, bounds: number): Vec2 => {
+export const reflectInBounds = (
+  pos: Vec2,
+  vel: Vec2,
+  playerPos: Vec2,
+  halfWidth: number,
+  halfHeight: number
+): Vec2 => {
   const nextVel = { ...vel };
-  if (pos.x > bounds && vel.x > 0) nextVel.x *= -1;
-  if (pos.x < -bounds && vel.x < 0) nextVel.x *= -1;
-  if (pos.y > bounds && vel.y > 0) nextVel.y *= -1;
-  if (pos.y < -bounds && vel.y < 0) nextVel.y *= -1;
+  const rightBound = playerPos.x + halfWidth;
+  const leftBound = playerPos.x - halfWidth;
+  const topBound = playerPos.y + halfHeight;
+  const bottomBound = playerPos.y - halfHeight;
+
+  if (pos.x > rightBound && vel.x > 0) nextVel.x *= -1;
+  if (pos.x < leftBound && vel.x < 0) nextVel.x *= -1;
+  if (pos.y > topBound && vel.y > 0) nextVel.y *= -1;
+  if (pos.y < bottomBound && vel.y < 0) nextVel.y *= -1;
   return nextVel;
 };
 

@@ -18,7 +18,15 @@ describe("weaponMath helpers", () => {
   });
 
   it("reflects velocity at bounds", () => {
-    const vel = reflectInBounds({ x: 21, y: 0 }, { x: 1, y: 1 }, 20);
+    // Projectile at x=21, player at x=0, right bound at x=20 (0+20)
+    // Velocity x=1 (moving right), should reflect to -1
+    const vel = reflectInBounds(
+      { x: 21, y: 0 }, // projectile position
+      { x: 1, y: 1 },  // velocity
+      { x: 0, y: 0 },  // player position
+      20,              // halfWidth
+      20               // halfHeight
+    );
     expect(vel.x).toBe(-1);
     expect(vel.y).toBe(1);
   });

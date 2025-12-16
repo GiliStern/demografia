@@ -19,6 +19,7 @@ import {
 import { createPlayerStore } from "./playerStore";
 import { createEnemiesStore } from "./enemiesStore";
 import { createWeaponsStore } from "./weaponsStore";
+import { createViewportStore } from "./viewportStore";
 
 const INITIAL_GAME_STATE: CoreGameState = {
   isRunning: false,
@@ -181,6 +182,7 @@ const useGameStore = create<GameStore>()((...args) => ({
   ...createPlayerStore(...args),
   ...createEnemiesStore(...args),
   ...createWeaponsStore(...args),
+  ...createViewportStore(...args),
 }));
 
 export { useGameStore };

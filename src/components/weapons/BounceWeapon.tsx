@@ -16,8 +16,6 @@ interface BounceProjectile extends ProjectileData {
   birth: number;
 }
 
-const BOUNDS = 20; // simple world bounds for reflection
-
 export const BounceWeapon = ({ weaponId }: WeaponComponentProps) => {
   const [projectiles, setProjectiles] = useState<BounceProjectile[]>([]);
   const lastFireTime = useRef(0);
@@ -60,6 +58,10 @@ export const BounceWeapon = ({ weaponId }: WeaponComponentProps) => {
       fire(time);
     }
 
+    // Get viewport bounds for bouncing at screen edges
+    const viewportBounds = useGameStore.getState().viewportBounds;
+    if (!viewportBounds) return;
+
     setProjectiles((prev) =>
       prev
         .map((p) => {
@@ -73,7 +75,9 @@ export const BounceWeapon = ({ weaponId }: WeaponComponentProps) => {
           const nextVel = reflectInBounds(
             { x: pos.x, y: pos.y },
             p.velocity,
-            BOUNDS
+            playerPosition,
+            viewportBounds.halfWidth,
+            viewportBounds.halfHeight
           );
           body.setLinvel({ x: nextVel.x, y: nextVel.y, z: 0 }, true);
           return { ...p, velocity: nextVel };

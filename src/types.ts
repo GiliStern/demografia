@@ -277,6 +277,18 @@ export interface WeaponsStore {
   getWeaponStats: (weaponId: WeaponId) => WeaponStats;
 }
 
+export interface ViewportBounds {
+  halfWidth: number;
+  halfHeight: number;
+  width: number;
+  height: number;
+}
+
+export interface ViewportStore {
+  viewportBounds: ViewportBounds | null;
+  updateViewportBounds: (bounds: ViewportBounds) => void;
+}
+
 export type CoreGameState = Omit<
   GameState,
   "activeWeapons" | "activeItems" | "killCount"
@@ -297,7 +309,11 @@ export interface GameSlice extends CoreGameState {
   collectPickup: (pickupId: FloorPickupId) => void;
 }
 
-export type GameStore = GameSlice & PlayerStore & EnemiesStore & WeaponsStore;
+export type GameStore = GameSlice &
+  PlayerStore &
+  EnemiesStore &
+  WeaponsStore &
+  ViewportStore;
 
 export type StoreCreator<StoreState> = StateCreator<
   GameStore,

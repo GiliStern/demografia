@@ -25,6 +25,8 @@ import {
   type PlayerUserData,
 } from "../types";
 import { getAnimationState, updatePlayerFrame } from "../utils/playerControls";
+import { getViewportBounds } from "../utils/viewportBounds";
+import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
 
 export const Player = () => {
   const rigidBody = useRef<RapierRigidBody>(null);
@@ -63,6 +65,13 @@ export const Player = () => {
       lastDamageTime,
       takeDamage,
     });
+
+    // Calculate and update viewport bounds for viewport-relative game systems
+    const viewportBounds = getViewportBounds(
+      state.camera,
+      VIEWPORT_CONFIG.CAMERA_ZOOM
+    );
+    useGameStore.getState().updateViewportBounds(viewportBounds);
   });
 
   const currentAnimation = getAnimationState({
