@@ -20,6 +20,7 @@ import { createPlayerStore } from "./playerStore";
 import { createEnemiesStore } from "./enemiesStore";
 import { createWeaponsStore } from "./weaponsStore";
 import { createViewportStore } from "./viewportStore";
+import { createXpOrbsStore } from "./xpOrbsStore";
 
 const INITIAL_GAME_STATE: CoreGameState = {
   isRunning: false,
@@ -45,6 +46,7 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
     get().resetPlayer(characterId);
     get().resetWeapons([character.starting_weapon_id]);
     get().resetEnemies();
+    get().resetXpOrbs();
 
     set({
       ...INITIAL_GAME_STATE,
@@ -183,6 +185,7 @@ const useGameStore = create<GameStore>()((...args) => ({
   ...createEnemiesStore(...args),
   ...createWeaponsStore(...args),
   ...createViewportStore(...args),
+  ...createXpOrbsStore(...args),
 }));
 
 export { useGameStore };

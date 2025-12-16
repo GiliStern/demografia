@@ -31,16 +31,15 @@ import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
 export const Player = () => {
   const rigidBody = useRef<RapierRigidBody>(null);
   const controls = useKeyboardControls();
-  const {
-    playerStats,
-    setPlayerPosition,
-    setPlayerDirection,
-    takeDamage,
-    selectedCharacterId,
-    isRunning,
-    isPaused,
-    enemiesPositions,
-  } = useGameStore();
+  // PERFORMANCE: Use selective zustand selectors to prevent unnecessary re-renders
+  const playerStats = useGameStore((state) => state.playerStats);
+  const setPlayerPosition = useGameStore((state) => state.setPlayerPosition);
+  const setPlayerDirection = useGameStore((state) => state.setPlayerDirection);
+  const takeDamage = useGameStore((state) => state.takeDamage);
+  const selectedCharacterId = useGameStore((state) => state.selectedCharacterId);
+  const isRunning = useGameStore((state) => state.isRunning);
+  const isPaused = useGameStore((state) => state.isPaused);
+  const enemiesPositions = useGameStore((state) => state.enemiesPositions);
   const [isFacingLeft, setFacingLeft] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);

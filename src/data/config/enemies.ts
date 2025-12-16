@@ -10,6 +10,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       damage: 2,
       speed: 6,
       knockback_resistance: 0,
+      xpDrop: 10,
     },
     sprite_config: {
       textureUrl: sprites.cat,
@@ -26,6 +27,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       damage: 4,
       speed: 6,
       knockback_resistance: 0.1,
+      xpDrop: 20,
     },
     sprite_config: {
       textureUrl: sprites.hipster,
@@ -42,6 +44,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       damage: 5,
       speed: 6,
       knockback_resistance: 0.2,
+      xpDrop: 25,
     },
     sprite_config: {
       textureUrl: sprites.tourist,
@@ -58,6 +61,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       damage: 3,
       speed: 8,
       knockback_resistance: 0,
+      xpDrop: 30,
     },
     sprite_config: {
       textureUrl: sprites.scooterSwarm,
@@ -74,6 +78,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       damage: 6,
       speed: 8,
       knockback_resistance: 0.3,
+      xpDrop: 40,
     },
     sprite_config: {
       textureUrl: sprites.tiktokStar,

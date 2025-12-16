@@ -33,6 +33,7 @@ import srulik512Sprite from "./sprites/srulik_512x512.png";
 import starOfDavidSprite from "./sprites/star_of_david.png";
 import tiktokStarSprite from "./sprites/tiktok star.png";
 import touristSprite from "./sprites/tourist.png";
+import xpSprite from "./sprites/xp.png";
 
 export const bg = {
   achievements: achievementsBg,
@@ -80,6 +81,7 @@ export const sprites = {
   starOfDavid: starOfDavidSprite,
   tiktokStar: tiktokStarSprite,
   tourist: touristSprite,
+  xp: xpSprite,
 };
 
 export const placeholders = {

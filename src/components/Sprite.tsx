@@ -1,11 +1,48 @@
 import { type SpriteConfig } from "@/types";
 import { useTexture } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import * as THREE from "three";
 
 interface SpriteProps extends SpriteConfig {
   flipX?: boolean;
+}
+
+// Cache for UV calculations - calculated once per texture/frame combo
+const uvCache = new Map<string, { repeat: [number, number]; offset: [number, number] }>();
+
+function calculateUVs(
+  textureUrl: string,
+  imageWidth: number,
+  imageHeight: number,
+  spriteFrameSize: number,
+  index: number,
+  flipX: boolean
+): { repeat: [number, number]; offset: [number, number] } {
+  const cacheKey = `${textureUrl}-${index}-${flipX}`;
+  
+  if (uvCache.has(cacheKey)) {
+    return uvCache.get(cacheKey)!;
+  }
+
+  const cols = Math.floor(imageWidth / spriteFrameSize);
+  const rows = Math.floor(imageHeight / spriteFrameSize);
+  const col = index % cols;
+  const row = Math.floor(index / cols);
+
+  let repeat: [number, number];
+  let offset: [number, number];
+
+  if (flipX) {
+    repeat = [-1 / cols, 1 / rows];
+    offset = [(col + 1) / cols, 1 - (row + 1) / rows];
+  } else {
+    repeat = [1 / cols, 1 / rows];
+    offset = [col / cols, 1 - (row + 1) / rows];
+  }
+
+  const result = { repeat, offset };
+  uvCache.set(cacheKey, result);
+  return result;
 }
 
 export const Sprite = ({
@@ -15,47 +52,44 @@ export const Sprite = ({
   scale = 1,
   spriteFrameSize = 32,
 }: SpriteProps) => {
-  // Preload all textures in a real app, here we lazy load
   const texture = useTexture(textureUrl);
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
 
+  // CRITICAL FIX: Clone texture per sprite so each can have independent UVs
   const spriteTexture = useMemo(() => {
-    const t = texture.clone();
-    t.minFilter = THREE.NearestFilter;
-    t.magFilter = THREE.NearestFilter;
-    t.colorSpace = THREE.SRGBColorSpace;
-    t.needsUpdate = true;
-    return t;
+    const cloned = texture.clone();
+    cloned.minFilter = THREE.NearestFilter;
+    cloned.magFilter = THREE.NearestFilter;
+    cloned.colorSpace = THREE.SRGBColorSpace;
+    cloned.needsUpdate = true;
+    return cloned;
   }, [texture]);
 
-  useFrame(() => {
+  // Update UVs only when dependencies change
+  useEffect(() => {
     if (!spriteTexture.image) return;
 
     const image = spriteTexture.image as HTMLImageElement;
-    const w = image.width;
-    const h = image.height;
-    const cols = Math.floor(w / spriteFrameSize);
-    const rows = Math.floor(h / spriteFrameSize);
+    const uvData = calculateUVs(
+      textureUrl,
+      image.width,
+      image.height,
+      spriteFrameSize,
+      index,
+      flipX
+    );
 
-    const col = index % cols;
-    const row = Math.floor(index / cols);
-
-    // Calculate UVs
-    // Y needs to be inverted because Three.js 0 is bottom
-
-    if (flipX) {
-      spriteTexture.repeat.set(-1 / cols, 1 / rows);
-      // If flipped, offset needs to point to the right edge of the frame
-      spriteTexture.offset.set((col + 1) / cols, 1 - (row + 1) / rows);
-    } else {
-      spriteTexture.repeat.set(1 / cols, 1 / rows);
-      spriteTexture.offset.set(col / cols, 1 - (row + 1) / rows);
-    }
-  });
+    // Update this sprite's texture UVs
+    spriteTexture.repeat.set(uvData.repeat[0], uvData.repeat[1]);
+    spriteTexture.offset.set(uvData.offset[0], uvData.offset[1]);
+    spriteTexture.needsUpdate = true;
+  }, [spriteTexture, textureUrl, index, flipX, spriteFrameSize]);
 
   return (
     <mesh scale={[scale, scale, 1]}>
       <planeGeometry args={[1, 1]} />
       <meshBasicMaterial
+        ref={materialRef}
         map={spriteTexture}
         transparent
         alphaTest={0.5}

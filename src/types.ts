@@ -167,6 +167,7 @@ interface EnemyStats {
   damage: number;
   speed: number;
   knockback_resistance: number;
+  xpDrop: number;
 }
 
 export enum EnemyId {
@@ -216,10 +217,17 @@ export interface ProjectileUserData {
   owner: "player" | "enemy";
 }
 
+export interface XpOrbUserData {
+  type: "xpOrb";
+  id: string;
+  xpValue: number;
+}
+
 export type RigidBodyUserData =
   | PlayerUserData
   | EnemyUserData
-  | ProjectileUserData;
+  | ProjectileUserData
+  | XpOrbUserData;
 
 export enum PauseReason {
   None = "none",
@@ -289,6 +297,19 @@ export interface ViewportStore {
   updateViewportBounds: (bounds: ViewportBounds) => void;
 }
 
+export interface XpOrbData {
+  id: string;
+  position: { x: number; y: number };
+  xpValue: number;
+}
+
+export interface XpOrbsStore {
+  xpOrbs: XpOrbData[];
+  addXpOrb: (orb: XpOrbData) => void;
+  removeXpOrb: (id: string) => void;
+  resetXpOrbs: () => void;
+}
+
 export type CoreGameState = Omit<
   GameState,
   "activeWeapons" | "activeItems" | "killCount"
@@ -313,7 +334,8 @@ export type GameStore = GameSlice &
   PlayerStore &
   EnemiesStore &
   WeaponsStore &
-  ViewportStore;
+  ViewportStore &
+  XpOrbsStore;
 
 export type StoreCreator<StoreState> = StateCreator<
   GameStore,

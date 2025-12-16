@@ -29,16 +29,16 @@ interface EnemyProps {
 
 export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
   const rigidBody = useRef<RapierRigidBody>(null);
-  const {
-    playerPosition,
-    isPaused,
-    isRunning,
-    addXp,
-    addGold,
-    registerEnemy,
-    updateEnemyPosition,
-    removeEnemy,
-  } = useGameStore();
+  // PERFORMANCE: Use selective zustand selectors to prevent unnecessary re-renders
+  const playerPosition = useGameStore((state) => state.playerPosition);
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
+  const addXpOrb = useGameStore((state) => state.addXpOrb);
+  const addGold = useGameStore((state) => state.addGold);
+  const addKill = useGameStore((state) => state.addKill);
+  const registerEnemy = useGameStore((state) => state.registerEnemy);
+  const updateEnemyPosition = useGameStore((state) => state.updateEnemyPosition);
+  const removeEnemy = useGameStore((state) => state.removeEnemy);
   const [isFacingLeft, setFacingLeft] = useState(false);
 
   // Load stats from data
@@ -48,6 +48,7 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
   const maxHp = enemy.stats.hp;
   const contactDamage = enemy.stats.damage;
   const [hp, setHp] = useState(maxHp);
+  const isDead = useRef(false); // CRITICAL FIX: Prevent multiple death triggers
   const frameIndex = useSpriteAnimation({
     category: AnimationCategory.Enemies,
     variant: AnimationVariant.Default,
@@ -94,6 +95,8 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
   });
 
   const handleIntersection: IntersectionEnterHandler = (payload) => {
+    if (isDead.current) return; // Already dead, ignore further hits
+
     const userData = payload.other.rigidBodyObject?.userData as
       | RigidBodyUserData
       | undefined;
@@ -104,9 +107,22 @@ export const Enemy = ({ id, typeId, position, onDeath }: EnemyProps) => {
 
       // Flash effect could go here
 
-      if (newHp <= 0) {
-        addXp(10); // Value from data
+      if (newHp <= 0 && !isDead.current) {
+        isDead.current = true; // CRITICAL: Mark as dead immediately to prevent multiple triggers
+        
+        // Drop XP orb at enemy position
+        if (rigidBody.current) {
+          const pos = rigidBody.current.translation();
+          // Use crypto.randomUUID() for truly unique IDs
+          const orbId = crypto.randomUUID ? crypto.randomUUID() : `xp-${id}-${Date.now()}-${Math.random()}`;
+          addXpOrb({
+            id: orbId,
+            position: { x: pos.x, y: pos.y },
+            xpValue: enemy.stats.xpDrop,
+          });
+        }
         addGold(1);
+        addKill();
         onDeath();
       }
     }

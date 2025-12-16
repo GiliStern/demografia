@@ -9,6 +9,7 @@ import { WaveManager } from "./WaveManager";
 import { InfiniteBackground } from "./InfiniteBackground";
 import { LevelUpOverlay } from "./LevelUpOverlay";
 import { GameLoop } from "./GameLoop";
+import { XpOrbsManager } from "./XpOrbsManager";
 import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
 import { useGameStore } from "../hooks/useGameStore";
 
@@ -37,6 +38,7 @@ export const GameCanvas = () => {
             <Player />
             <ActiveWeapons />
             <WaveManager />
+            <XpOrbsManager />
           </Physics>
         </Suspense>
       </Canvas>
