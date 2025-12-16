@@ -8,13 +8,13 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     stats: {
       hp: 5,
       damage: 2,
-      speed: 2,
+      speed: 6,
       knockback_resistance: 0,
     },
     sprite_config: {
       textureUrl: sprites.cat,
       index: 0,
-      scale: 2,
+      scale: 1.5,
       spriteFrameSize: 170,
     },
   },
@@ -22,9 +22,9 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     id: EnemyId.Hipster,
     name_he: "היפסטר",
     stats: {
-      hp: 10,
+      hp: 20,
       damage: 4,
-      speed: 2.5,
+      speed: 6,
       knockback_resistance: 0.1,
     },
     sprite_config: {
@@ -38,9 +38,9 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     id: EnemyId.Tourist,
     name_he: "תייר",
     stats: {
-      hp: 15,
+      hp: 40,
       damage: 5,
-      speed: 1.5,
+      speed: 6,
       knockback_resistance: 0.2,
     },
     sprite_config: {
@@ -54,9 +54,9 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     id: EnemyId.ScooterSwarm,
     name_he: "נחיל קורקינטים",
     stats: {
-      hp: 3,
+      hp: 50,
       damage: 3,
-      speed: 4,
+      speed: 8,
       knockback_resistance: 0,
     },
     sprite_config: {
@@ -70,9 +70,9 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     id: EnemyId.TiktokStar,
     name_he: "טיקטוקיסט",
     stats: {
-      hp: 25,
+      hp: 60,
       damage: 6,
-      speed: 2.2,
+      speed: 8,
       knockback_resistance: 0.3,
     },
     sprite_config: {

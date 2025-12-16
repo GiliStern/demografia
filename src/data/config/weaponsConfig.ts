@@ -26,7 +26,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     shouldSpin: false,
     stats: {
       damage: 5,
-      speed: 20,
+      speed: 50,
       cooldown: 3,
       duration: 3,
       area: 1,
@@ -78,7 +78,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     type: "projectile_bounce",
     stats: {
       damage: 10,
-      speed: 10,
+      speed: 60,
       cooldown: 3,
       duration: 5,
       area: 1,
@@ -117,7 +117,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       iconUrl: weaponIcons.chair,
       index: 0,
       spriteFrameSize: 170,
-      scale: 3,
+      scale: 2,
     },
   },
   [WeaponId.Kaparot]: {
@@ -127,9 +127,9 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     type: "orbital",
     shouldSpin: true,
     stats: {
-      damage: 10,
+      damage: 2,
       speed: 3,
-      cooldown: 3,
+      cooldown: 6,
       duration: 3,
       area: 1,
       amount: 1,
@@ -149,8 +149,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       },
       {
         level: 4,
-        description: "+10 נזק",
-        statChanges: { add: { damage: 10 } },
+        description: "+2 נזק",
+        statChanges: { add: { damage: 2 } },
       },
       {
         level: 5,
@@ -169,8 +169,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       },
       {
         level: 8,
-        description: "+10 נזק",
-        statChanges: { add: { damage: 10 } },
+        description: "+3 נזק",
+        statChanges: { add: { damage: 3 } },
       },
     ],
     evolution: {
