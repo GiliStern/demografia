@@ -55,6 +55,7 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
 
   useFrame((state, delta) => {
     if (isPaused || !isRunning) return;
+    
     const time = state.clock.getElapsedTime();
     if (time - lastFireTime.current > cooldown) {
       fire(time);

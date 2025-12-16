@@ -53,6 +53,7 @@ export const BounceWeapon = ({ weaponId }: WeaponComponentProps) => {
 
   useFrame((state) => {
     if (isPaused || !isRunning) return;
+    
     const time = state.clock.getElapsedTime();
     if (time - lastFireTime.current > cooldown) {
       fire(time);

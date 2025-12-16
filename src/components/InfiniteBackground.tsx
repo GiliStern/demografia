@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
 import { useGameStore } from "../hooks/useGameStore";
+import { usePauseAwareFrame } from "../hooks/usePauseAwareFrame";
 import { bg } from "@/assets/assetPaths";
 import {
   getRepeatedTextureOffsets,
@@ -27,15 +27,15 @@ export const InfiniteBackground = () => {
     });
   }, [texture]);
 
-  useFrame(() => {
-    const { x, y } = useGameStore.getState().playerPosition;
+  usePauseAwareFrame(() => {
+    const { playerPosition } = useGameStore.getState();
 
     const map = materialRef.current?.map;
     if (!map) return;
 
     const { offsetX, offsetY } = getRepeatedTextureOffsets({
-      x,
-      y,
+      x: playerPosition.x,
+      y: playerPosition.y,
       gridUnitSize: GRID_UNIT_SIZE,
     });
 
@@ -44,7 +44,7 @@ export const InfiniteBackground = () => {
 
     // Keep background centered on player so it's always visible
     if (meshRef.current) {
-      meshRef.current.position.set(x, y, -2);
+      meshRef.current.position.set(playerPosition.x, playerPosition.y, -2);
     }
   });
 

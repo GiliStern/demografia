@@ -3,7 +3,6 @@ import type {
   IntersectionEnterPayload,
   RapierRigidBody,
 } from "@react-three/rapier";
-import { useGameStore } from "@/hooks/useGameStore";
 import { useSpriteAnimation } from "@/hooks/useSpriteAnimation";
 import {
   AnimationCategory,
@@ -12,10 +11,7 @@ import {
   type ProjectileUserData,
   type RigidBodyUserData,
 } from "@/types";
-import {
-  applyInitialProjectileState,
-  syncProjectileVelocity,
-} from "@/utils/projectileControls";
+import { applyInitialProjectileState } from "@/utils/projectileControls";
 
 interface ProjectileBehaviorParams {
   id: string;
@@ -42,7 +38,6 @@ export const useProjectileBehavior = ({
   const rigidBodyRef = useRef<RapierRigidBody>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const velocityRef = useRef(velocity);
-  const { isPaused, isRunning } = useGameStore();
 
   const frameIndex = useSpriteAnimation({
     category: AnimationCategory.Weapons,
@@ -59,15 +54,6 @@ export const useProjectileBehavior = ({
       onDespawn,
     });
   }, [duration, onDespawn]);
-
-  useEffect(() => {
-    syncProjectileVelocity({
-      rigidBodyRef,
-      velocityRef,
-      isRunning,
-      isPaused,
-    });
-  }, [isPaused, isRunning]);
 
   const handleIntersection = useCallback(
     (payload: IntersectionEnterPayload) => {

@@ -10,8 +10,12 @@ import { InfiniteBackground } from "./InfiniteBackground";
 import { LevelUpOverlay } from "./LevelUpOverlay";
 import { GameLoop } from "./GameLoop";
 import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
+import { useGameStore } from "../hooks/useGameStore";
 
 export const GameCanvas = () => {
+  const { isPaused, isRunning } = useGameStore();
+  const physicsPaused = !isRunning || isPaused;
+
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
       <Canvas shadows={false} dpr={[1, 1.5]}>
@@ -29,7 +33,7 @@ export const GameCanvas = () => {
           <directionalLight position={[10, 10, 5]} intensity={1} />
 
           <InfiniteBackground />
-          <Physics gravity={[0, 0, 0]}>
+          <Physics gravity={[0, 0, 0]} paused={physicsPaused}>
             <Player />
             <ActiveWeapons />
             <WaveManager />

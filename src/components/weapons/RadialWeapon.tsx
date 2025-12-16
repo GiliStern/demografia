@@ -54,6 +54,7 @@ export const RadialWeapon = ({ weaponId }: WeaponComponentProps) => {
 
   useFrame((state) => {
     if (isPaused || !isRunning) return;
+    
     const time = state.clock.getElapsedTime();
     if (shouldFire(time, lastFireTime.current, runtime.cooldown)) {
       fire(time);

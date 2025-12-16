@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import type { MutableRefObject } from "react";
-import { useFrame } from "@react-three/fiber";
 import {
   RigidBody,
   CuboidCollider,
@@ -9,6 +8,7 @@ import {
 import type { SpriteConfig } from "@/types";
 import { type OrbitingOrb } from "@/hooks/useOrbitWeapon";
 import { Sprite } from "../Sprite";
+import { usePauseAwareFrame } from "@/hooks/usePauseAwareFrame";
 
 export interface OrbitingBodyProps {
   orb: OrbitingOrb;
@@ -45,7 +45,7 @@ export const OrbitingBody = ({
   const bodyRef = useRef<RapierRigidBody>(null);
   const positionRef = useRef<[number, number, number]>([0, 0, 0]);
 
-  useFrame(() => {
+  usePauseAwareFrame(() => {
     // keep the kinematic body awake so orbiting continues while idle
     bodyRef.current?.wakeUp();
     const { x, y } = computeOrbitPosition(
