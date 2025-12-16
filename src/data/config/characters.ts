@@ -33,8 +33,8 @@ export const CHARACTERS: Record<CharacterId, CharacterData> = {
       textureUrl: sprites.srulik512,
       iconUrl: icons.srulik,
       index: 0,
-      scale: 3,
-      spriteFrameSize: 512,
+      scale: 2,
+      spriteFrameSize: 256,
     },
   },
 };

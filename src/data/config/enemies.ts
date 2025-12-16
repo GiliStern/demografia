@@ -15,7 +15,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       textureUrl: sprites.cat,
       index: 0,
       scale: 2,
-      spriteFrameSize: 512,
+      spriteFrameSize: 170,
     },
   },
   [EnemyId.Hipster]: {
@@ -30,8 +30,8 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     sprite_config: {
       textureUrl: sprites.hipster,
       index: 1,
-      scale: 3,
-      spriteFrameSize: 350,
+      scale: 2,
+      spriteFrameSize: 116,
     },
   },
   [EnemyId.Tourist]: {
@@ -46,8 +46,8 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     sprite_config: {
       textureUrl: sprites.tourist,
       index: 2,
-      scale: 3,
-      spriteFrameSize: 512,
+      scale: 2,
+      spriteFrameSize: 256,
     },
   },
   [EnemyId.ScooterSwarm]: {
@@ -62,8 +62,8 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     sprite_config: {
       textureUrl: sprites.scooterSwarm,
       index: 3,
-      scale: 3,
-      spriteFrameSize: 512,
+      scale: 2,
+      spriteFrameSize: 256,
     },
   },
   [EnemyId.TiktokStar]: {
@@ -78,8 +78,8 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     sprite_config: {
       textureUrl: sprites.tiktokStar,
       index: 4,
-      scale: 3,
-      spriteFrameSize: 512,
+      scale: 2,
+      spriteFrameSize: 170,
     },
   },
 };

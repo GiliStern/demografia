@@ -30,7 +30,6 @@ import pitaSprite from "./sprites/Pita.png";
 import pricklySprite from "./sprites/prickly.png";
 import scooterSwarmSprite from "./sprites/scooter swarm.png";
 import srulik512Sprite from "./sprites/srulik_512x512.png";
-import srulikSprite from "./sprites/srulik.png";
 import starOfDavidSprite from "./sprites/star_of_david.png";
 import tiktokStarSprite from "./sprites/tiktok star.png";
 import touristSprite from "./sprites/tourist.png";
@@ -77,7 +76,6 @@ export const sprites = {
   pita: pitaSprite,
   prickly: pricklySprite,
   scooterSwarm: scooterSwarmSprite,
-  srulik: srulikSprite,
   srulik512: srulik512Sprite,
   starOfDavid: starOfDavidSprite,
   tiktokStar: tiktokStarSprite,
