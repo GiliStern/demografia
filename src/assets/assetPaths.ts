@@ -1,8 +1,3 @@
-import achievementsBg from "./bg/achievements.png";
-import charSelectBg from "./bg/char_select.png";
-import settingsBg from "./bg/settings.png";
-import shopBg from "./bg/shop.png";
-import stageSelectBg from "./bg/stage_select.png";
 import telAvivLoopBg from "./bg/tel_aviv_loop.png";
 
 import mainBanner from "./main_banner.png";
@@ -36,11 +31,6 @@ import touristSprite from "./sprites/tourist.png";
 import xpSprite from "./sprites/xp.png";
 
 export const bg = {
-  achievements: achievementsBg,
-  charSelect: charSelectBg,
-  settings: settingsBg,
-  shop: shopBg,
-  stageSelect: stageSelectBg,
   telAvivLoop: telAvivLoopBg,
 };
 
