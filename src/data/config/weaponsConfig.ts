@@ -26,8 +26,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     shouldSpin: false,
     stats: {
       damage: 5,
-      speed: 50,
-      cooldown: 3,
+      speed: 60,
+      cooldown: 2,
       duration: 3,
       area: 1,
       amount: 1,
@@ -38,8 +38,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       { level: 2, description: "+1 קליע", statChanges: { add: { amount: 1 } } },
       {
         level: 3,
-        description: "-0.2 שנ׳ קירור",
-        statChanges: { add: { cooldown: -0.2 } },
+        description: "-0.5 שנ׳ קירור",
+        statChanges: { add: { cooldown: -0.5 } },
       },
       { level: 4, description: "+1 קליע", statChanges: { add: { amount: 1 } } },
       {
@@ -129,8 +129,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     stats: {
       damage: 2,
       speed: 3,
-      cooldown: 6,
-      duration: 3,
+      cooldown: 9,
+      duration: 6,
       area: 1,
       amount: 1,
       pierce: 99,

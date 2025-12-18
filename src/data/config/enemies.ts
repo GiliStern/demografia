@@ -10,7 +10,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
       damage: 2,
       speed: 6,
       knockback_resistance: 0,
-      xpDrop: 10,
+      xpDrop: 30,
     },
     sprite_config: {
       textureUrl: sprites.cat,
