@@ -63,12 +63,12 @@ export const XpOrb = ({ id, position, xpValue }: XpOrbProps) => {
     // Check if player is within attraction range
     if (distanceToPlayer < PICKUP_RANGE) {
       if (!isAttracted) setIsAttracted(true);
-      
+
       // Smoothly move toward player using kinematic positioning
       const moveSpeed = ATTRACTION_SPEED * delta;
       const normalizedDx = dx / distanceToPlayer;
       const normalizedDy = dy / distanceToPlayer;
-      
+
       rigidBody.current.setNextKinematicTranslation({
         x: currentPos.x + normalizedDx * moveSpeed,
         y: currentPos.y + normalizedDy * moveSpeed,
@@ -76,11 +76,11 @@ export const XpOrb = ({ id, position, xpValue }: XpOrbProps) => {
       });
     } else {
       if (isAttracted) setIsAttracted(false);
-      
+
       // Gentle floating/bobbing animation when stationary
       const floatOffset =
         Math.sin(timeRef.current * FLOAT_FREQUENCY) * FLOAT_AMPLITUDE;
-      
+
       rigidBody.current.setNextKinematicTranslation({
         x: basePositionRef.current.x,
         y: basePositionRef.current.y + floatOffset,
@@ -119,7 +119,7 @@ export const XpOrb = ({ id, position, xpValue }: XpOrbProps) => {
       <Sprite
         textureUrl={sprites.xp}
         index={0}
-        scale={isAttracted ? 0.5 : 0.4}
+        scale={isAttracted ? 0.8 : 0.6}
         spriteFrameSize={36}
       />
     </RigidBody>

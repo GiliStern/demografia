@@ -19,7 +19,12 @@ export const GameCanvas = () => {
 
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
-      <Canvas shadows={false} dpr={[1, 1.5]}>
+      <Canvas
+        shadows={false}
+        dpr={1}
+        frameloop="always"
+        gl={{ antialias: false }}
+      >
         <color attach="background" args={["#111"]} />
         <Suspense fallback={null}>
           <GameLoop />
