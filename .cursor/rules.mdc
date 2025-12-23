@@ -63,6 +63,11 @@ This comprehensive guide outlines best practices, conventions, and standards for
     - Trailing commas are allowed/preferred in multiline literals
     - No enforced 80-character line limit; wrap for readability as needed
 
+    Import Guidelines
+    - NEVER use index files with barrel exports (e.g., index.ts files that re-export from other files)
+    - ALWAYS import directly from the source file
+    - Example: Instead of `import { something } from './utils/weapons'`, use `import { something } from './utils/weapons/weaponMath'`
+
     Naming Conventions
     General Rules
     - Use PascalCase for:

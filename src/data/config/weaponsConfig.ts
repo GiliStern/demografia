@@ -26,7 +26,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     shouldSpin: false,
     stats: {
       damage: 5,
-      speed: 60,
+      speed: 8,
       cooldown: 2,
       duration: 3,
       area: 1,
@@ -78,7 +78,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     type: "projectile_bounce",
     stats: {
       damage: 10,
-      speed: 60,
+      speed: 8,
       cooldown: 3,
       duration: 5,
       area: 1,

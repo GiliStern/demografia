@@ -10,8 +10,9 @@ import { InfiniteBackground } from "./InfiniteBackground";
 import { LevelUpOverlay } from "./LevelUpOverlay";
 import { GameLoop } from "./GameLoop";
 import { XpOrbsManager } from "./XpOrbsManager";
+import { BatchedProjectileRenderer } from "./BatchedProjectileRenderer";
 import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
-import { useGameStore } from "../hooks/useGameStore";
+import { useGameStore } from "@/store/gameStore";
 
 export const GameCanvas = () => {
   const { isPaused, isRunning } = useGameStore();
@@ -45,6 +46,8 @@ export const GameCanvas = () => {
             <WaveManager />
             <XpOrbsManager />
           </Physics>
+          {/* Batched projectile rendering outside physics for performance */}
+          <BatchedProjectileRenderer />
         </Suspense>
       </Canvas>
       <LevelUpOverlay />

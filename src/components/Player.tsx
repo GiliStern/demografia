@@ -1,127 +1,24 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useFrame } from "@react-three/fiber";
-import {
-  CuboidCollider,
-  RapierRigidBody,
-  RigidBody,
-  type IntersectionEnterPayload,
-  type IntersectionExitPayload,
-} from "@react-three/rapier";
-import { useKeyboardControls } from "../hooks/useKeyboardControls";
-import { useGameStore } from "../hooks/useGameStore";
+import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { Sprite } from "./Sprite";
-import { useSpriteAnimation } from "../hooks/useSpriteAnimation";
 import { CHARACTERS } from "../data/config/characters";
-import { isEnemyUserData } from "../utils/userDataGuards";
-import {
-  AnimationCategory,
-  AnimationVariant,
-  type PlayerUserData,
-} from "../types";
-import { getAnimationState, updatePlayerFrame } from "../utils/playerControls";
-import { getViewportBounds } from "../utils/viewportBounds";
-import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
+import { useGameStore } from "@/store/gameStore";
+import { usePlayerBehavior } from "../hooks/entities/usePlayerBehavior";
+import { CharacterId } from "@/types";
 
 export const Player = () => {
-  const rigidBody = useRef<RapierRigidBody>(null);
-  const controls = useKeyboardControls();
-  // PERFORMANCE: Use selective zustand selectors to prevent unnecessary re-renders
-  const playerStats = useGameStore((state) => state.playerStats);
-  const setPlayerPosition = useGameStore((state) => state.setPlayerPosition);
-  const setPlayerDirection = useGameStore((state) => state.setPlayerDirection);
-  const takeDamage = useGameStore((state) => state.takeDamage);
-  const selectedCharacterId = useGameStore((state) => state.selectedCharacterId);
-  const isRunning = useGameStore((state) => state.isRunning);
-  const isPaused = useGameStore((state) => state.isPaused);
-  const enemiesPositions = useGameStore((state) => state.enemiesPositions);
-  const [isFacingLeft, setFacingLeft] = useState(false);
-  const [isMoving, setIsMoving] = useState(false);
-  const [isLookingUp, setIsLookingUp] = useState(false);
-  const lastDamageTime = useRef(0);
-  const activeEnemyContacts = useRef<Map<string, number>>(new Map());
+  const selectedCharacterId = useGameStore(
+    (state) => state.selectedCharacterId
+  );
+  const charData = CHARACTERS[selectedCharacterId as CharacterId];
 
-  useFrame((state) => {
-    updatePlayerFrame({
-      rigidBody: rigidBody.current,
-      controls,
-      isRunning,
-      isPaused,
-      playerStats,
+  const {
+    rigidBody,
       isFacingLeft,
-      setFacingLeft,
-      setIsMoving,
-      setIsLookingUp,
-      setPlayerDirection,
-      setPlayerPosition,
-      camera: state.camera,
-      activeEnemyContacts: activeEnemyContacts.current,
-      lastDamageTime,
-      takeDamage,
-    });
-
-    // Calculate and update viewport bounds for viewport-relative game systems
-    const viewportBounds = getViewportBounds(
-      state.camera,
-      VIEWPORT_CONFIG.CAMERA_ZOOM
-    );
-    useGameStore.getState().updateViewportBounds(viewportBounds);
-  });
-
-  const currentAnimation = getAnimationState({
-    isMoving,
-    isLookingUp,
-  });
-
-  const charData = CHARACTERS[selectedCharacterId];
-
-  const frameIndex = useSpriteAnimation({
-    category: AnimationCategory.Characters,
-    variant: AnimationVariant.Default,
-    currentAnimation,
-  });
-
-  const handleIntersection = useCallback(
-    (payload: IntersectionEnterPayload) => {
-      const userData = payload.other.rigidBodyObject?.userData;
-
-      if (!isEnemyUserData(userData)) return;
-      activeEnemyContacts.current.set(userData.id, userData.damage);
-    },
-    []
-  );
-
-  const handleIntersectionExit = useCallback(
-    (payload: IntersectionExitPayload) => {
-      const userData = payload.other.rigidBodyObject?.userData;
-
-      if (!isEnemyUserData(userData)) return;
-      activeEnemyContacts.current.delete(userData.id);
-    },
-    []
-  );
-
-  useEffect(() => {
-    const contacts = activeEnemyContacts.current;
-    contacts.forEach((_, id) => {
-      if (!enemiesPositions[id]) {
-        contacts.delete(id);
-      }
-    });
-  }, [enemiesPositions]);
-
-  const playerUserData = useMemo<PlayerUserData>(
-    () => ({
-      type: "player",
-      characterId: selectedCharacterId,
-    }),
-    [selectedCharacterId]
-  );
+    frameIndex,
+    playerUserData,
+    handleIntersection,
+    handleIntersectionExit,
+  } = usePlayerBehavior();
 
   return (
     <RigidBody

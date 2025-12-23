@@ -1,25 +1,14 @@
-import { Projectile } from "../Projectile";
-import type { ProjectileData, WeaponComponentProps } from "../../types";
-import { useNearestProjectileWeapon } from "../../hooks/useNearestProjectileWeapon";
+import type { WeaponComponentProps } from "../../types";
+import { useNearestProjectileWeapon } from "../../hooks/weapons/useNearestProjectileWeapon";
 
+/**
+ * NearestProjectileWeapon - Fires projectiles toward nearest enemy
+ * Now uses centralized batched rendering for performance
+ */
 export const NearestProjectileWeapon = ({ weaponId }: WeaponComponentProps) => {
-  const { projectiles, spriteConfig, damage, removeProjectile, shouldSpin } =
-    useNearestProjectileWeapon({
-      weaponId,
-    });
+  // Hook handles all logic and adds projectiles to central store
+  useNearestProjectileWeapon({ weaponId });
 
-  return (
-    <>
-      {projectiles.map((p: ProjectileData) => (
-        <Projectile
-          key={p.id}
-          {...p}
-          spriteConfig={spriteConfig}
-          shouldSpin={shouldSpin}
-          onDespawn={() => removeProjectile(p.id)}
-          damage={damage}
-        />
-      ))}
-    </>
-  );
+  // No rendering needed - BatchedProjectileRenderer handles it
+  return null;
 };

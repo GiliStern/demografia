@@ -1,9 +1,10 @@
+import { memo } from "react";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import { Sprite } from "./Sprite";
 import type { ProjectileProps } from "@/types";
-import { useProjectileBehavior } from "@/hooks/useProjectileBehavior";
+import { useProjectileBehavior } from "@/hooks/entities/useProjectileBehavior";
 
-export const Projectile = ({
+const ProjectileComponent = ({
   id,
   position,
   velocity,
@@ -37,3 +38,6 @@ export const Projectile = ({
     </RigidBody>
   );
 };
+
+// Memoize component to prevent unnecessary re-renders
+export const Projectile = memo(ProjectileComponent);

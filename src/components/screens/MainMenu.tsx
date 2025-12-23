@@ -1,11 +1,11 @@
 import { useRef } from "react";
 
-import { useGameStore } from "../../hooks/useGameStore";
+import { useGameStore } from "@/store/gameStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { CharacterId } from "@/types";
 import { AppButton } from "../ui/AppButton";
 import { banners } from "@/assets/assetPaths";
-import { useMenuNavigation } from "@/hooks/useMenuNavigation";
+import { useMenuNavigation } from "@/hooks/controls/useMenuNavigation";
 
 export const MainMenu = () => {
   const { startGame, resumeGame, isPaused, isRunning } = useGameStore();

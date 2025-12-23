@@ -1,4 +1,4 @@
-import { useGameStore } from "../../hooks/useGameStore";
+import { useGameStore } from "@/store/gameStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { AppButton } from "../ui/AppButton";
 

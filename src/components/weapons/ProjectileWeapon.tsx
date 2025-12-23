@@ -1,25 +1,14 @@
-import { Projectile } from "../Projectile";
-import type { ProjectileData, WeaponComponentProps } from "../../types";
-import { useProjectileWeapon } from "../../hooks/useProjectileWeapon";
+import type { WeaponComponentProps } from "../../types";
+import { useProjectileWeapon } from "../../hooks/weapons/useProjectileWeapon";
 
+/**
+ * ProjectileWeapon - Fires projectiles in player's direction with spread
+ * Now uses centralized batched rendering for performance
+ */
 export const ProjectileWeapon = ({ weaponId }: WeaponComponentProps) => {
-  const { projectiles, spriteConfig, damage, removeProjectile, shouldSpin } =
-    useProjectileWeapon({
-      weaponId,
-    });
+  // Hook handles all logic and adds projectiles to central store
+  useProjectileWeapon({ weaponId });
 
-  return (
-    <>
-      {projectiles.map((p: ProjectileData) => (
-        <Projectile
-          key={p.id}
-          {...p}
-          spriteConfig={spriteConfig}
-          shouldSpin={shouldSpin}
-          onDespawn={() => removeProjectile(p.id)}
-          damage={damage}
-        />
-      ))}
-    </>
-  );
+  // No rendering needed - BatchedProjectileRenderer handles it
+  return null;
 };

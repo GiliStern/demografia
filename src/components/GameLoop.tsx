@@ -1,18 +1,18 @@
 import { useFrame } from "@react-three/fiber";
-import { useGameStore } from "../hooks/useGameStore";
-import { performanceMonitor } from "../utils/performanceMonitor";
+import { useGameStore } from "@/store/gameStore";
+import { performanceMonitor } from "../utils/performance/performanceMonitor";
 import { useRef } from "react";
 
 export const GameLoop = () => {
   const updateTimer = useGameStore((state) => state.updateTimer);
   const logIntervalRef = useRef(0);
-  
+
   useFrame((_state, delta) => {
     updateTimer(delta);
-    
+
     // Track performance
     performanceMonitor.updateFrame(delta);
-    
+
     // Log stats every 5 seconds in development
     if (import.meta.env.DEV) {
       logIntervalRef.current += delta;
@@ -22,6 +22,6 @@ export const GameLoop = () => {
       }
     }
   });
-  
+
   return null;
 };

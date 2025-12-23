@@ -6,7 +6,7 @@ import {
   RapierRigidBody,
 } from "@react-three/rapier";
 import type { WeaponComponentProps } from "@/types";
-import { useGameStore } from "@/hooks/useGameStore";
+import { useGameStore } from "@/store/gameStore";
 import { WEAPONS } from "@/data/config/weaponsConfig";
 import { Sprite } from "../Sprite";
 
@@ -55,7 +55,7 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
 
   useFrame((state, delta) => {
     if (isPaused || !isRunning) return;
-    
+
     const time = state.clock.getElapsedTime();
     if (time - lastFireTime.current > cooldown) {
       fire(time);

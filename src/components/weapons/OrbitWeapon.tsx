@@ -1,5 +1,5 @@
 import type { WeaponComponentProps } from "@/types";
-import { useOrbitWeapon } from "@/hooks/useOrbitWeapon";
+import { useOrbitWeapon } from "@/hooks/weapons/useOrbitWeapon";
 import { OrbitingBody } from "./OrbitingBody";
 
 export const OrbitWeapon = ({ weaponId }: WeaponComponentProps) => {

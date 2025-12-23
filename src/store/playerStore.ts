@@ -34,7 +34,7 @@ export const createPlayerStore: StoreCreator<PlayerStore> = (set, get) => ({
   },
 
   heal: (amount) =>
-    set((state) => ({
+    set((state: PlayerStore) => ({
       currentHealth: Math.min(
         state.playerStats.maxHealth,
         state.currentHealth + amount

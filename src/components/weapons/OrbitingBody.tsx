@@ -6,9 +6,9 @@ import {
   RapierRigidBody,
 } from "@react-three/rapier";
 import type { SpriteConfig } from "@/types";
-import { type OrbitingOrb } from "@/hooks/useOrbitWeapon";
+import { type OrbitingOrb } from "@/hooks/weapons/useOrbitWeapon";
 import { Sprite } from "../Sprite";
-import { usePauseAwareFrame } from "@/hooks/usePauseAwareFrame";
+import { usePauseAwareFrame } from "@/hooks/game/usePauseAwareFrame";
 
 export interface OrbitingBodyProps {
   orb: OrbitingOrb;

@@ -42,6 +42,7 @@ export default [
       ],
       "react-hooks/exhaustive-deps": "off",
       "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-empty-function": "off",
     },
   },
 ];

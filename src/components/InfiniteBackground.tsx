@@ -2,13 +2,13 @@ import { useEffect, useRef } from "react";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
-import { useGameStore } from "../hooks/useGameStore";
-import { usePauseAwareFrame } from "../hooks/usePauseAwareFrame";
+import { useGameStore } from "@/store/gameStore";
+import { usePauseAwareFrame } from "../hooks/game/usePauseAwareFrame";
 import { bg } from "@/assets/assetPaths";
 import {
   getRepeatedTextureOffsets,
   setupRepeatingTexture,
-} from "../utils/background";
+} from "../utils/rendering/background";
 
 const GRID_UNIT_SIZE = 20; // 1 world unit ~= 32px tile in art direction
 const BG_PLANE_SIZE = 80;

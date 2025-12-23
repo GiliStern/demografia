@@ -1,11 +1,11 @@
 import { useRef } from "react";
 
-import { useGameStore } from "../hooks/useGameStore";
-import { ItemKind, PauseReason } from "../types";
+import { useGameStore } from "@/store/gameStore";
+import { ItemKind, PauseReason, type UpgradeOption } from "../types";
 import { UI_STRINGS } from "../data/config/ui";
-import { renderUpgradeLabel } from "../utils/upgradeLabels";
+import { renderUpgradeLabel } from "../utils/ui/upgradeLabels";
 import { AppButton } from "./ui/AppButton";
-import { useMenuNavigation } from "@/hooks/useMenuNavigation";
+import { useMenuNavigation } from "@/hooks/controls/useMenuNavigation";
 
 export const LevelUpOverlay = () => {
   const { pauseReason, upgradeChoices, applyUpgrade } = useGameStore();
@@ -49,7 +49,7 @@ export const LevelUpOverlay = () => {
           ref={buttonListRef}
           style={{ display: "flex", flexDirection: "column", gap: "8px" }}
         >
-          {upgradeChoices.map((choice) => {
+          {upgradeChoices.map((choice: UpgradeOption) => {
             const choiceId =
               choice.kind === ItemKind.Weapon
                 ? choice.weaponId

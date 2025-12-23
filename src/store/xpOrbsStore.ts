@@ -4,9 +4,9 @@ export const createXpOrbsStore: StoreCreator<XpOrbsStore> = (set) => ({
   xpOrbs: [],
 
   addXpOrb: (orb: XpOrbData) =>
-    set((state) => {
+    set((state: XpOrbsStore) => {
       // CRITICAL FIX: Prevent duplicate IDs from causing infinite re-renders
-      if (state.xpOrbs.some((existing) => existing.id === orb.id)) {
+      if (state.xpOrbs.some((existing: XpOrbData) => existing.id === orb.id)) {
         console.warn(`[XpOrb] Duplicate orb ID prevented: ${orb.id}`);
         return state; // Return unchanged state to prevent re-render
       }
@@ -16,8 +16,8 @@ export const createXpOrbsStore: StoreCreator<XpOrbsStore> = (set) => ({
     }),
 
   removeXpOrb: (id: string) =>
-    set((state) => ({
-      xpOrbs: state.xpOrbs.filter((orb) => orb.id !== id),
+    set((state: XpOrbsStore) => ({
+      xpOrbs: state.xpOrbs.filter((orb: XpOrbData) => orb.id !== id),
     })),
 
   resetXpOrbs: () => set({ xpOrbs: [] }),

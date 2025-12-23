@@ -146,10 +146,6 @@ export type WeaponComponentRegistry = Partial<
   Record<WeaponId, WeaponComponent>
 >;
 
-export interface ProjectileWeaponHookParams {
-  weaponId: WeaponId;
-}
-
 export interface ProjectileWeaponInstance {
   projectiles: ProjectileData[];
   spriteConfig: SpriteConfig;
@@ -269,9 +265,12 @@ export interface EnemiesStore {
   resetEnemies: () => void;
   addKill: () => void;
   enemiesPositions: Record<string, { x: number; y: number }>;
+  enemyDamageCallbacks: Map<string, (damage: number) => void>;
   registerEnemy: (id: string, position: { x: number; y: number }) => void;
   updateEnemyPosition: (id: string, position: { x: number; y: number }) => void;
   removeEnemy: (id: string) => void;
+  registerEnemyDamageCallback: (id: string, callback: (damage: number) => void) => void;
+  damageEnemy: (id: string, damage: number) => void;
 }
 
 export interface WeaponsStore {
@@ -310,6 +309,41 @@ export interface XpOrbsStore {
   resetXpOrbs: () => void;
 }
 
+export interface CentralizedProjectile {
+  id: string;
+  position: { x: number; y: number; z: number };
+  velocity: { x: number; y: number; z?: number };
+  damage: number;
+  textureUrl: string;
+  spriteIndex: number;
+  spriteFrameSize: number;
+  scale: number;
+  spawnTime: number;
+  duration: number;
+  flipX?: boolean;
+  shouldSpin?: boolean;
+  // Weapon-specific behavior
+  weaponId: WeaponId;
+  behaviorType?: "normal" | "bounce" | "homing";
+}
+
+// Re-export ProjectilesStore interface from projectilesStore
+export interface ProjectilesStore {
+  projectiles: Map<string, CentralizedProjectile>;
+  addProjectile: (projectile: CentralizedProjectile) => void;
+  removeProjectile: (id: string) => void;
+  addProjectiles: (projectiles: CentralizedProjectile[]) => void;
+  clearProjectiles: () => void;
+  getProjectilesArray: () => CentralizedProjectile[];
+  updateProjectile: (
+    id: string,
+    updates: Partial<CentralizedProjectile>
+  ) => void;
+  updateProjectiles: (
+    updates: { id: string; updates: Partial<CentralizedProjectile> }[]
+  ) => void;
+}
+
 export type CoreGameState = Omit<
   GameState,
   "activeWeapons" | "activeItems" | "killCount"
@@ -335,7 +369,8 @@ export type GameStore = GameSlice &
   EnemiesStore &
   WeaponsStore &
   ViewportStore &
-  XpOrbsStore;
+  XpOrbsStore &
+  ProjectilesStore;
 
 export type StoreCreator<StoreState> = StateCreator<
   GameStore,

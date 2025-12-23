@@ -1,6 +1,7 @@
-import { useGameStore } from "../hooks/useGameStore";
+import { useGameStore } from "@/store/gameStore";
 import { UI_STRINGS } from "../data/config/ui";
 import { WEAPONS } from "../data/config/weaponsConfig";
+import { WeaponId } from "@/types";
 
 export const InGameHUD = () => {
   const {
@@ -144,7 +145,7 @@ export const InGameHUD = () => {
           gap: "10px",
         }}
       >
-        {activeWeapons.map((weaponId) => {
+        {activeWeapons.map((weaponId: WeaponId) => {
           const weapon = WEAPONS[weaponId];
           const iconUrl = weapon.sprite_config.iconUrl;
           return (

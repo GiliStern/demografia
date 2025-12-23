@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { buildWeaponRenderList } from "@/utils/weaponUtils";
+import { buildWeaponRenderList } from "@/utils/weapons/weaponUtils";
 import type { WeaponComponentRegistry } from "@/types";
-import { useGameStore } from "../../hooks/useGameStore";
+import { useGameStore } from "@/store/gameStore";
 import { WeaponId } from "../../types";
 import { ProjectileWeapon } from "./ProjectileWeapon";
 import { NearestProjectileWeapon } from "./NearestProjectileWeapon";

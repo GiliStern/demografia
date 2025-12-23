@@ -21,6 +21,7 @@ import { createEnemiesStore } from "./enemiesStore";
 import { createWeaponsStore } from "./weaponsStore";
 import { createViewportStore } from "./viewportStore";
 import { createXpOrbsStore } from "./xpOrbsStore";
+import { createProjectilesStore } from "./projectilesStore";
 
 const INITIAL_GAME_STATE: CoreGameState = {
   isRunning: false,
@@ -57,19 +58,19 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
   },
 
   pauseGame: () =>
-    set((state) =>
+    set((state: GameStore) =>
       state.isRunning
         ? { isPaused: true, pauseReason: PauseReason.Manual }
         : state
     ),
   resumeGame: () =>
-    set((state) =>
+    set((state: GameStore) =>
       state.isRunning
         ? { isPaused: false, pauseReason: PauseReason.None }
         : state
     ),
   togglePause: () =>
-    set((state) => {
+    set((state: GameStore) => {
       if (!state.isRunning || state.isGameOver) return state;
       const shouldPause = !state.isPaused;
       return {
@@ -116,7 +117,7 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
   },
 
   addGold: (amount) => {
-    set((state) => ({ gold: state.gold + amount }));
+    set((state: GameStore) => ({ gold: state.gold + amount }));
   },
 
   applyUpgrade: (choice: UpgradeOption) => {
@@ -135,12 +136,12 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
           currentLevel >= max &&
           get().activeItems.includes(def.evolution.passiveRequired)
         ) {
-          set((state) => {
+          set((state: GameStore) => {
             const evolvedId = def.evolution?.evolvesTo;
             if (!evolvedId) return state;
 
             const nextWeapons = [
-              ...state.activeWeapons.filter((id) => id !== weaponId),
+              ...state.activeWeapons.filter((id: WeaponId) => id !== weaponId),
               evolvedId,
             ];
             const nextWeaponLevels = { ...state.weaponLevels, [evolvedId]: 1 };
@@ -186,6 +187,7 @@ const useGameStore = create<GameStore>()((...args) => ({
   ...createWeaponsStore(...args),
   ...createViewportStore(...args),
   ...createXpOrbsStore(...args),
+  ...createProjectilesStore(...args),
 }));
 
 export { useGameStore };
@@ -203,7 +205,7 @@ const buildUpgradeChoices = (get: () => GameStore): UpgradeOption[] => {
   const choices: UpgradeOption[] = [];
 
   // Upgradable existing weapons
-  state.activeWeapons.forEach((weaponId) => {
+  state.activeWeapons.forEach((weaponId: WeaponId) => {
     const def = WEAPONS[weaponId];
     const level = state.weaponLevels[weaponId] ?? 1;
     const max = def?.maxLevel ?? level;

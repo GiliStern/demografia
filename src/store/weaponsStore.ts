@@ -1,6 +1,12 @@
-import type { StoreCreator, WeaponsStore, PassiveId, WeaponId } from "../types";
+import type {
+  StoreCreator,
+  WeaponsStore,
+  PassiveId,
+  WeaponId,
+  WeaponStats,
+} from "../types";
 import { WEAPONS } from "../data/config/weaponsConfig";
-import { resolveWeaponStats } from "../utils/weaponUtils";
+import { resolveWeaponStats } from "../utils/weapons/weaponUtils";
 
 export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
   activeWeapons: [],
@@ -18,7 +24,7 @@ export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
     }),
 
   addWeapon: (weaponId: WeaponId) =>
-    set((state) =>
+    set((state: WeaponsStore) =>
       state.activeWeapons.includes(weaponId)
         ? state
         : {
@@ -27,22 +33,22 @@ export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
           }
     ),
 
-  levelUpWeapon: (weaponId: WeaponId) =>
-    set((state) => {
+  levelUpWeapon: (weaponId: WeaponId): void =>
+    set((state: WeaponsStore) => {
       const current = state.weaponLevels[weaponId] ?? 1;
       return {
         weaponLevels: { ...state.weaponLevels, [weaponId]: current + 1 },
       };
     }),
 
-  addPassive: (passiveId: PassiveId) =>
-    set((state) =>
+  addPassive: (passiveId: PassiveId): void =>
+    set((state: WeaponsStore) =>
       state.activeItems.includes(passiveId)
         ? state
         : { activeItems: [...state.activeItems, passiveId] }
     ),
 
-  getWeaponStats: (weaponId) => {
+  getWeaponStats: (weaponId): WeaponStats => {
     const weaponDef = WEAPONS[weaponId];
     const level = get().weaponLevels[weaponId] ?? 1;
     return resolveWeaponStats(weaponDef, level);
