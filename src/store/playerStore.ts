@@ -1,5 +1,6 @@
 import { CHARACTERS, INITIAL_PLAYER_STATS } from "../data/config/characters";
-import type { StoreCreator, PlayerStore } from "../types";
+import type { StoreCreator, PlayerStore, PlayerStats } from "../types";
+import { applyPassivesToPlayerStats } from "../utils/passives/passiveUtils";
 
 export const createPlayerStore: StoreCreator<PlayerStore> = (set, get) => ({
   currentHealth: INITIAL_PLAYER_STATS.maxHealth,
@@ -23,7 +24,10 @@ export const createPlayerStore: StoreCreator<PlayerStore> = (set, get) => ({
   },
 
   takeDamage: (amount) => {
-    const newHealth = Math.max(0, get().currentHealth - amount);
+    // Apply armor reduction from effective stats
+    const effectiveStats = get().getEffectivePlayerStats();
+    const reducedDamage = Math.max(1, amount - effectiveStats.armor);
+    const newHealth = Math.max(0, get().currentHealth - reducedDamage);
     set({ currentHealth: newHealth });
 
     if (newHealth === 0) {
@@ -34,10 +38,19 @@ export const createPlayerStore: StoreCreator<PlayerStore> = (set, get) => ({
   },
 
   heal: (amount) =>
-    set((state: PlayerStore) => ({
-      currentHealth: Math.min(
-        state.playerStats.maxHealth,
-        state.currentHealth + amount
-      ),
-    })),
+    set((state: PlayerStore) => {
+      const effectiveStats = get().getEffectivePlayerStats();
+      return {
+        currentHealth: Math.min(
+          effectiveStats.maxHealth,
+          state.currentHealth + amount
+        ),
+      };
+    }),
+
+  getEffectivePlayerStats: (): PlayerStats => {
+    const baseStats = get().playerStats;
+    const passiveEffects = get().getAccumulatedPassiveEffects();
+    return applyPassivesToPlayerStats(baseStats, passiveEffects);
+  },
 });

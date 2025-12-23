@@ -30,6 +30,16 @@ import tiktokStarSprite from "./sprites/tiktok star.png";
 import touristSprite from "./sprites/tourist.png";
 import xpSprite from "./sprites/xp.png";
 
+// Passive item sprites
+import candlesSprite from "./sprites/passive-items/candles.png";
+import gatSprite from "./sprites/passive-items/gat.png";
+import madaSprite from "./sprites/passive-items/mada.png";
+import priviledgeSprite from "./sprites/passive-items/priviledge.png";
+import protectionSprite from "./sprites/passive-items/protection.png";
+import wassachSprite from "./sprites/passive-items/wassach.png";
+import wingsSprite from "./sprites/passive-items/wings.png";
+import increaseJoySprite from "./sprites/passive-items/increaseJoy.png";
+
 export const bg = {
   telAvivLoop: telAvivLoopBg,
 };
@@ -74,7 +84,18 @@ export const sprites = {
   xp: xpSprite,
 };
 
-export const placeholders = {
-  sprite: starOfDavidSprite,
+export const passiveSprites = {
+  increase_joy: increaseJoySprite,
+  candles: candlesSprite,
+  gat: gatSprite,
+  mda: madaSprite,
+  privilege: priviledgeSprite,
+  protection: protectionSprite,
+  wassach: wassachSprite,
+  wings: wingsSprite,
 };
 
+export const placeholders = {
+  sprite: starOfDavidSprite,
+  passive: priviledgeSprite, // Default placeholder for passives without graphics
+};

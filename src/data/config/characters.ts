@@ -19,6 +19,8 @@ export const INITIAL_PLAYER_STATS: PlayerStats = {
   greed: 1,
   curse: 1,
   revivals: 0,
+  armor: 0,
+  magnet: 1,
 };
 
 export const CHARACTERS: Record<CharacterId, CharacterData> = {

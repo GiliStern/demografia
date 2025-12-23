@@ -26,7 +26,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
   const controls = useKeyboardControls();
 
   // Zustand selectors - selective to prevent unnecessary re-renders
-  const playerStats = useGameStore((state) => state.playerStats);
+  const getEffectivePlayerStats = useGameStore((state) => state.getEffectivePlayerStats);
   const setPlayerPosition = useGameStore((state) => state.setPlayerPosition);
   const setPlayerDirection = useGameStore((state) => state.setPlayerDirection);
   const takeDamage = useGameStore((state) => state.takeDamage);
@@ -48,12 +48,15 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
 
   // Movement and viewport update
   useFrame((state) => {
+    // Get effective player stats with passive bonuses applied
+    const effectivePlayerStats = getEffectivePlayerStats();
+    
     updatePlayerFrame({
       rigidBody: rigidBody.current,
       controls,
       isRunning,
       isPaused,
-      playerStats,
+      playerStats: effectivePlayerStats,
       isFacingLeft,
       setFacingLeft,
       setIsMoving,

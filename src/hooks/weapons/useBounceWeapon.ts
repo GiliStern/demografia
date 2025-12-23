@@ -20,13 +20,15 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
   // Zustand selectors
   const {
     playerPosition,
-    playerStats,
     isPaused,
     isRunning,
     getWeaponStats,
+    getEffectivePlayerStats,
     addProjectiles,
     updateProjectile,
   } = useGameStore();
+  
+  const playerStats = getEffectivePlayerStats();
   const projectilesMap = useGameStore((state) => state.projectiles);
 
   const weapon = WEAPONS[weaponId];

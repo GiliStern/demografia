@@ -37,13 +37,15 @@ export function useNearestProjectileWeapon({
   const {
     playerPosition,
     playerDirection,
-    playerStats,
     isPaused,
     isRunning,
     getWeaponStats,
+    getEffectivePlayerStats,
     enemiesPositions,
     addProjectiles,
   } = useGameStore();
+  
+  const playerStats = getEffectivePlayerStats();
 
   const weaponData = WEAPONS[weaponId];
   const stats = getWeaponStats(weaponId);

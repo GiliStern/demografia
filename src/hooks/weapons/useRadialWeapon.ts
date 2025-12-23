@@ -25,12 +25,14 @@ export function useRadialWeapon({ weaponId }: UseRadialWeaponParams): void {
   // Zustand selectors
   const {
     playerPosition,
-    playerStats,
     isPaused,
     isRunning,
     getWeaponStats,
+    getEffectivePlayerStats,
     addProjectiles,
   } = useGameStore();
+  
+  const playerStats = getEffectivePlayerStats();
 
   const weapon = WEAPONS[weaponId];
   const stats = getWeaponStats(weaponId);

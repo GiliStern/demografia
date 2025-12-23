@@ -23,8 +23,10 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
   const [projectiles, setProjectiles] = useState<ArcProjectile[]>([]);
   const lastFireTime = useRef(0);
   const bodiesRef = useRef<Map<string, RapierRigidBody>>(new Map());
-  const { playerPosition, playerStats, isPaused, isRunning, getWeaponStats } =
+  const { playerPosition, isPaused, isRunning, getWeaponStats, getEffectivePlayerStats } =
     useGameStore();
+  
+  const playerStats = getEffectivePlayerStats();
 
   const weapon = WEAPONS[weaponId];
   const spriteConfig = weapon.sprite_config;

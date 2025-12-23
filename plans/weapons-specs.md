@@ -117,7 +117,7 @@ The **Kaparot** manifests as chickens revolving around the player. It acts as a 
 
 #### Evolution: סליחות לא קדושות (Unholy Vespers)
 
-- **Requirement:** Max Level **Kaparot** + **מרחק יריקה (Spitting Distance)** [VS: Spellbinder].
+- **Requirement:** Max Level **Kaparot** + **הארכה (extension)** [VS: Spellbinder].
 - **Mechanic Change:** The weapon never despawns. The chickens form a permanent, rapidly spinning shield around the player.
 - **Satirical Significance:** A direct reference to the Yom Kippur atonement ritual. The evolution name ("Unholy Selichot/Vespers") inverts a prayer for forgiveness into a permanent mechanism of destruction.
 

@@ -10,15 +10,21 @@ export interface SpriteConfig {
 }
 
 export enum PassiveId {
-  Privilege = "privilege", // Max health
-  Wassach = "wassach", // Cooldown
+  Privilege = "privilege", // Max health (Hollow Heart)
+  Wassach = "wassach", // Cooldown (Empty Tome)
   Protection = "protection", // Armor
-  Gat = "gat", // Damage up
-  WingsOfDivinePresence = "wings_divine_presence", // Move speed
-  IncreaseJoy = "increase_joy", // Amount
-  ShabbatCandles = "shabbat_candles", // Area (Pitas evolution)
-  SpittingDistance = "spitting_distance", // Duration (Kaparot evolution)
-  OutstretchedArm = "outstretched_arm", // Projectile speed (Star evolution)
+  Gat = "gat", // Damage up (Spinach)
+  WingsOfDivinePresence = "wings_divine_presence", // Move speed (Wings)
+  IncreaseJoy = "increase_joy", // Amount (Duplicator)
+  ShabbatCandles = "shabbat_candles", // Area (Candelabrador) - Pitas evolution
+  SpittingDistance = "spitting_distance", // Duration (Spellbinder) - Kaparot evolution
+  OutstretchedArm = "outstretched_arm", // Projectile speed (Bracer) - Star evolution
+  MDA = "mda", // Recovery (Pummarola)
+  Magnet = "magnet", // Pickup range (Attractorb)
+  Clover = "clover", // Luck
+  Crown = "crown", // Growth
+  GoldMask = "gold_mask", // Greed (Stone Mask)
+  EvilEye = "evil_eye", // Curse (Skull O'Maniac)
 }
 
 export enum FloorPickupId {
@@ -38,6 +44,21 @@ export interface PlayerStats {
   greed: number;
   curse: number;
   revivals: number;
+  armor: number;
+  magnet: number;
+}
+
+export interface PassiveStatDelta {
+  add?: Partial<PlayerStats>;
+  mult?: Partial<PlayerStats>;
+  weaponAdd?: Partial<WeaponStats>;
+  weaponMult?: Partial<WeaponStats>;
+}
+
+export interface PassiveLevel {
+  level: number;
+  description: string;
+  statChanges: PassiveStatDelta;
 }
 
 export interface PassiveEffect {
@@ -49,7 +70,8 @@ export interface PassiveData {
   id: PassiveId;
   name_he: string;
   description_he: string;
-  effect: PassiveEffect;
+  maxLevel: number;
+  levels: PassiveLevel[];
   sprite_config: SpriteConfig;
 }
 
@@ -258,6 +280,7 @@ export interface PlayerStore {
   resetPlayer: (characterId: CharacterId) => void;
   takeDamage: (amount: number) => number;
   heal: (amount: number) => void;
+  getEffectivePlayerStats: () => PlayerStats;
 }
 
 export interface EnemiesStore {
@@ -269,7 +292,10 @@ export interface EnemiesStore {
   registerEnemy: (id: string, position: { x: number; y: number }) => void;
   updateEnemyPosition: (id: string, position: { x: number; y: number }) => void;
   removeEnemy: (id: string) => void;
-  registerEnemyDamageCallback: (id: string, callback: (damage: number) => void) => void;
+  registerEnemyDamageCallback: (
+    id: string,
+    callback: (damage: number) => void
+  ) => void;
   damageEnemy: (id: string, damage: number) => void;
 }
 
@@ -277,11 +303,14 @@ export interface WeaponsStore {
   activeWeapons: WeaponId[];
   activeItems: PassiveId[];
   weaponLevels: Partial<Record<WeaponId, number>>;
+  passiveLevels: Partial<Record<PassiveId, number>>;
   resetWeapons: (weaponIds: WeaponId[]) => void;
   addWeapon: (weaponId: WeaponId) => void;
   levelUpWeapon: (weaponId: WeaponId) => void;
   addPassive: (passiveId: PassiveId) => void;
+  levelUpPassive: (passiveId: PassiveId) => void;
   getWeaponStats: (weaponId: WeaponId) => WeaponStats;
+  getAccumulatedPassiveEffects: () => PassiveStatDelta;
 }
 
 export interface ViewportBounds {

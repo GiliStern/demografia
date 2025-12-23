@@ -46,8 +46,10 @@ export const useOrbitWeapon = ({
   const lastSpawnRef = useRef(0);
   const baseAngleRef = useRef(0);
 
-  const { playerPosition, playerStats, isPaused, isRunning, getWeaponStats } =
+  const { playerPosition, isPaused, isRunning, getWeaponStats, getEffectivePlayerStats } =
     useGameStore();
+  
+  const playerStats = getEffectivePlayerStats();
 
   const weapon = WEAPONS[weaponId];
   const spriteConfig = weapon.sprite_config;

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { CHARACTERS } from "../data/config/characters";
 import { WEAPONS } from "../data/config/weaponsConfig";
-import { PASSIVES } from "../data/config/passives";
+import { PASSIVES, MAX_PASSIVE_SLOTS } from "../data/config/passives";
 import { FLOOR_PICKUPS } from "../data/config/floorPickups";
 import {
   CharacterId,
@@ -157,7 +157,12 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
     }
 
     if (choice.kind === ItemKind.Passive) {
-      get().addPassive(choice.passiveId);
+      const { passiveId, isNew } = choice;
+      if (isNew) {
+        get().addPassive(passiveId);
+      } else {
+        get().levelUpPassive(passiveId);
+      }
     }
 
     get().resumeFromLevelUp();
@@ -241,17 +246,48 @@ const buildUpgradeChoices = (get: () => GameStore): UpgradeOption[] => {
     }
   );
 
-  // Passives
-  (Object.keys(PASSIVES) as PassiveId[])
-    .filter((id) => !state.activeItems.includes(id))
-    .forEach((passiveId) =>
+  // Upgradable existing passives
+  state.activeItems.forEach((passiveId: PassiveId) => {
+    const def = PASSIVES[passiveId];
+    const level = state.passiveLevels[passiveId] ?? 1;
+    const max = def?.maxLevel ?? level;
+    if (def && level < max) {
       choices.push({
         kind: ItemKind.Passive,
         passiveId,
-        isNew: true,
-        currentLevel: 0,
-      })
-    );
+        isNew: false,
+        currentLevel: level,
+      });
+    }
+  });
 
-  return choices.slice(0, 3);
+  // New passives (only if under the slot limit)
+  const hasPassiveSlots = state.activeItems.length < MAX_PASSIVE_SLOTS;
+  if (hasPassiveSlots) {
+    (Object.keys(PASSIVES) as PassiveId[])
+      .filter((id) => !state.activeItems.includes(id))
+      .forEach((passiveId) =>
+        choices.push({
+          kind: ItemKind.Passive,
+          passiveId,
+          isNew: true,
+          currentLevel: 0,
+        })
+      );
+  }
+
+  // Shuffle and return first 3 choices (or fewer if not enough available)
+  return shuffleArray(choices).slice(0, 3);
+};
+
+/** Fisher-Yates shuffle */
+const shuffleArray = <T>(array: T[]): T[] => {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = result[i];
+    result[i] = result[j] as T;
+    result[j] = temp as T;
+  }
+  return result;
 };
