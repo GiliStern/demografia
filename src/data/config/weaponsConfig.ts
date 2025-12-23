@@ -129,8 +129,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     stats: {
       damage: 2,
       speed: 3,
-      cooldown: 9,
-      duration: 6,
+      cooldown: 6,
+      duration: 3,
       area: 1,
       amount: 1,
       pierce: 99,
