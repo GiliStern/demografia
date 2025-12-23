@@ -23,7 +23,7 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
   const [projectiles, setProjectiles] = useState<ArcProjectile[]>([]);
   const lastFireTime = useRef(0);
   const bodiesRef = useRef<Map<string, RapierRigidBody>>(new Map());
-  const { playerPosition, isPaused, isRunning, getWeaponStats, getEffectivePlayerStats } =
+  const { isPaused, isRunning, getWeaponStats, getEffectivePlayerStats } =
     useGameStore();
   
   const playerStats = getEffectivePlayerStats();
@@ -41,13 +41,15 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
 
   const fire = (time: number) => {
     lastFireTime.current = time;
+    // Read fresh player position from store
+    const freshPlayerPosition = useGameStore.getState().playerPosition;
     const shots: ArcProjectile[] = Array.from({ length: amount }).map(() => {
       const angle = Math.random() * (Math.PI / 2) + Math.PI / 4; // high arc
       const vx = Math.cos(angle) * speed;
       const vy = Math.sin(angle) * speed;
       return {
         id: crypto.randomUUID?.() ?? Math.random().toString(),
-        position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
+        position: { x: freshPlayerPosition.x, y: freshPlayerPosition.y, z: 0 },
         velocity: { x: vx, y: vy },
         birth: time,
       };
@@ -55,9 +57,11 @@ export const ArcWeapon = ({ weaponId }: WeaponComponentProps) => {
     setProjectiles((prev) => [...prev, ...shots]);
   };
 
-  useFrame((state, delta) => {
+  useFrame((state, frameDelta) => {
     if (isPaused || !isRunning) return;
 
+    // Use the delta passed by useFrame, with safety bounds
+    const delta = frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
     const time = state.clock.getElapsedTime();
     if (time - lastFireTime.current > cooldown) {
       fire(time);

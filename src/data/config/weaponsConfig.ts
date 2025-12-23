@@ -26,7 +26,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     shouldSpin: false,
     stats: {
       damage: 5,
-      speed: 8,
+      speed: 6,
       cooldown: 2,
       duration: 3,
       area: 1,
@@ -250,7 +250,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     shouldSpin: true,
     stats: {
       damage: 6.5,
-      speed: 16,
+      speed: 28,
       cooldown: 1,
       duration: 1.5,
       area: 1,

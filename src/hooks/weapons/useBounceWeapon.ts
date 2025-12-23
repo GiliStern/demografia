@@ -19,7 +19,6 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
 
   // Zustand selectors
   const {
-    playerPosition,
     isPaused,
     isRunning,
     getWeaponStats,
@@ -43,6 +42,8 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
   // Fire projectiles in random directions
   const fire = (time: number) => {
     lastFireTime.current = time;
+    // Read fresh player position from store inside fire
+    const freshPlayerPosition = useGameStore.getState().playerPosition;
     const shots: CentralizedProjectile[] = Array.from({ length: amount }).map(
       (_, idx) => {
         const angle = Math.random() * Math.PI * 2;
@@ -50,7 +51,7 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
         const vy = Math.sin(angle) * speed;
         return {
           id: `${weaponId}-${time}-${idx}`,
-          position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
+          position: { x: freshPlayerPosition.x, y: freshPlayerPosition.y, z: 0 },
           velocity: { x: vx, y: vy },
           damage,
           textureUrl: weapon.sprite_config.textureUrl,
@@ -61,6 +62,7 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
           duration,
           weaponId,
           behaviorType: "bounce" as const,
+          shouldSpin: weapon.shouldSpin,
         };
       }
     );
@@ -88,12 +90,15 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
         p.weaponId === weaponId && p.behaviorType === "bounce"
     );
 
+    // Get fresh player position for bounce calculations
+    const freshPlayerPosition = useGameStore.getState().playerPosition;
+    
     for (const p of bounceProjectiles) {
       // Check and apply bounce
       const nextVel = reflectInBounds(
         { x: p.position.x, y: p.position.y },
         p.velocity,
-        playerPosition,
+        freshPlayerPosition,
         viewportBounds.halfWidth,
         viewportBounds.halfHeight
       );

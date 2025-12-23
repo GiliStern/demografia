@@ -412,45 +412,45 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     },
   },
 
-  // === מגנט (Magnet) - Attractorb equivalent: +0.5 Magnet (pickup range) per level ===
+  // === כוח משיכה (Magnet) - Attractorb equivalent: +0.5 Magnet (pickup range) per level ===
   [PassiveId.Magnet]: {
     id: PassiveId.Magnet,
-    name_he: "מגנט",
+    name_he: "כוח משיכה",
     description_he: "מגדיל טווח איסוף.",
     maxLevel: 5,
     levels: [
       {
         level: 1,
-        description: "+0.5 מגנט",
+        description: "+0.5 כוח משיכה",
         statChanges: { add: { magnet: 0.5 } },
       },
       {
         level: 2,
-        description: "+0.5 מגנט",
+        description: "+0.5 כוח משיכה",
         statChanges: { add: { magnet: 0.5 } },
       },
       {
         level: 3,
-        description: "+0.5 מגנט",
+        description: "+0.5 כוח משיכה",
         statChanges: { add: { magnet: 0.5 } },
       },
       {
         level: 4,
-        description: "+0.5 מגנט",
+        description: "+0.5 כוח משיכה",
         statChanges: { add: { magnet: 0.5 } },
       },
       {
         level: 5,
-        description: "+0.5 מגנט",
+        description: "+0.5 כוח משיכה",
         statChanges: { add: { magnet: 0.5 } },
       },
     ],
     sprite_config: {
-      textureUrl: placeholders.passive,
-      iconUrl: placeholders.passive,
+      textureUrl: passiveSprites.attraction,
+      iconUrl: passiveSprites.attraction,
       index: 0,
       scale: 1,
-      spriteFrameSize: 241,
+      spriteFrameSize: 512,
     },
   },
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
 import { InstancedSprite } from "./InstancedSprite";
@@ -36,15 +36,17 @@ export const BatchedProjectileRenderer = () => {
     return Array.from(useGameStore.getState().projectiles.values());
   }, [projectilesSize, forceUpdateCounter]);
 
+  // Track last elapsed time for manual delta calculation
+  const lastElapsedTimeRef = useRef(0);
+
   // Update projectile positions, handle expiration, and check collisions
-  useFrame((state) => {
+  useFrame((state, frameDelta) => {
     if (isPaused || !isRunning) return;
 
-    // Use state.clock.getDelta() once per frame.
-    // BUT we should actually use a separate clock or state.clock.elapsedTime delta
-    // because getDelta() resets the internal counter and might return 0 if called elsewhere.
-    const delta = state.clock.getDelta() || 0.016; // Fallback to ~60fps if 0
+    // Use the delta passed by useFrame (much more reliable than getDelta())
+    const delta = frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
     const currentTime = state.clock.getElapsedTime();
+    lastElapsedTimeRef.current = currentTime;
 
     // Get fresh projectiles and enemies inside useFrame to avoid stale closures
     const gameState = useGameStore.getState();

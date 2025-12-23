@@ -34,8 +34,6 @@ export function useProjectileWeapon({
   const nextStaggerTime = useRef<number | null>(null);
 
   const {
-    playerPosition,
-    playerDirection,
     isPaused,
     isRunning,
     getWeaponStats,
@@ -50,14 +48,19 @@ export function useProjectileWeapon({
   const runtime = buildWeaponRuntime(stats, playerStats);
 
   const fire = (time: number) => {
-    const direction = resolveDirection(playerDirection.x, playerDirection.y);
+    // Read fresh direction and position from store inside fire to avoid stale closures
+    const gameState = useGameStore.getState();
+    const freshPlayerDirection = gameState.playerDirection;
+    const freshPlayerPosition = gameState.playerPosition;
+    
+    const direction = resolveDirection(freshPlayerDirection.x, freshPlayerDirection.y);
     const baseVelocity = buildVelocity(direction, runtime.speed);
 
     const newShots = createSpreadProjectiles({
       amount: runtime.amount,
       baseVelocity,
       spreadStep: 0.1,
-      position: { x: playerPosition.x, y: playerPosition.y, z: 0 },
+      position: { x: freshPlayerPosition.x, y: freshPlayerPosition.y, z: 0 },
       duration: runtime.duration,
       damage: runtime.damage,
       idFactory: (idx) => `${weaponId}-${time}-${idx}`,

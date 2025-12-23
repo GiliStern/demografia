@@ -39,6 +39,7 @@ import protectionSprite from "./sprites/passive-items/protection.png";
 import wassachSprite from "./sprites/passive-items/wassach.png";
 import wingsSprite from "./sprites/passive-items/wings.png";
 import increaseJoySprite from "./sprites/passive-items/increaseJoy.png";
+import attractionSprite from "./sprites/passive-items/attraction.png";
 
 export const bg = {
   telAvivLoop: telAvivLoopBg,
@@ -93,6 +94,7 @@ export const passiveSprites = {
   protection: protectionSprite,
   wassach: wassachSprite,
   wings: wingsSprite,
+  attraction: attractionSprite,
 };
 
 export const placeholders = {
