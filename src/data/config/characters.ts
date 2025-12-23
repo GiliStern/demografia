@@ -9,7 +9,7 @@ import { icons, sprites } from "../../assets/assetPaths";
 
 export const INITIAL_PLAYER_STATS: PlayerStats = {
   maxHealth: 100,
-  moveSpeed: 3,
+  moveSpeed: 4,
   might: 1,
   area: 1,
   cooldown: 1,
