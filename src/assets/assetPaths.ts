@@ -40,6 +40,13 @@ import wassachSprite from "./sprites/passive-items/wassach.png";
 import wingsSprite from "./sprites/passive-items/wings.png";
 import increaseJoySprite from "./sprites/passive-items/increaseJoy.png";
 import attractionSprite from "./sprites/passive-items/attraction.png";
+import outstretchedArmSprite from "./sprites/passive-items/arm.png";
+import hallaSprite from "./sprites/passive-items/hallah.png";
+import crownSprite from "./sprites/passive-items/crown.png";
+import extensionSprite from "./sprites/passive-items/extension.png";
+import greedSprite from "./sprites/passive-items/greed.png";
+import evilEyeSprite from "./sprites/passive-items/evil_eye.png";
+import { PassiveId } from "@/types";
 
 export const bg = {
   telAvivLoop: telAvivLoopBg,
@@ -85,16 +92,22 @@ export const sprites = {
   xp: xpSprite,
 };
 
-export const passiveSprites = {
-  increase_joy: increaseJoySprite,
-  candles: candlesSprite,
-  gat: gatSprite,
-  mda: madaSprite,
-  privilege: priviledgeSprite,
-  protection: protectionSprite,
-  wassach: wassachSprite,
-  wings: wingsSprite,
-  attraction: attractionSprite,
+export const passiveSprites: Record<PassiveId, string> = {
+  [PassiveId.IncreaseJoy]: increaseJoySprite,
+  [PassiveId.ShabbatCandles]: candlesSprite,
+  [PassiveId.Gat]: gatSprite,
+  [PassiveId.MDA]: madaSprite,
+  [PassiveId.Privilege]: priviledgeSprite,
+  [PassiveId.Protection]: protectionSprite,
+  [PassiveId.Wassach]: wassachSprite,
+  [PassiveId.WingsOfDivinePresence]: wingsSprite,
+  [PassiveId.Magnet]: attractionSprite,
+  [PassiveId.OutstretchedArm]: outstretchedArmSprite,
+  [PassiveId.Clover]: hallaSprite,
+  [PassiveId.Crown]: crownSprite,
+  [PassiveId.Extension]: extensionSprite,
+  [PassiveId.Greed]: greedSprite,
+  [PassiveId.EvilEye]: evilEyeSprite,
 };
 
 export const placeholders = {

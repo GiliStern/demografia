@@ -17,14 +17,14 @@ export enum PassiveId {
   WingsOfDivinePresence = "wings_divine_presence", // Move speed (Wings)
   IncreaseJoy = "increase_joy", // Amount (Duplicator)
   ShabbatCandles = "shabbat_candles", // Area (Candelabrador) - Pitas evolution
-  SpittingDistance = "spitting_distance", // Duration (Spellbinder) - Kaparot evolution
+  Extension = "extension", // Duration (Spellbinder) - Kaparot evolution
   OutstretchedArm = "outstretched_arm", // Projectile speed (Bracer) - Star evolution
   MDA = "mda", // Recovery (Pummarola)
   Magnet = "magnet", // Pickup range (Attractorb)
   Clover = "clover", // Luck
   Crown = "crown", // Growth
-  GoldMask = "gold_mask", // Greed (Stone Mask)
   EvilEye = "evil_eye", // Curse (Skull O'Maniac)
+  Greed = "greed", // Greed (Stone Mask)
 }
 
 export enum FloorPickupId {

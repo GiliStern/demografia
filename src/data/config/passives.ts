@@ -46,8 +46,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: passiveSprites.gat,
-      iconUrl: passiveSprites.gat,
+      textureUrl: passiveSprites[PassiveId.Gat],
+      iconUrl: passiveSprites[PassiveId.Gat],
       index: 0,
       scale: 1,
       spriteFrameSize: 284,
@@ -68,11 +68,11 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       { level: 5, description: "+1 שריון", statChanges: { add: { armor: 1 } } },
     ],
     sprite_config: {
-      textureUrl: passiveSprites.protection,
-      iconUrl: passiveSprites.protection,
+      textureUrl: passiveSprites[PassiveId.Protection],
+      iconUrl: passiveSprites[PassiveId.Protection],
       index: 0,
       scale: 1,
-      spriteFrameSize: 273,
+      spriteFrameSize: 156,
     },
   },
 
@@ -110,8 +110,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: passiveSprites.privilege,
-      iconUrl: passiveSprites.privilege,
+      textureUrl: passiveSprites[PassiveId.Privilege],
+      iconUrl: passiveSprites[PassiveId.Privilege],
       index: 0,
       scale: 1,
       spriteFrameSize: 241,
@@ -152,8 +152,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: passiveSprites.mda,
-      iconUrl: passiveSprites.mda,
+      textureUrl: passiveSprites[PassiveId.MDA],
+      iconUrl: passiveSprites[PassiveId.MDA],
       index: 0,
       scale: 1,
       spriteFrameSize: 240,
@@ -194,8 +194,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: passiveSprites.wassach,
-      iconUrl: passiveSprites.wassach,
+      textureUrl: passiveSprites[PassiveId.Wassach],
+      iconUrl: passiveSprites[PassiveId.Wassach],
       index: 0,
       scale: 1,
       spriteFrameSize: 239,
@@ -236,8 +236,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: passiveSprites.candles,
-      iconUrl: passiveSprites.candles,
+      textureUrl: passiveSprites[PassiveId.ShabbatCandles],
+      iconUrl: passiveSprites[PassiveId.ShabbatCandles],
       index: 0,
       scale: 1,
       spriteFrameSize: 208,
@@ -278,17 +278,17 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: placeholders.passive,
-      iconUrl: placeholders.passive,
+      textureUrl: passiveSprites[PassiveId.OutstretchedArm],
+      iconUrl: passiveSprites[PassiveId.OutstretchedArm],
       index: 0,
       scale: 1,
-      spriteFrameSize: 241,
+      spriteFrameSize: 480,
     },
   },
 
   // === הארכה (Extension) - Spellbinder equivalent: +10% Duration per level ===
-  [PassiveId.SpittingDistance]: {
-    id: PassiveId.SpittingDistance,
+  [PassiveId.Extension]: {
+    id: PassiveId.Extension,
     name_he: "הארכה",
     description_he: "מאריך משכי נשקים.",
     maxLevel: 5,
@@ -320,8 +320,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: placeholders.passive,
-      iconUrl: placeholders.passive,
+      textureUrl: passiveSprites.extension,
+      iconUrl: passiveSprites.extension,
       index: 0,
       scale: 1,
       spriteFrameSize: 241,
@@ -362,8 +362,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: passiveSprites.increase_joy,
-      iconUrl: passiveSprites.increase_joy,
+      textureUrl: passiveSprites[PassiveId.IncreaseJoy],
+      iconUrl: passiveSprites[PassiveId.IncreaseJoy],
       index: 0,
       scale: 1,
       spriteFrameSize: 512,
@@ -404,8 +404,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: passiveSprites.wings,
-      iconUrl: passiveSprites.wings,
+      textureUrl: passiveSprites[PassiveId.WingsOfDivinePresence],
+      iconUrl: passiveSprites[PassiveId.WingsOfDivinePresence],
       index: 0,
       scale: 1,
       spriteFrameSize: 512,
@@ -446,8 +446,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: passiveSprites.attraction,
-      iconUrl: passiveSprites.attraction,
+      textureUrl: passiveSprites[PassiveId.Magnet],
+      iconUrl: passiveSprites[PassiveId.Magnet],
       index: 0,
       scale: 1,
       spriteFrameSize: 512,
@@ -457,7 +457,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
   // === תלתן (Clover) - Clover equivalent: +10% Luck per level ===
   [PassiveId.Clover]: {
     id: PassiveId.Clover,
-    name_he: "תלתן",
+    name_he: "הפרשת חלה",
     description_he: "מגדיל מזל.",
     maxLevel: 5,
     levels: [
@@ -488,18 +488,18 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: placeholders.passive,
-      iconUrl: placeholders.passive,
+      textureUrl: passiveSprites[PassiveId.Clover],
+      iconUrl: passiveSprites[PassiveId.Clover],
       index: 0,
       scale: 1,
-      spriteFrameSize: 241,
+      spriteFrameSize: 260,
     },
   },
 
   // === כתר (Crown) - Crown equivalent: +8% Growth per level ===
   [PassiveId.Crown]: {
     id: PassiveId.Crown,
-    name_he: "כתר",
+    name_he: "מלכות שמיים",
     description_he: "מגדיל נסיון נצבר.",
     maxLevel: 5,
     levels: [
@@ -530,19 +530,19 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: placeholders.passive,
-      iconUrl: placeholders.passive,
+      textureUrl: passiveSprites[PassiveId.Crown],
+      iconUrl: passiveSprites[PassiveId.Crown],
       index: 0,
       scale: 1,
-      spriteFrameSize: 241,
+      spriteFrameSize: 260,
     },
   },
 
   // === מסכת הזהב (Gold Mask) - Stone Mask equivalent: +10% Greed per level ===
-  [PassiveId.GoldMask]: {
-    id: PassiveId.GoldMask,
-    name_he: "מסכת הזהב",
-    description_he: "מגדיל זהב נאסף.",
+  [PassiveId.Greed]: {
+    id: PassiveId.Greed,
+    name_he: "תאוות בצע",
+    description_he: "מגדיל תגמולים.",
     maxLevel: 5,
     levels: [
       {
@@ -572,11 +572,11 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: placeholders.passive,
-      iconUrl: placeholders.passive,
+      textureUrl: passiveSprites[PassiveId.Greed],
+      iconUrl: passiveSprites[PassiveId.Greed],
       index: 0,
       scale: 1,
-      spriteFrameSize: 241,
+      spriteFrameSize: 260,
     },
   },
 
@@ -614,8 +614,8 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
       },
     ],
     sprite_config: {
-      textureUrl: placeholders.passive,
-      iconUrl: placeholders.passive,
+      textureUrl: passiveSprites[PassiveId.EvilEye],
+      iconUrl: passiveSprites[PassiveId.EvilEye],
       index: 0,
       scale: 1,
       spriteFrameSize: 241,

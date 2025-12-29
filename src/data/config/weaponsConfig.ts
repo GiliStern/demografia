@@ -174,7 +174,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       },
     ],
     evolution: {
-      passiveRequired: PassiveId.SpittingDistance,
+      passiveRequired: PassiveId.Extension,
       evolvesTo: WeaponId.UnholySelichot,
     },
     sprite_config: {
