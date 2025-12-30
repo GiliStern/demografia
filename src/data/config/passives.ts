@@ -1,4 +1,4 @@
-import { passiveSprites, placeholders } from "../../assets/assetPaths";
+import { passiveSprites } from "../../assets/assetPaths";
 import { PassiveId, type PassiveData } from "../../types";
 
 /**
