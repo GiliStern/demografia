@@ -2,13 +2,16 @@ import { useRef } from "react";
 
 import { useGameStore } from "@/store/gameStore";
 import { UI_STRINGS } from "../../data/config/ui";
-import { CharacterId } from "@/types";
 import { AppButton } from "../ui/AppButton";
 import { banners } from "@/assets/assetPaths";
 import { useMenuNavigation } from "@/hooks/controls/useMenuNavigation";
 
-export const MainMenu = () => {
-  const { startGame, resumeGame, isPaused, isRunning } = useGameStore();
+interface MainMenuProps {
+  onShowCharacterSelection: () => void;
+}
+
+export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
+  const { resumeGame, isPaused, isRunning } = useGameStore();
   const canResume = isRunning && isPaused;
   const buttonColumnRef = useRef<HTMLDivElement>(null);
 
@@ -64,7 +67,7 @@ export const MainMenu = () => {
         )}
 
         {!canResume && (
-          <AppButton onClick={() => startGame(CharacterId.Srulik)}>
+          <AppButton onClick={onShowCharacterSelection}>
             {UI_STRINGS.menu.play}
           </AppButton>
         )}
