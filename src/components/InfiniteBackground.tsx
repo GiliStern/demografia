@@ -10,7 +10,7 @@ import {
   setupRepeatingTexture,
 } from "../utils/rendering/background";
 
-const GRID_UNIT_SIZE = 20; // 1 world unit ~= 32px tile in art direction
+const GRID_UNIT_SIZE = 5; // 1 world unit ~= 32px tile in art direction
 const BG_PLANE_SIZE = 80;
 
 export const InfiniteBackground = () => {

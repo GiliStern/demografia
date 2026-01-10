@@ -1,4 +1,4 @@
-import telAvivLoopBg from "./bg/tel_aviv_loop.png";
+import telAvivLoopBg from "./bg/tel_aviv_loop2.png";
 
 import mainBanner from "./main_banner.png";
 
