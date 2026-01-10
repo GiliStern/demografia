@@ -6,14 +6,16 @@ import { WeaponId } from "@/types";
 export const InGameHUD = () => {
   const {
     currentHealth,
-    playerStats,
     level,
     gold,
     xp,
     nextLevelXp,
     runTimer,
     activeWeapons,
+    getEffectivePlayerStats,
   } = useGameStore();
+
+  const effectiveStats = getEffectivePlayerStats();
 
   // Format timer mm:ss
   const minutes = Math.floor(runTimer / 60)
@@ -23,7 +25,7 @@ export const InGameHUD = () => {
     .toString()
     .padStart(2, "0");
 
-  const healthPercent = (currentHealth / playerStats.maxHealth) * 100;
+  const healthPercent = (currentHealth / effectiveStats.maxHealth) * 100;
   const xpPercent = (xp / nextLevelXp) * 100;
 
   return (
@@ -130,7 +132,7 @@ export const InGameHUD = () => {
             fontWeight: "bold",
           }}
         >
-          {Math.ceil(currentHealth)} / {playerStats.maxHealth}
+          {Math.ceil(currentHealth)} / {Math.ceil(effectiveStats.maxHealth)}
         </div>
       </div>
 

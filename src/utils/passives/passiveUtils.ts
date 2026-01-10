@@ -35,7 +35,9 @@ export const resolvePassiveEffects = (
 
       // Accumulate player stat additions
       if (statChanges.add) {
-        for (const key of Object.keys(statChanges.add) as (keyof PlayerStats)[]) {
+        for (const key of Object.keys(
+          statChanges.add
+        ) as (keyof PlayerStats)[]) {
           const val = statChanges.add[key];
           if (typeof val === "number") {
             result.add![key] = (result.add![key] ?? 0) + val;
@@ -45,7 +47,9 @@ export const resolvePassiveEffects = (
 
       // Accumulate player stat multipliers (compound them)
       if (statChanges.mult) {
-        for (const key of Object.keys(statChanges.mult) as (keyof PlayerStats)[]) {
+        for (const key of Object.keys(
+          statChanges.mult
+        ) as (keyof PlayerStats)[]) {
           const val = statChanges.mult[key];
           if (typeof val === "number") {
             result.mult![key] = (result.mult![key] ?? 1) * val;
@@ -55,7 +59,9 @@ export const resolvePassiveEffects = (
 
       // Accumulate weapon stat additions
       if (statChanges.weaponAdd) {
-        for (const key of Object.keys(statChanges.weaponAdd) as (keyof WeaponStats)[]) {
+        for (const key of Object.keys(
+          statChanges.weaponAdd
+        ) as (keyof WeaponStats)[]) {
           const val = statChanges.weaponAdd[key];
           if (typeof val === "number") {
             result.weaponAdd![key] = (result.weaponAdd![key] ?? 0) + val;
@@ -65,7 +71,9 @@ export const resolvePassiveEffects = (
 
       // Accumulate weapon stat multipliers (compound them)
       if (statChanges.weaponMult) {
-        for (const key of Object.keys(statChanges.weaponMult) as (keyof WeaponStats)[]) {
+        for (const key of Object.keys(
+          statChanges.weaponMult
+        ) as (keyof WeaponStats)[]) {
           const val = statChanges.weaponMult[key];
           if (typeof val === "number") {
             result.weaponMult![key] = (result.weaponMult![key] ?? 1) * val;
@@ -123,20 +131,26 @@ export const accumulatePassiveEffects = ({
 
     // Merge weapon stat additions
     if (effects.weaponAdd) {
-      for (const key of Object.keys(effects.weaponAdd) as (keyof WeaponStats)[]) {
+      for (const key of Object.keys(
+        effects.weaponAdd
+      ) as (keyof WeaponStats)[]) {
         const val = effects.weaponAdd[key];
         if (typeof val === "number") {
-          accumulated.weaponAdd![key] = (accumulated.weaponAdd![key] ?? 0) + val;
+          accumulated.weaponAdd![key] =
+            (accumulated.weaponAdd![key] ?? 0) + val;
         }
       }
     }
 
     // Merge weapon stat multipliers
     if (effects.weaponMult) {
-      for (const key of Object.keys(effects.weaponMult) as (keyof WeaponStats)[]) {
+      for (const key of Object.keys(
+        effects.weaponMult
+      ) as (keyof WeaponStats)[]) {
         const val = effects.weaponMult[key];
         if (typeof val === "number") {
-          accumulated.weaponMult![key] = (accumulated.weaponMult![key] ?? 1) * val;
+          accumulated.weaponMult![key] =
+            (accumulated.weaponMult![key] ?? 1) * val;
         }
       }
     }
@@ -157,7 +171,9 @@ export const applyPassivesToPlayerStats = (
 
   // Apply additions first
   if (passiveEffects.add) {
-    for (const key of Object.keys(passiveEffects.add) as (keyof PlayerStats)[]) {
+    for (const key of Object.keys(
+      passiveEffects.add
+    ) as (keyof PlayerStats)[]) {
       const val = passiveEffects.add[key];
       if (typeof val === "number") {
         result[key] = (result[key] ?? 0) + val;
@@ -167,7 +183,9 @@ export const applyPassivesToPlayerStats = (
 
   // Apply multiplications
   if (passiveEffects.mult) {
-    for (const key of Object.keys(passiveEffects.mult) as (keyof PlayerStats)[]) {
+    for (const key of Object.keys(
+      passiveEffects.mult
+    ) as (keyof PlayerStats)[]) {
       const val = passiveEffects.mult[key];
       if (typeof val === "number") {
         result[key] = (result[key] ?? 0) * val;
@@ -190,7 +208,9 @@ export const applyPassivesToWeaponStats = (
 
   // Apply weapon additions first
   if (passiveEffects.weaponAdd) {
-    for (const key of Object.keys(passiveEffects.weaponAdd) as (keyof WeaponStats)[]) {
+    for (const key of Object.keys(
+      passiveEffects.weaponAdd
+    ) as (keyof WeaponStats)[]) {
       const val = passiveEffects.weaponAdd[key];
       if (typeof val === "number") {
         result[key] = (result[key] ?? 0) + val;
@@ -200,7 +220,9 @@ export const applyPassivesToWeaponStats = (
 
   // Apply weapon multiplications
   if (passiveEffects.weaponMult) {
-    for (const key of Object.keys(passiveEffects.weaponMult) as (keyof WeaponStats)[]) {
+    for (const key of Object.keys(
+      passiveEffects.weaponMult
+    ) as (keyof WeaponStats)[]) {
       const val = passiveEffects.weaponMult[key];
       if (typeof val === "number") {
         result[key] = (result[key] ?? 0) * val;
@@ -210,4 +232,3 @@ export const applyPassivesToWeaponStats = (
 
   return result;
 };
-

@@ -78,6 +78,7 @@ export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
 
   getAccumulatedPassiveEffects: (): PassiveStatDelta => {
     const { activeItems, passiveLevels } = get();
-    return accumulatePassiveEffects({ activeItems, passiveLevels });
+    const result = accumulatePassiveEffects({ activeItems, passiveLevels });
+    return result;
   },
 });

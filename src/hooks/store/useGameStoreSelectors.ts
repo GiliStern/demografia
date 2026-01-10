@@ -27,11 +27,11 @@ export const usePlayerPositionState = () => {
 };
 
 /**
- * Returns player stats
+ * Returns effective player stats (base stats + passive effects)
  * Used by hooks that need player stats for calculations
  */
 export const usePlayerStats = (): PlayerStats => {
-  return useGameStore((state) => state.playerStats);
+  return useGameStore((state) => state.getEffectivePlayerStats());
 };
 
 /**
@@ -97,4 +97,3 @@ export const useEntityBehaviorState = () => {
     playerPosition,
   };
 };
-
