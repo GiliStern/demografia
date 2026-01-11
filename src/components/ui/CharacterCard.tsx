@@ -1,5 +1,5 @@
-import type { CSSProperties } from "react";
 import type { CharacterData } from "@/types";
+import styled from "@emotion/styled";
 
 export type CharacterCardVariant = "unlocked" | "locked" | "coming-soon";
 
@@ -16,120 +16,134 @@ interface CharacterCardProps {
   onClick?: () => void;
 }
 
-const CARD_BASE_STYLE: CSSProperties = {
-  width: "200px",
-  height: "230px",
-  background: "linear-gradient(145deg, #2a2a2a, #1f1f1f)",
-  border: "3px solid #444",
-  borderRadius: "12px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px",
-  gap: "8px",
-  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-  position: "relative",
-  overflow: "hidden",
-  boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
-};
+const StyledCard = styled.div<{ variant: CharacterCardVariant }>`
+  width: 200px;
+  height: 230px;
+  background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  border: 3px solid #444;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 
-const UNLOCKED_STYLE: CSSProperties = {
-  cursor: "pointer",
-  borderColor: "#666",
-  background: "linear-gradient(145deg, #3a3a3a, #2a2a2a)",
-};
+  ${({ variant }) => {
+    switch (variant) {
+      case "unlocked":
+        return `
+          cursor: pointer;
+          border-color: #666;
+          background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+          
+          &:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #999;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
+          }
+        `;
+      case "locked":
+        return `
+          filter: grayscale(0.8);
+          opacity: 0.7;
+          cursor: not-allowed;
+        `;
+      case "coming-soon":
+        return `
+          opacity: 0.5;
+          cursor: default;
+          border-style: dashed;
+        `;
+      default:
+        return "";
+    }
+  }}
+`;
 
-const LOCKED_STYLE: CSSProperties = {
-  filter: "grayscale(0.8)",
-  opacity: 0.7,
-  cursor: "not-allowed",
-};
+const ImageContainer = styled.div`
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a, #0f0f0f);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid #333;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+`;
 
-const COMING_SOON_STYLE: CSSProperties = {
-  opacity: 0.5,
-  cursor: "default",
-  borderStyle: "dashed",
-};
+const CharacterImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+`;
 
-const IMAGE_CONTAINER_STYLE: CSSProperties = {
-  width: "100px",
-  height: "100px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "linear-gradient(135deg, #1a1a1a, #0f0f0f)",
-  borderRadius: "8px",
-  overflow: "hidden",
-  position: "relative",
-  border: "2px solid #333",
-  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)",
-};
+const QuestionMark = styled.div`
+  font-size: 80px;
+  color: #555;
+  font-weight: bold;
+`;
 
-const CHARACTER_IMAGE_STYLE: CSSProperties = {
-  width: "100%",
-  height: "100%",
-  objectFit: "contain",
-  imageRendering: "pixelated",
-};
+const LockIcon = styled.div`
+  font-size: 60px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  z-index: 2;
+`;
 
-const QUESTION_MARK_STYLE: CSSProperties = {
-  fontSize: "80px",
-  color: "#555",
-  fontWeight: "bold",
-};
+const Name = styled.h3`
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  direction: rtl;
+  margin: 0;
+`;
 
-const LOCK_ICON_STYLE: CSSProperties = {
-  fontSize: "60px",
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  color: "#fff",
-  textShadow: "0 0 10px rgba(0,0,0,0.8)",
-  zIndex: 2,
-};
+const Description = styled.p`
+  font-size: 14px;
+  color: #aaa;
+  text-align: center;
+  direction: rtl;
+  margin: 0;
+  flex-grow: 1;
+`;
 
-const NAME_STYLE: CSSProperties = {
-  fontSize: "22px",
-  fontWeight: "bold",
-  color: "#fff",
-  textAlign: "center",
-  direction: "rtl",
-  margin: 0,
-};
+const WeaponInfo = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #1a1a1a, #252525);
+  border-radius: 6px;
+  direction: rtl;
+  border: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+`;
 
-const DESCRIPTION_STYLE: CSSProperties = {
-  fontSize: "14px",
-  color: "#aaa",
-  textAlign: "center",
-  direction: "rtl",
-  margin: 0,
-  flexGrow: 1,
-};
+const WeaponIcon = styled.img`
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+`;
 
-const WEAPON_INFO_STYLE: CSSProperties = {
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  gap: "8px",
-  padding: "8px 12px",
-  background: "linear-gradient(135deg, #1a1a1a, #252525)",
-  borderRadius: "6px",
-  direction: "rtl",
-  border: "1px solid #333",
-  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-};
-
-const WEAPON_ICON_STYLE: CSSProperties = {
-  width: "32px",
-  height: "32px",
-  imageRendering: "pixelated",
-};
-
-const WEAPON_NAME_STYLE: CSSProperties = {
-  fontSize: "16px",
-  color: "#fff",
-};
+const WeaponName = styled.span`
+  font-size: 16px;
+  color: #fff;
+`;
 
 export const CharacterCard = ({ data, onClick }: CharacterCardProps) => {
   const { variant, character, weaponName, weaponIconUrl, placeholderText } =
@@ -143,98 +157,53 @@ export const CharacterCard = ({ data, onClick }: CharacterCardProps) => {
     }
   };
 
-  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isClickable) {
-      e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
-      e.currentTarget.style.borderColor = "#999";
-      e.currentTarget.style.boxShadow = "0 12px 24px rgba(0,0,0,0.5)";
-      e.currentTarget.style.background =
-        "linear-gradient(145deg, #4a4a4a, #3a3a3a)";
-    }
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isClickable) {
-      e.currentTarget.style.transform = "translateY(0) scale(1)";
-      e.currentTarget.style.borderColor = "#666";
-      e.currentTarget.style.boxShadow = "0 4px 6px rgba(0,0,0,0.3)";
-      e.currentTarget.style.background =
-        "linear-gradient(145deg, #3a3a3a, #2a2a2a)";
-    }
-  };
-
-  let variantStyle: CSSProperties = {};
-  if (variant === "unlocked") {
-    variantStyle = UNLOCKED_STYLE;
-  } else if (variant === "locked") {
-    variantStyle = LOCKED_STYLE;
-  } else {
-    variantStyle = COMING_SOON_STYLE;
-  }
-
-  const cardStyle: CSSProperties = {
-    ...CARD_BASE_STYLE,
-    ...variantStyle,
-  };
-
   return (
-    <div
-      style={cardStyle}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <StyledCard variant={variant} onClick={handleClick}>
       {/* Character Image */}
-      <div style={IMAGE_CONTAINER_STYLE}>
-        {variant === "coming-soon" && <div style={QUESTION_MARK_STYLE}>?</div>}
+      <ImageContainer>
+        {variant === "coming-soon" && <QuestionMark>?</QuestionMark>}
         {variant === "locked" && character && (
           <>
-            <img
+            <CharacterImage
               src={character.sprite_config.iconUrl}
               alt={character.name_he}
-              style={CHARACTER_IMAGE_STYLE}
             />
-            <div style={LOCK_ICON_STYLE}>🔒</div>
+            <LockIcon>🔒</LockIcon>
           </>
         )}
         {variant === "unlocked" && character && (
-          <img
+          <CharacterImage
             src={character.sprite_config.iconUrl}
             alt={character.name_he}
-            style={CHARACTER_IMAGE_STYLE}
           />
         )}
-      </div>
+      </ImageContainer>
 
       {/* Character Name */}
-      <h3 style={NAME_STYLE}>
+      <Name>
         {variant === "coming-soon"
           ? placeholderText ?? "בקרוב"
           : character?.name_he ?? "???"}
-      </h3>
+      </Name>
 
       {/* Character Description */}
-      <p style={DESCRIPTION_STYLE}>
+      <Description>
         {variant === "coming-soon"
           ? ""
           : variant === "locked"
           ? "נעול - השלם אתגרים לפתיחה"
           : character?.description_he ?? ""}
-      </p>
+      </Description>
 
       {/* Weapon Info */}
       {(variant === "unlocked" || variant === "locked") &&
         weaponName &&
         weaponIconUrl && (
-          <div style={WEAPON_INFO_STYLE}>
-            <span style={WEAPON_NAME_STYLE}>{weaponName}</span>
-            <img
-              src={weaponIconUrl}
-              alt={weaponName}
-              style={WEAPON_ICON_STYLE}
-            />
-          </div>
+          <WeaponInfo>
+            <WeaponName>{weaponName}</WeaponName>
+            <WeaponIcon src={weaponIconUrl} alt={weaponName} />
+          </WeaponInfo>
         )}
-    </div>
+    </StyledCard>
   );
 };

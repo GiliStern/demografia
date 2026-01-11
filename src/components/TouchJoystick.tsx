@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, type CSSProperties } from "react";
+import { useState, useEffect } from "react";
+import styled from "@emotion/styled";
 
 interface TouchJoystickProps {
   isVisible: boolean;
@@ -7,7 +8,7 @@ interface TouchJoystickProps {
 
 /**
  * Touch Joystick Component
- * 
+ *
  * Visual joystick overlay for mobile touch controls
  * Follows creative phase design decisions:
  * - Fixed position at bottom-left
@@ -15,11 +16,62 @@ interface TouchJoystickProps {
  * - Responsive sizing based on screen width
  * - Opacity transitions for visual feedback
  */
-export const TouchJoystick = ({ isVisible, touchInput }: TouchJoystickProps) => {
+
+interface JoystickBaseProps {
+  baseSize: number;
+  isActive: boolean;
+}
+
+const JoystickBase = styled.div<JoystickBaseProps>`
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  width: ${({ baseSize }) => `${baseSize}px`};
+  height: ${({ baseSize }) => `${baseSize}px`};
+  border-radius: 50%;
+  background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  border: ${({ isActive }) => (isActive ? "3px solid #666" : "3px solid #444")};
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  opacity: ${({ isActive }) => (isActive ? 0.7 : 0.3)};
+  transition: opacity 0.2s ease-in, border-color 0.2s ease-in;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1000;
+`;
+
+interface JoystickKnobProps {
+  knobSize: number;
+  maxRadius: number;
+  isActive: boolean;
+  x: number;
+  y: number;
+}
+
+const JoystickKnob = styled.div<JoystickKnobProps>`
+  width: ${({ knobSize }) => `${knobSize}px`};
+  height: ${({ knobSize }) => `${knobSize}px`};
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3a3a3a, #2a2a2a);
+  border: 2px solid #666;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  opacity: ${({ isActive }) => (isActive ? 0.9 : 0.5)};
+  transition: opacity 0.2s ease-in;
+  transform: translate(
+    ${({ x, maxRadius }) => `${x * maxRadius}px`},
+    ${({ y, maxRadius }) => `${-y * maxRadius}px`}
+  );
+  will-change: transform;
+  pointer-events: none;
+`;
+
+export const TouchJoystick = ({
+  isVisible,
+  touchInput,
+}: TouchJoystickProps) => {
   const [isActive, setIsActive] = useState(false);
-  const joystickRef = useRef<HTMLDivElement>(null);
-  const knobRef = useRef<HTMLDivElement>(null);
-  
+
   // Responsive sizing (from creative phase)
   const getJoystickSize = (screenWidth: number) => {
     if (screenWidth < 400) return { base: 100, knob: 40, maxRadius: 30 };
@@ -48,46 +100,15 @@ export const TouchJoystick = ({ isVisible, touchInput }: TouchJoystickProps) => 
     return null;
   }
 
-  // Base circle style (from creative phase specifications)
-  const baseStyle: CSSProperties = {
-    position: "absolute",
-    bottom: "30px",
-    left: "30px",
-    width: `${sizes.base}px`,
-    height: `${sizes.base}px`,
-    borderRadius: "50%",
-    background: "linear-gradient(145deg, #2a2a2a, #1f1f1f)",
-    border: isActive ? "3px solid #666" : "3px solid #444",
-    boxShadow: "0 4px 6px rgba(0,0,0,0.5)",
-    opacity: isActive ? 0.7 : 0.3,
-    transition: "opacity 0.2s ease-in, border-color 0.2s ease-in",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    pointerEvents: "none", // Let touch events pass through to window
-    zIndex: 1000,
-  };
-
-  // Knob style (from creative phase specifications)
-  // Note: Invert Y-axis for visual display to match screen coordinates
-  // (touchInput.y is inverted for game coordinates, but visual should match screen)
-  const knobStyle: CSSProperties = {
-    width: `${sizes.knob}px`,
-    height: `${sizes.knob}px`,
-    borderRadius: "50%",
-    background: "linear-gradient(135deg, #3a3a3a, #2a2a2a)",
-    border: "2px solid #666",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.4)",
-    opacity: isActive ? 0.9 : 0.5,
-    transition: "opacity 0.2s ease-in",
-    transform: `translate(${touchInput.x * sizes.maxRadius}px, ${-touchInput.y * sizes.maxRadius}px)`,
-    willChange: "transform",
-    pointerEvents: "none",
-  };
-
   return (
-    <div ref={joystickRef} style={baseStyle}>
-      <div ref={knobRef} style={knobStyle} />
-    </div>
+    <JoystickBase baseSize={sizes.base} isActive={isActive}>
+      <JoystickKnob
+        knobSize={sizes.knob}
+        maxRadius={sizes.maxRadius}
+        isActive={isActive}
+        x={touchInput.x}
+        y={touchInput.y}
+      />
+    </JoystickBase>
   );
 };

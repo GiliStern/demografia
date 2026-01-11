@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrthographicCamera } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
 import { Suspense } from "react";
+import styled from "@emotion/styled";
 
 import { Player } from "./Player";
 import { ActiveWeapons } from "./weapons/ActiveWeapons";
@@ -14,12 +15,18 @@ import { BatchedProjectileRenderer } from "./BatchedProjectileRenderer";
 import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
 import { useGameStore } from "@/store/gameStore";
 
+const CanvasContainer = styled.div`
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+`;
+
 export const GameCanvas = () => {
   const { isPaused, isRunning } = useGameStore();
   const physicsPaused = !isRunning || isPaused;
 
   return (
-    <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+    <CanvasContainer>
       <Canvas
         shadows={false}
         dpr={1}
@@ -51,6 +58,6 @@ export const GameCanvas = () => {
         </Suspense>
       </Canvas>
       <LevelUpOverlay />
-    </div>
+    </CanvasContainer>
   );
 };

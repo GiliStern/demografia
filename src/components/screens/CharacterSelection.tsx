@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { CharacterId } from "@/types";
 import { CHARACTERS } from "@/data/config/characters";
 import { WEAPONS } from "@/data/config/weaponsConfig";
@@ -67,6 +68,52 @@ const MOCK_COMING_SOON_CHARACTERS: CharacterCardData[] = [
   { variant: "coming-soon", placeholderText: "בקרוב" },
 ];
 
+const SelectionContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  font-family: sans-serif;
+  direction: rtl;
+  z-index: 100;
+  padding: 0;
+  overflow-y: auto;
+`;
+
+const SelectionTitle = styled.h1`
+  font-size: 36px;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: 2px;
+`;
+
+const CharacterGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 40px;
+  max-width: 1000px;
+  padding: 20px;
+  padding-left: 45px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+`;
+
+const BackButton = styled(AppButton)`
+  width: 300px;
+  font-size: 24px;
+  padding: 12px 24px;
+`;
+
 export const CharacterSelection = ({
   onSelectCharacter,
   onBack,
@@ -99,54 +146,12 @@ export const CharacterSelection = ({
   };
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0,0,0,0.95)",
-        color: "white",
-        fontFamily: "sans-serif",
-        direction: "rtl",
-        zIndex: 100,
-        padding: 0,
-        overflowY: "auto",
-      }}
-    >
+    <SelectionContainer>
       {/* Title */}
-      <h1
-        style={{
-          fontSize: "36px",
-          marginBottom: "20px",
-          textAlign: "center",
-          textShadow: "0 4px 8px rgba(0,0,0,0.5)",
-          letterSpacing: "2px",
-        }}
-      >
-        {UI_STRINGS.character_select.title}
-      </h1>
+      <SelectionTitle>{UI_STRINGS.character_select.title}</SelectionTitle>
 
       {/* Character Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "24px",
-          marginBottom: "40px",
-          maxWidth: "1000px",
-          padding: "20px",
-          paddingLeft: "45px",
-          background: "rgba(0,0,0,0.3)",
-          borderRadius: "16px",
-          border: "2px solid rgba(255,255,255,0.1)",
-        }}
-      >
+      <CharacterGrid>
         {allCards.map((cardData, index) => (
           <CharacterCard
             key={index}
@@ -154,19 +159,10 @@ export const CharacterSelection = ({
             onClick={() => handleCardClick(cardData)}
           />
         ))}
-      </div>
+      </CharacterGrid>
 
       {/* Back Button */}
-      <AppButton
-        onClick={onBack}
-        style={{
-          width: "300px",
-          fontSize: "24px",
-          padding: "12px 24px",
-        }}
-      >
-        ← {UI_STRINGS.common.back}
-      </AppButton>
-    </div>
+      <BackButton onClick={onBack}>← {UI_STRINGS.common.back}</BackButton>
+    </SelectionContainer>
   );
 };

@@ -1,7 +1,116 @@
+import styled from "@emotion/styled";
 import { useGameStore } from "@/store/gameStore";
 import { UI_STRINGS } from "../data/config/ui";
 import { WEAPONS } from "../data/config/weaponsConfig";
 import { WeaponId } from "@/types";
+
+const HUDContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  font-family: sans-serif;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  direction: rtl;
+`;
+
+const TopBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const LevelSection = styled.div`
+  width: 30%;
+`;
+
+const LevelText = styled.div`
+  font-size: 24px;
+  font-weight: bold;
+`;
+
+const XPBarContainer = styled.div`
+  width: 100%;
+  height: 10px;
+  background: #444;
+  border: 2px solid white;
+  margin-top: 5px;
+`;
+
+const XPBarFill = styled.div<{ percent: number }>`
+  width: ${({ percent }) => `${percent}%`};
+  height: 100%;
+  background: #4f4;
+  transition: width 0.2s;
+`;
+
+const Timer = styled.div`
+  font-size: 32px;
+  font-weight: bold;
+  font-family: monospace;
+`;
+
+const GoldSection = styled.div`
+  width: 30%;
+  text-align: left;
+  font-size: 24px;
+  color: gold;
+`;
+
+const HealthBarContainer = styled.div`
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 20px;
+  background: #444;
+  border: 2px solid white;
+`;
+
+const HealthBarFill = styled.div<{ percent: number }>`
+  width: ${({ percent }) => `${percent}%`};
+  height: 100%;
+  background: #f44;
+  transition: width 0.2s;
+`;
+
+const HealthText = styled.div`
+  position: absolute;
+  top: -25px;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+`;
+
+const WeaponsList = styled.div`
+  position: absolute;
+  top: 100px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const WeaponIconContainer = styled.div`
+  width: 50px;
+  height: 50px;
+  background: #333;
+  border: 1px solid white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const WeaponIcon = styled.img`
+  width: 40px;
+  height: auto;
+  object-fit: contain;
+`;
 
 export const InGameHUD = () => {
   const {
@@ -29,155 +138,52 @@ export const InGameHUD = () => {
   const xpPercent = (xp / nextLevelXp) * 100;
 
   return (
-    <div
-      className="hud-container"
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        fontFamily: "sans-serif",
-        color: "white",
-        padding: "20px",
-        boxSizing: "border-box",
-        direction: "rtl",
-      }}
-    >
+    <HUDContainer>
       {/* Top Bar */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+      <TopBar>
         {/* Level & XP */}
-        <div style={{ width: "30%" }}>
-          <div style={{ fontSize: "24px", fontWeight: "bold" }}>
+        <LevelSection>
+          <LevelText>
             {UI_STRINGS.common.level}: {level}
-          </div>
-          <div
-            style={{
-              width: "100%",
-              height: "10px",
-              background: "#444",
-              border: "2px solid white",
-              marginTop: "5px",
-            }}
-          >
-            <div
-              style={{
-                width: `${xpPercent}%`,
-                height: "100%",
-                background: "#4f4",
-                transition: "width 0.2s",
-              }}
-            />
-          </div>
-        </div>
+          </LevelText>
+          <XPBarContainer>
+            <XPBarFill percent={xpPercent} />
+          </XPBarContainer>
+        </LevelSection>
 
         {/* Timer */}
-        <div
-          style={{
-            fontSize: "32px",
-            fontWeight: "bold",
-            fontFamily: "monospace",
-          }}
-        >
+        <Timer>
           {minutes}:{seconds}
-        </div>
+        </Timer>
 
         {/* Gold */}
-        <div
-          style={{
-            width: "30%",
-            textAlign: "left",
-            fontSize: "24px",
-            color: "gold",
-          }}
-        >
+        <GoldSection>
           {UI_STRINGS.common.gold}: {gold}
-        </div>
-      </div>
+        </GoldSection>
+      </TopBar>
 
       {/* Health Bar */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "400px",
-          height: "20px",
-          background: "#444",
-          border: "2px solid white",
-        }}
-      >
-        <div
-          style={{
-            width: `${healthPercent}%`,
-            height: "100%",
-            background: "#f44",
-            transition: "width 0.2s",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "-25px",
-            width: "100%",
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
-        >
+      <HealthBarContainer>
+        <HealthBarFill percent={healthPercent} />
+        <HealthText>
           {Math.ceil(currentHealth)} / {Math.ceil(effectiveStats.maxHealth)}
-        </div>
-      </div>
+        </HealthText>
+      </HealthBarContainer>
 
       {/* Weapons List */}
-      <div
-        style={{
-          position: "absolute",
-          top: "100px",
-          right: "20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-        }}
-      >
+      <WeaponsList>
         {activeWeapons.map((weaponId: WeaponId) => {
           const weapon = WEAPONS[weaponId];
           const iconUrl = weapon.sprite_config.iconUrl;
           return (
-            <div
-              key={weaponId}
-              style={{
-                width: "50px",
-                height: "50px",
-                background: "#333",
-                border: "1px solid white",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <WeaponIconContainer key={weaponId}>
               {iconUrl && (
-                <img
-                  src={iconUrl}
-                  alt={weapon.name_he}
-                  style={{
-                    width: "40px",
-                    height: "auto",
-                    objectFit: "contain",
-                  }}
-                />
+                <WeaponIcon src={iconUrl} alt={weapon.name_he} />
               )}
-            </div>
+            </WeaponIconContainer>
           );
         })}
-      </div>
-    </div>
+      </WeaponsList>
+    </HUDContainer>
   );
 };

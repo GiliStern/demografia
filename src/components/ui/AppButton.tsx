@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import styled from "@emotion/styled";
 
 type ButtonVariant = "primary" | "disabled" | "outline" | "success" | "compact";
 
@@ -6,67 +7,70 @@ interface AppButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "style"> {
   children: ReactNode;
   variant?: ButtonVariant;
-  style?: CSSProperties;
 }
 
-const BASE_STYLE: CSSProperties = {
-  padding: "8px 16px",
-  fontSize: "32px",
-  background: "#444",
-  color: "white",
-  border: "2px solid #666",
-  cursor: "pointer",
-  borderRadius: "8px",
-  textAlign: "right",
-  direction: "rtl",
-};
+const StyledButton = styled.button<{ variant: ButtonVariant; $disabled?: boolean }>`
+  padding: 8px 16px;
+  font-size: 32px;
+  background: #444;
+  color: white;
+  border: 2px solid #666;
+  cursor: pointer;
+  border-radius: 8px;
+  text-align: right;
+  direction: rtl;
 
-const VARIANT_STYLE: Record<ButtonVariant, CSSProperties> = {
-  primary: {},
-  disabled: {
-    background: "#222",
-    color: "#666",
-    border: "2px solid #333",
-    cursor: "not-allowed",
-  },
-  outline: {
-    padding: "15px 40px",
-    border: "2px solid white",
-  },
-  success: {
-    padding: "10px 18px",
-    background: "#4caf50",
-    border: "none",
-    fontWeight: 600,
-    fontSize: "32px",
-  },
-  compact: {
-    padding: "10px",
-    fontSize: "16px",
-  },
-};
+  ${({ variant, $disabled }) => {
+    if ($disabled && variant !== "disabled") {
+      return `
+        background: #222;
+        color: #666;
+        border: 2px solid #333;
+        cursor: not-allowed;
+      `;
+    }
+
+    switch (variant) {
+      case "disabled":
+        return `
+          background: #222;
+          color: #666;
+          border: 2px solid #333;
+          cursor: not-allowed;
+        `;
+      case "outline":
+        return `
+          padding: 15px 40px;
+          border: 2px solid white;
+        `;
+      case "success":
+        return `
+          padding: 10px 18px;
+          background: #4caf50;
+          border: none;
+          font-weight: 600;
+          font-size: 32px;
+        `;
+      case "compact":
+        return `
+          padding: 10px;
+          font-size: 16px;
+        `;
+      default:
+        return "";
+    }
+  }}
+`;
 
 export const AppButton = ({
   children,
   variant = "primary",
   disabled,
-  style,
   ...rest
 }: AppButtonProps) => {
-  const variantStyle =
-    disabled && variant !== "disabled"
-      ? VARIANT_STYLE.disabled
-      : VARIANT_STYLE[variant];
-
-  const finalStyle: CSSProperties = {
-    ...BASE_STYLE,
-    ...variantStyle,
-    ...(style ?? {}),
-  };
-
   return (
-    <button {...rest} disabled={disabled} style={finalStyle}>
+    <StyledButton variant={variant} $disabled={!!disabled} disabled={disabled} {...rest}>
       {children}
-    </button>
+    </StyledButton>
   );
 };

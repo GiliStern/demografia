@@ -1,8 +1,50 @@
+import styled from "@emotion/styled";
 import { ItemKind, type UpgradeOption } from "../../types";
 import { UI_STRINGS } from "../../data/config/ui";
 import { WEAPONS } from "@/data/config/weaponsConfig";
 import { PASSIVES } from "@/data/config/passives";
 import type { ReactNode } from "react";
+
+const UpgradeLabelContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const IconContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const UpgradeIcon = styled.img`
+  width: 50px;
+  height: auto;
+  object-fit: contain;
+`;
+
+const TextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const DescriptionText = styled.div`
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: 2px;
+`;
+
+const UpgradeText = styled.div<{ isNew: boolean }>`
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: ${({ isNew }) => (isNew ? "lightGreen" : "lightBlue")};
+`;
+
+const LevelIndicator = styled.span`
+  margin-right: 8px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+`;
 
 export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
   if (choice.kind === ItemKind.Weapon) {
@@ -16,50 +58,27 @@ export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
       : nextLevelData?.description ?? UI_STRINGS.level_up.weapon_upgrade_prefix;
 
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <UpgradeLabelContainer>
+        <IconContainer>
           {iconUrl && (
-            <img
+            <UpgradeIcon
               src={iconUrl}
               alt={weaponData.name_he}
-              style={{
-                width: "50px",
-                height: "auto",
-                objectFit: "contain",
-              }}
             />
           )}
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <TextContainer>
             <div>{weaponData.name_he}</div>
             {weaponData.description_he && (
-              <div
-                style={{
-                  fontSize: "0.8rem",
-                  opacity: 0.7,
-                  marginTop: "2px",
-                }}
-              >
+              <DescriptionText>
                 {weaponData.description_he}
-              </div>
+              </DescriptionText>
             )}
-          </div>
-        </div>
-        <div
-          style={{
-            fontSize: "1.2rem",
-            fontWeight: "bold",
-            color: choice.isNew ? "lightGreen" : "lightBlue",
-          }}
-        >
+          </TextContainer>
+        </IconContainer>
+        <UpgradeText isNew={choice.isNew}>
           {upgradeText}
-        </div>
-      </div>
+        </UpgradeText>
+      </UpgradeLabelContainer>
     );
   }
 
@@ -91,59 +110,34 @@ export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
     : `(${choice.currentLevel}→${nextLevel})`;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <UpgradeLabelContainer>
+      <IconContainer>
         {iconUrl && (
-          <img
+          <UpgradeIcon
             src={iconUrl}
             alt={passiveData.name_he}
-            style={{
-              width: "50px",
-              height: "auto",
-              objectFit: "contain",
-            }}
           />
         )}
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <TextContainer>
           <div>
             {passiveData.name_he}
             {levelIndicator && (
-              <span
-                style={{ marginRight: "8px", fontSize: "0.9rem", opacity: 0.8 }}
-              >
+              <LevelIndicator>
                 {" "}
                 {levelIndicator}
-              </span>
+              </LevelIndicator>
             )}
           </div>
           {passiveData.description_he && (
-            <div
-              style={{
-                fontSize: "0.8rem",
-                opacity: 0.7,
-                marginTop: "2px",
-              }}
-            >
+            <DescriptionText>
               {passiveData.description_he}
-            </div>
+            </DescriptionText>
           )}
-        </div>
-      </div>
-      <div
-        style={{
-          fontSize: "1.2rem",
-          fontWeight: "bold",
-          color: choice.isNew ? "lightGreen" : "lightBlue",
-        }}
-      >
+        </TextContainer>
+      </IconContainer>
+      <UpgradeText isNew={choice.isNew}>
         {upgradeText}
-      </div>
-    </div>
+      </UpgradeText>
+    </UpgradeLabelContainer>
   );
 };

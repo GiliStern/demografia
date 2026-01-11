@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import styled from "@emotion/styled";
 import { GameCanvas } from "./components/GameCanvas";
 import { InGameHUD } from "./components/InGameHUD";
 import { MainMenu } from "./components/screens/MainMenu";
@@ -9,7 +10,13 @@ import { useGameStore } from "@/store/gameStore";
 import { useMobileDetection } from "./hooks/utils/useMobileDetection";
 import { useTouchControls } from "./hooks/controls/useTouchControls";
 import { PauseReason, CharacterId } from "./types";
-import "./App.css";
+import { GlobalStyles } from "./styles/GlobalStyles";
+
+const AppContainer = styled.div`
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+`;
 
 const App = () => {
   const {
@@ -73,11 +80,10 @@ const App = () => {
   }, [isRunning, isGameOver, isPaused, pauseGame, resumeGame, showCharacterSelection]);
 
   return (
-    <div
-      className="App"
-      style={{ position: "relative", width: "100vw", height: "100vh" }}
-    >
-      {showCharacterSelection && (
+    <>
+      <GlobalStyles />
+      <AppContainer>
+        {showCharacterSelection && (
         <CharacterSelection
           onSelectCharacter={handleSelectCharacter}
           onBack={handleBackToMainMenu}
@@ -91,10 +97,11 @@ const App = () => {
       {isGameOver && <GameOver />}
       <GameCanvas />
       {isRunning && !isPaused && !isGameOver && <InGameHUD />}
-      {isRunning && !isPaused && !isGameOver && isMobile && (
-        <TouchJoystick isVisible={true} touchInput={touchInput} />
-      )}
-    </div>
+        {isRunning && !isPaused && !isGameOver && isMobile && (
+          <TouchJoystick isVisible={true} touchInput={touchInput} />
+        )}
+      </AppContainer>
+    </>
   );
 };
 

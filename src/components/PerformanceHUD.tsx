@@ -4,11 +4,26 @@
  */
 
 import { useEffect, useState } from "react";
+import styled from "@emotion/styled";
 import { performanceMonitor } from "../utils/performance/performanceMonitor";
 
 interface PerformanceHUDProps {
   visible?: boolean;
 }
+
+const PerformanceContainer = styled.div`
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #0f0;
+  padding: 8px 12px;
+  font-family: monospace;
+  font-size: 12px;
+  border-radius: 4px;
+  z-index: 9999;
+  pointer-events: none;
+`;
 
 export const PerformanceHUD = ({ visible = true }: PerformanceHUDProps) => {
   const [stats, setStats] = useState(performanceMonitor.getCompactStats());
@@ -26,22 +41,8 @@ export const PerformanceHUD = ({ visible = true }: PerformanceHUDProps) => {
   if (!visible) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: "10px",
-        right: "10px",
-        background: "rgba(0, 0, 0, 0.7)",
-        color: "#0f0",
-        padding: "8px 12px",
-        fontFamily: "monospace",
-        fontSize: "12px",
-        borderRadius: "4px",
-        zIndex: 9999,
-        pointerEvents: "none",
-      }}
-    >
+    <PerformanceContainer>
       {stats}
-    </div>
+    </PerformanceContainer>
   );
 };
