@@ -5,7 +5,7 @@ import type {
   IntersectionEnterPayload,
   IntersectionExitPayload,
 } from "@react-three/rapier";
-import { useKeyboardControls } from "../controls/useKeyboardControls";
+import { useUnifiedControls } from "../controls/useUnifiedControls";
 import { useGameStore } from "@/store/gameStore";
 import { useSpriteAnimation } from "../rendering/useSpriteAnimation";
 import { isEnemyUserData } from "@/utils/validation/userDataGuards";
@@ -23,7 +23,7 @@ import type { UsePlayerBehaviorReturn } from "@/types/hooks/entities";
  */
 export function usePlayerBehavior(): UsePlayerBehaviorReturn {
   const rigidBody = useRef<RapierRigidBody>(null);
-  const controls = useKeyboardControls();
+  const controls = useUnifiedControls();
 
   // Zustand selectors - selective to prevent unnecessary re-renders
   const getEffectivePlayerStats = useGameStore((state) => state.getEffectivePlayerStats);

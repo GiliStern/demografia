@@ -4,7 +4,10 @@ import { InGameHUD } from "./components/InGameHUD";
 import { MainMenu } from "./components/screens/MainMenu";
 import { GameOver } from "./components/screens/GameOver";
 import { CharacterSelection } from "./components/screens/CharacterSelection";
+import { TouchJoystick } from "./components/TouchJoystick";
 import { useGameStore } from "@/store/gameStore";
+import { useMobileDetection } from "./hooks/utils/useMobileDetection";
+import { useTouchControls } from "./hooks/controls/useTouchControls";
 import { PauseReason, CharacterId } from "./types";
 import "./App.css";
 
@@ -20,6 +23,18 @@ const App = () => {
   } = useGameStore();
   
   const [showCharacterSelection, setShowCharacterSelection] = useState(false);
+  const isMobile = useMobileDetection();
+  const touchControls = useTouchControls();
+  const [touchInput, setTouchInput] = useState({ x: 0, y: 0 });
+
+  // Update touch input state for TouchJoystick component
+  useEffect(() => {
+    const updateTouchInput = () => {
+      setTouchInput(touchControls.current);
+    };
+    const interval = setInterval(updateTouchInput, 16); // 60fps
+    return () => clearInterval(interval);
+  }, [touchControls]);
 
   const handleShowCharacterSelection = () => {
     setShowCharacterSelection(true);
@@ -76,6 +91,9 @@ const App = () => {
       {isGameOver && <GameOver />}
       <GameCanvas />
       {isRunning && !isPaused && !isGameOver && <InGameHUD />}
+      {isRunning && !isPaused && !isGameOver && isMobile && (
+        <TouchJoystick isVisible={true} touchInput={touchInput} />
+      )}
     </div>
   );
 };
