@@ -77,14 +77,28 @@ const SelectionContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background: rgba(0, 0, 0, 0.95);
   color: white;
   font-family: sans-serif;
   direction: rtl;
   z-index: 100;
-  padding: 0;
+  padding: 20px;
+  padding-bottom: 100px;
+  box-sizing: border-box;
   overflow-y: auto;
+  overflow-x: hidden;
+  pointer-events: auto;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    padding-bottom: 80px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+    padding-bottom: 70px;
+  }
 `;
 
 const SelectionTitle = styled.h1`
@@ -93,6 +107,19 @@ const SelectionTitle = styled.h1`
   text-align: center;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
   letter-spacing: 2px;
+  margin-top: 20px;
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+    margin-bottom: 16px;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 24px;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
 `;
 
 const CharacterGrid = styled.div`
@@ -101,17 +128,52 @@ const CharacterGrid = styled.div`
   gap: 24px;
   margin-bottom: 40px;
   max-width: 1000px;
+  width: 100%;
   padding: 20px;
   padding-left: 45px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 16px;
   border: 2px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding-left: 20px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 16px;
+    margin-bottom: 30px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 24px;
+  }
 `;
 
 const BackButton = styled(AppButton)`
   width: 300px;
   font-size: 24px;
   padding: 12px 24px;
+  max-width: 100%;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 400px;
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    font-size: 18px;
+    padding: 10px 20px;
+  }
 `;
 
 export const CharacterSelection = ({
@@ -146,7 +208,7 @@ export const CharacterSelection = ({
   };
 
   return (
-    <SelectionContainer>
+    <SelectionContainer data-menu-container="true">
       {/* Title */}
       <SelectionTitle>{UI_STRINGS.character_select.title}</SelectionTitle>
 

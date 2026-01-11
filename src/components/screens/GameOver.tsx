@@ -18,18 +18,55 @@ const GameOverContainer = styled.div`
   font-family: sans-serif;
   direction: rtl;
   z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+  pointer-events: auto;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    justify-content: flex-start;
+    padding-top: 60px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+    padding-top: 40px;
+  }
 `;
 
 const GameOverTitle = styled.h1`
   font-size: 64px;
   margin-bottom: 20px;
   color: #ff4444;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
 `;
 
 const StatsContainer = styled.div`
   font-size: 32px;
   margin-bottom: 40px;
   text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+    margin-bottom: 30px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+    margin-bottom: 24px;
+  }
 `;
 
 const StyledAppButton = styled(AppButton)`
@@ -47,7 +84,7 @@ export const GameOver = () => {
     .padStart(2, "0");
 
   return (
-    <GameOverContainer>
+    <GameOverContainer data-menu-container="true">
       <GameOverTitle>הפסדת!</GameOverTitle>
 
       <StatsContainer>

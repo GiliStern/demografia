@@ -31,6 +31,28 @@ const StyledCard = styled.div<{ variant: CharacterCardVariant }>`
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+  min-width: 44px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+    min-height: 200px;
+    padding: 12px;
+    gap: 6px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 180px;
+    padding: 10px;
+    gap: 6px;
+  }
 
   ${({ variant }) => {
     switch (variant) {
@@ -77,6 +99,17 @@ const ImageContainer = styled.div`
   position: relative;
   border: 2px solid #333;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 80px;
+    height: 80px;
+  }
+
+  @media (max-width: 480px) {
+    width: 70px;
+    height: 70px;
+  }
 `;
 
 const CharacterImage = styled.img`
@@ -110,6 +143,14 @@ const Name = styled.h3`
   text-align: center;
   direction: rtl;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 const Description = styled.p`
@@ -119,6 +160,14 @@ const Description = styled.p`
   direction: rtl;
   margin: 0;
   flex-grow: 1;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 11px;
+  }
 `;
 
 const WeaponInfo = styled.div`

@@ -8,28 +8,39 @@ interface TouchPosition {
 /**
  * Hook to handle touch input and convert to joystick position
  * Returns a ref with normalized input values (-1 to 1) matching useKeyboardControls format
- * 
+ *
  * Implementation follows creative phase decisions:
  * - Circular dead zone (8% of max radius)
  * - Normalization to -1 to 1 range
  * - Prioritizes first touch, ignores subsequent touches
- * 
+ *
+ * @param enabled - Whether touch controls should be active (default: true)
  * @returns MutableRefObject<{ x: number, y: number }> - Normalized input values
  */
-export const useTouchControls = () => {
+export const useTouchControls = (enabled = true) => {
   const inputRef = useRef<TouchPosition>({ x: 0, y: 0 });
-  
+
   // Track initial touch position and active touch ID
   const initialTouchRef = useRef<TouchPosition | null>(null);
   const activeTouchIdRef = useRef<number | null>(null);
   const joystickCenterRef = useRef<TouchPosition | null>(null);
-  
+
   // Joystick configuration (from creative phase decisions)
   const MAX_RADIUS = 35; // Maximum movement radius in pixels (for 120px base)
   const DEAD_ZONE_PERCENT = 0.08; // 8% dead zone
   const DEAD_ZONE_RADIUS = MAX_RADIUS * DEAD_ZONE_PERCENT;
 
   useEffect(() => {
+    // If touch controls are disabled, don't set up event listeners
+    if (!enabled) {
+      // Reset state when disabled
+      activeTouchIdRef.current = null;
+      initialTouchRef.current = null;
+      joystickCenterRef.current = null;
+      inputRef.current = { x: 0, y: 0 };
+      return;
+    }
+
     /**
      * Normalize touch position to -1 to 1 range
      * Based on creative phase algorithm design
@@ -66,21 +77,40 @@ export const useTouchControls = () => {
     };
 
     const handleTouchStart = (event: TouchEvent) => {
-      // Prevent default behaviors (scrolling, zooming)
-      event.preventDefault();
-      
-      // Prioritize first touch only
-      if (activeTouchIdRef.current === null && event.touches.length > 0) {
+      // Check if touch target is a UI element (button, link, etc.)
+      const target = event.target as HTMLElement;
+      const isUIElement =
+        target.tagName === "BUTTON" ||
+        target.tagName === "A" ||
+        target.closest("button") !== null ||
+        target.closest("a") !== null ||
+        target.closest('[role="button"]') !== null ||
+        target.closest('[data-ui-element="true"]') !== null ||
+        // Check if target is inside a menu container
+        target.closest("[data-menu-container]") !== null;
+
+      // Only prevent default if NOT touching a UI element
+      // This allows buttons to receive click events
+      if (!isUIElement) {
+        event.preventDefault();
+      }
+
+      // Only process touch for joystick if not on UI element
+      if (
+        !isUIElement &&
+        activeTouchIdRef.current === null &&
+        event.touches.length > 0
+      ) {
         const touch = event.touches.item(0);
         if (touch) {
           activeTouchIdRef.current = touch.identifier;
-          
+
           // Store initial touch position (joystick center)
           const initialX = touch.clientX;
           const initialY = touch.clientY;
           initialTouchRef.current = { x: initialX, y: initialY };
           joystickCenterRef.current = { x: initialX, y: initialY };
-          
+
           // Initialize input (will be updated on touchmove)
           inputRef.current = { x: 0, y: 0 };
         }
@@ -88,9 +118,15 @@ export const useTouchControls = () => {
     };
 
     const handleTouchMove = (event: TouchEvent) => {
-      event.preventDefault();
-      
-      if (activeTouchIdRef.current === null || initialTouchRef.current === null) {
+      // Only prevent default if we have an active joystick touch
+      if (activeTouchIdRef.current !== null) {
+        event.preventDefault();
+      }
+
+      if (
+        activeTouchIdRef.current === null ||
+        initialTouchRef.current === null
+      ) {
         return;
       }
 
@@ -115,8 +151,11 @@ export const useTouchControls = () => {
     };
 
     const handleTouchEnd = (event: TouchEvent) => {
-      event.preventDefault();
-      
+      // Only prevent default if we have an active joystick touch
+      if (activeTouchIdRef.current !== null) {
+        event.preventDefault();
+      }
+
       if (activeTouchIdRef.current === null) {
         return;
       }
@@ -144,7 +183,9 @@ export const useTouchControls = () => {
     window.addEventListener("touchstart", handleTouchStart, { passive: false });
     window.addEventListener("touchmove", handleTouchMove, { passive: false });
     window.addEventListener("touchend", handleTouchEnd, { passive: false });
-    window.addEventListener("touchcancel", handleTouchCancel, { passive: false });
+    window.addEventListener("touchcancel", handleTouchCancel, {
+      passive: false,
+    });
 
     return () => {
       // Cleanup event listeners
@@ -152,14 +193,14 @@ export const useTouchControls = () => {
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
       window.removeEventListener("touchcancel", handleTouchCancel);
-      
+
       // Reset state
       activeTouchIdRef.current = null;
       initialTouchRef.current = null;
       joystickCenterRef.current = null;
       inputRef.current = { x: 0, y: 0 };
     };
-  }, []);
+  }, [enabled]);
 
   return inputRef;
 };

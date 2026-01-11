@@ -27,15 +27,51 @@ const MenuContainer = styled.div`
   font-family: sans-serif;
   direction: rtl;
   z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+  pointer-events: auto;
+
+  @media (max-width: 768px) {
+    gap: 24px;
+    padding: 16px;
+    justify-content: flex-start;
+    padding-top: 40px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 20px;
+    padding: 12px;
+    padding-top: 30px;
+  }
 `;
 
 const BannerImage = styled.img`
   width: 800px;
   height: auto;
+  max-width: 100%;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 100%;
+  }
 `;
 
 const PausedText = styled.div`
   font-size: 32px;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
 `;
 
 const ButtonColumn = styled.div`
@@ -43,6 +79,18 @@ const ButtonColumn = styled.div`
   flex-direction: column;
   gap: 20px;
   width: 400px;
+  max-width: 100%;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 400px;
+    gap: 16px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    gap: 12px;
+  }
 `;
 
 const VersionText = styled.div`
@@ -50,6 +98,13 @@ const VersionText = styled.div`
   bottom: 20px;
   left: 20px;
   color: #666;
+  font-size: 14px;
+
+  @media (max-width: 480px) {
+    bottom: 10px;
+    left: 10px;
+    font-size: 12px;
+  }
 `;
 
 export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
@@ -64,17 +119,12 @@ export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
   });
 
   return (
-    <MenuContainer>
+    <MenuContainer data-menu-container="true">
       {!canResume && (
-        <BannerImage
-          src={banners.main}
-          alt={UI_STRINGS.menu.title}
-        />
+        <BannerImage src={banners.main} alt={UI_STRINGS.menu.title} />
       )}
 
-      {canResume && (
-        <PausedText>{UI_STRINGS.common.paused}</PausedText>
-      )}
+      {canResume && <PausedText>{UI_STRINGS.common.paused}</PausedText>}
 
       <ButtonColumn ref={buttonColumnRef}>
         {canResume && (
@@ -96,9 +146,7 @@ export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
         </AppButton>
       </ButtonColumn>
 
-      <VersionText>
-        {UI_STRINGS.menu.version} 0.1.0
-      </VersionText>
+      <VersionText>{UI_STRINGS.menu.version} 0.1.0</VersionText>
     </MenuContainer>
   );
 };

@@ -19,9 +19,19 @@ export const GlobalStyles = () => (
         -webkit-text-size-adjust: 100%;
       }
 
+      html {
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+      }
+
       body {
         margin: 0;
         overflow: hidden;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        -webkit-overflow-scrolling: touch;
       }
 
       #root {
@@ -35,6 +45,7 @@ export const GlobalStyles = () => (
         min-height: 100vh;
         height: 100vh;
         width: 100vw;
+        overflow: hidden;
       }
 
       #root * {

@@ -17,6 +17,22 @@ const OverlayContainer = styled.div`
   align-items: center;
   justify-content: center;
   z-index: 10;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+  pointer-events: auto;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 40px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+    padding-top: 30px;
+  }
 `;
 
 const OverlayContent = styled.div`
@@ -24,16 +40,42 @@ const OverlayContent = styled.div`
   padding: 16px;
   border-radius: 8px;
   min-width: 450px;
+  max-width: 100%;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    min-width: auto;
+    width: 100%;
+    max-width: 500px;
+    padding: 14px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
 `;
 
 const OverlayTitle = styled.h3`
   margin-top: 0;
+  font-size: 24px;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 18px;
+  }
 `;
 
 const ButtonList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+
+  @media (max-width: 480px) {
+    gap: 6px;
+  }
 `;
 
 export const LevelUpOverlay = () => {
@@ -50,7 +92,7 @@ export const LevelUpOverlay = () => {
   if (!isLevelUpMenu) return null;
 
   return (
-    <OverlayContainer>
+    <OverlayContainer data-menu-container="true">
       <OverlayContent>
         <OverlayTitle>{UI_STRINGS.level_up.choose_one}</OverlayTitle>
         {upgradeChoices.length === 0 && (

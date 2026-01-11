@@ -9,7 +9,10 @@ interface AppButtonProps
   variant?: ButtonVariant;
 }
 
-const StyledButton = styled.button<{ variant: ButtonVariant; $disabled?: boolean }>`
+const StyledButton = styled.button<{
+  variant: ButtonVariant;
+  $disabled?: boolean;
+}>`
   padding: 8px 16px;
   font-size: 32px;
   background: #444;
@@ -19,6 +22,26 @@ const StyledButton = styled.button<{ variant: ButtonVariant; $disabled?: boolean
   border-radius: 8px;
   text-align: right;
   direction: rtl;
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  pointer-events: auto;
+  position: relative;
+  z-index: 101;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+    padding: 12px 20px;
+    min-height: 48px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+    padding: 10px 16px;
+    min-height: 44px;
+  }
 
   ${({ variant, $disabled }) => {
     if ($disabled && variant !== "disabled") {
@@ -42,6 +65,12 @@ const StyledButton = styled.button<{ variant: ButtonVariant; $disabled?: boolean
         return `
           padding: 15px 40px;
           border: 2px solid white;
+          @media (max-width: 768px) {
+            padding: 12px 24px;
+          }
+          @media (max-width: 480px) {
+            padding: 10px 20px;
+          }
         `;
       case "success":
         return `
@@ -50,11 +79,29 @@ const StyledButton = styled.button<{ variant: ButtonVariant; $disabled?: boolean
           border: none;
           font-weight: 600;
           font-size: 32px;
+          @media (max-width: 768px) {
+            font-size: 24px;
+            padding: 12px 20px;
+          }
+          @media (max-width: 480px) {
+            font-size: 20px;
+            padding: 10px 16px;
+          }
         `;
       case "compact":
         return `
           padding: 10px;
           font-size: 16px;
+          @media (max-width: 768px) {
+            font-size: 14px;
+            padding: 8px;
+            min-height: 40px;
+          }
+          @media (max-width: 480px) {
+            font-size: 12px;
+            padding: 6px;
+            min-height: 36px;
+          }
         `;
       default:
         return "";
@@ -69,7 +116,12 @@ export const AppButton = ({
   ...rest
 }: AppButtonProps) => {
   return (
-    <StyledButton variant={variant} $disabled={!!disabled} disabled={disabled} {...rest}>
+    <StyledButton
+      variant={variant}
+      $disabled={!!disabled}
+      disabled={disabled}
+      {...rest}
+    >
       {children}
     </StyledButton>
   );

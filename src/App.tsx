@@ -31,7 +31,16 @@ const App = () => {
   
   const [showCharacterSelection, setShowCharacterSelection] = useState(false);
   const isMobile = useMobileDetection();
-  const touchControls = useTouchControls();
+  
+  // Disable touch controls when menus are visible
+  const isMenuVisible = 
+    showCharacterSelection ||
+    (!showCharacterSelection &&
+      !isGameOver &&
+      (!isRunning || (isPaused && pauseReason === PauseReason.Manual))) ||
+    isGameOver;
+  
+  const touchControls = useTouchControls(!isMenuVisible && isRunning && !isPaused && !isGameOver);
   const [touchInput, setTouchInput] = useState({ x: 0, y: 0 });
 
   // Update touch input state for TouchJoystick component
@@ -95,7 +104,15 @@ const App = () => {
           <MainMenu onShowCharacterSelection={handleShowCharacterSelection} />
         )}
       {isGameOver && <GameOver />}
-      <GameCanvas />
+      <GameCanvas
+        $menuVisible={
+          showCharacterSelection ||
+          (!showCharacterSelection &&
+            !isGameOver &&
+            (!isRunning || (isPaused && pauseReason === PauseReason.Manual))) ||
+          isGameOver
+        }
+      />
       {isRunning && !isPaused && !isGameOver && <InGameHUD />}
         {isRunning && !isPaused && !isGameOver && isMobile && (
           <TouchJoystick isVisible={true} touchInput={touchInput} />

@@ -15,18 +15,23 @@ import { BatchedProjectileRenderer } from "./BatchedProjectileRenderer";
 import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
 import { useGameStore } from "@/store/gameStore";
 
-const CanvasContainer = styled.div`
+const CanvasContainer = styled.div<{ $menuVisible?: boolean }>`
   width: 100vw;
   height: 100vh;
   position: relative;
+  pointer-events: ${({ $menuVisible }) => ($menuVisible ? "none" : "auto")};
 `;
 
-export const GameCanvas = () => {
+interface GameCanvasProps {
+  $menuVisible?: boolean;
+}
+
+export const GameCanvas = ({ $menuVisible = false }: GameCanvasProps) => {
   const { isPaused, isRunning } = useGameStore();
   const physicsPaused = !isRunning || isPaused;
 
   return (
-    <CanvasContainer>
+    <CanvasContainer $menuVisible={$menuVisible}>
       <Canvas
         shadows={false}
         dpr={1}
