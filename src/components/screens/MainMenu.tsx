@@ -146,7 +146,9 @@ export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
         </AppButton>
       </ButtonColumn>
 
-      <VersionText>{UI_STRINGS.menu.version} 0.1.0</VersionText>
+      <VersionText>
+        {UI_STRINGS.menu.version} {APP_VERSION}
+      </VersionText>
     </MenuContainer>
   );
 };

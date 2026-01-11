@@ -38,4 +38,7 @@ export default defineConfig(({ mode }) => ({
       ignored: ["./node_modules/**/*"],
     },
   },
+  define: {
+    APP_VERSION: JSON.stringify(process.env.npm_package_version),
+  },
 }));

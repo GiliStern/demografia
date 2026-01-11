@@ -5,6 +5,7 @@ import { WEAPONS } from "@/data/config/weaponsConfig";
 import { UI_STRINGS } from "@/data/config/ui";
 import { AppButton } from "../ui/AppButton";
 import { CharacterCard, type CharacterCardData } from "../ui/CharacterCard";
+import { ArrowRight } from "lucide-react";
 
 interface CharacterSelectionProps {
   onSelectCharacter: (characterId: CharacterId) => void;
@@ -16,29 +17,7 @@ const MOCK_LOCKED_CHARACTERS: CharacterCardData[] = [
   {
     variant: "locked",
     character: {
-      id: "sababa_guy" as CharacterId,
-      name_he: "מלך הפיתות",
-      description_he: "שר המשטרה",
-      starting_weapon_id: CHARACTERS[CharacterId.Srulik].starting_weapon_id,
-      passive_id: CHARACTERS[CharacterId.Srulik].passive_id,
-      stats: CHARACTERS[CharacterId.Srulik].stats,
-      sprite_config: {
-        textureUrl: CHARACTERS[CharacterId.Srulik].sprite_config.textureUrl,
-        iconUrl: CHARACTERS[CharacterId.Srulik].sprite_config.iconUrl ?? "",
-        index: 0,
-        scale: 2,
-        spriteFrameSize: 256,
-      },
-    },
-    weaponName: "פיתות",
-    weaponIconUrl:
-      WEAPONS.pitas.sprite_config.iconUrl ??
-      WEAPONS.pitas.sprite_config.textureUrl,
-  },
-  {
-    variant: "locked",
-    character: {
-      id: "falafel_master" as CharacterId,
+      id: "nehoray" as CharacterId,
       name_he: "נהוראי",
       description_he: "שף מוכשר עם כישורי קרב.",
       starting_weapon_id: CHARACTERS[CharacterId.Srulik].starting_weapon_id,
@@ -57,12 +36,32 @@ const MOCK_LOCKED_CHARACTERS: CharacterCardData[] = [
       WEAPONS.keter_chairs.sprite_config.iconUrl ??
       WEAPONS.keter_chairs.sprite_config.textureUrl,
   },
+  {
+    variant: "locked",
+    character: {
+      id: "king_of_pitas" as CharacterId,
+      name_he: "מלך הפיתות",
+      description_he: "שר המשטרה",
+      starting_weapon_id: CHARACTERS[CharacterId.Srulik].starting_weapon_id,
+      passive_id: CHARACTERS[CharacterId.Srulik].passive_id,
+      stats: CHARACTERS[CharacterId.Srulik].stats,
+      sprite_config: {
+        textureUrl: CHARACTERS[CharacterId.Srulik].sprite_config.textureUrl,
+        iconUrl: CHARACTERS[CharacterId.Srulik].sprite_config.iconUrl ?? "",
+        index: 0,
+        scale: 2,
+        spriteFrameSize: 256,
+      },
+    },
+    weaponName: "פיתות",
+    weaponIconUrl:
+      WEAPONS.pitas.sprite_config.iconUrl ??
+      WEAPONS.pitas.sprite_config.textureUrl,
+  },
 ];
 
 // Mock data for coming soon characters
 const MOCK_COMING_SOON_CHARACTERS: CharacterCardData[] = [
-  { variant: "coming-soon", placeholderText: "בקרוב" },
-  { variant: "coming-soon", placeholderText: "בקרוב" },
   { variant: "coming-soon", placeholderText: "בקרוב" },
   { variant: "coming-soon", placeholderText: "בקרוב" },
   { variant: "coming-soon", placeholderText: "בקרוב" },
@@ -123,9 +122,13 @@ const SelectionTitle = styled.h1`
 `;
 
 const CharacterGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  height: calc(100vh - 250px);
+  overflow-y: auto;
+  gap: 20px;
+  row-gap: 20px;
+  justify-content: space-evenly;
   margin-bottom: 40px;
   max-width: 1000px;
   width: 100%;
@@ -158,10 +161,14 @@ const CharacterGrid = styled.div`
 `;
 
 const BackButton = styled(AppButton)`
-  width: 300px;
+  width: max-content;
   font-size: 24px;
   padding: 12px 24px;
   max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -224,7 +231,9 @@ export const CharacterSelection = ({
       </CharacterGrid>
 
       {/* Back Button */}
-      <BackButton onClick={onBack}>← {UI_STRINGS.common.back}</BackButton>
+      <BackButton onClick={onBack}>
+        <ArrowRight /> {UI_STRINGS.common.back}
+      </BackButton>
     </SelectionContainer>
   );
 };

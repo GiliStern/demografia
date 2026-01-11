@@ -1,5 +1,6 @@
 import type { CharacterData } from "@/types";
 import styled from "@emotion/styled";
+import { Lock } from "lucide-react";
 
 export type CharacterCardVariant = "unlocked" | "locked" | "coming-soon";
 
@@ -16,16 +17,16 @@ interface CharacterCardProps {
   onClick?: () => void;
 }
 
-const StyledCard = styled.div<{ variant: CharacterCardVariant }>`
-  width: 200px;
-  height: 230px;
+const StyledCardButton = styled.button`
+  width: 250px;
+  height: max-content;
   background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
   border: 3px solid #444;
   border-radius: 12px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 16px;
+  padding: 8px;
+  padding-top: 20px;
   gap: 8px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -35,56 +36,39 @@ const StyledCard = styled.div<{ variant: CharacterCardVariant }>`
   -webkit-tap-highlight-color: transparent;
   min-height: 44px;
   min-width: 44px;
+  cursor: pointer;
+  user-select: none;
 
-  @media (max-width: 768px) {
-    width: 100%;
-    max-width: 180px;
-    height: auto;
-    min-height: 200px;
-    padding: 12px;
-    gap: 6px;
-  }
+  :has([data-variant="unlocked"]) {
+    cursor: pointer;
+    border-color: #666;
+    background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
 
-  @media (max-width: 480px) {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    min-height: 180px;
-    padding: 10px;
-    gap: 6px;
-  }
-
-  ${({ variant }) => {
-    switch (variant) {
-      case "unlocked":
-        return `
-          cursor: pointer;
-          border-color: #666;
-          background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
-          
-          &:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: #999;
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
-            background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
-          }
-        `;
-      case "locked":
-        return `
-          filter: grayscale(0.8);
-          opacity: 0.7;
-          cursor: not-allowed;
-        `;
-      case "coming-soon":
-        return `
-          opacity: 0.5;
-          cursor: default;
-          border-style: dashed;
-        `;
-      default:
-        return "";
+    &:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: #999;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+      background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
     }
-  }}
+  }
+
+  :has([data-variant="locked"]) {
+    filter: grayscale(0.8);
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  :has([data-variant="coming-soon"]) {
+    opacity: 0.5;
+    cursor: default;
+    border-style: dashed;
+  }
+
+  :disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    filter: grayscale(0.8);
+  }
 `;
 
 const ImageContainer = styled.div`
@@ -120,27 +104,28 @@ const CharacterImage = styled.img`
 `;
 
 const QuestionMark = styled.div`
-  font-size: 80px;
+  font-size: 60px;
   color: #555;
   font-weight: bold;
+  position: absolute;
+  transform: translate(0, 7%);
 `;
 
 const LockIcon = styled.div`
-  font-size: 60px;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  right: 8px;
+  top: 8px;
   color: #fff;
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
   z-index: 2;
+  background: #222;
 `;
 
 const Name = styled.h3`
-  font-size: 22px;
+  font-size: 15px;
   font-weight: bold;
   color: #fff;
-  text-align: center;
+  text-align: right;
   direction: rtl;
   margin: 0;
 
@@ -154,9 +139,9 @@ const Name = styled.h3`
 `;
 
 const Description = styled.p`
-  font-size: 14px;
+  font-size: 13px;
   color: #aaa;
-  text-align: center;
+  text-align: right;
   direction: rtl;
   margin: 0;
   flex-grow: 1;
@@ -171,11 +156,14 @@ const Description = styled.p`
 `;
 
 const WeaponInfo = styled.div`
+  position: absolute;
+  top: 4px;
+  left: 4px;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: 4px;
+  padding: 4px;
   background: linear-gradient(135deg, #1a1a1a, #252525);
   border-radius: 6px;
   direction: rtl;
@@ -184,14 +172,21 @@ const WeaponInfo = styled.div`
 `;
 
 const WeaponIcon = styled.img`
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
   image-rendering: pixelated;
 `;
 
 const WeaponName = styled.span`
-  font-size: 16px;
+  font-size: 14px;
   color: #fff;
+`;
+
+const TextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 `;
 
 export const CharacterCard = ({ data, onClick }: CharacterCardProps) => {
@@ -207,20 +202,28 @@ export const CharacterCard = ({ data, onClick }: CharacterCardProps) => {
   };
 
   return (
-    <StyledCard variant={variant} onClick={handleClick}>
+    <StyledCardButton
+      data-variant={variant}
+      onClick={handleClick}
+      disabled={variant !== "unlocked"}
+    >
+      {variant === "locked" && (
+        <LockIcon>
+          <Lock size={30} />
+        </LockIcon>
+      )}
+
+      {/* Weapon Info */}
+      {weaponName && weaponIconUrl && (
+        <WeaponInfo>
+          <WeaponIcon src={weaponIconUrl} alt={weaponName} />
+          <WeaponName>{weaponName}</WeaponName>
+        </WeaponInfo>
+      )}
       {/* Character Image */}
       <ImageContainer>
         {variant === "coming-soon" && <QuestionMark>?</QuestionMark>}
-        {variant === "locked" && character && (
-          <>
-            <CharacterImage
-              src={character.sprite_config.iconUrl}
-              alt={character.name_he}
-            />
-            <LockIcon>🔒</LockIcon>
-          </>
-        )}
-        {variant === "unlocked" && character && (
+        {character && (
           <CharacterImage
             src={character.sprite_config.iconUrl}
             alt={character.name_he}
@@ -228,31 +231,23 @@ export const CharacterCard = ({ data, onClick }: CharacterCardProps) => {
         )}
       </ImageContainer>
 
-      {/* Character Name */}
-      <Name>
-        {variant === "coming-soon"
-          ? placeholderText ?? "בקרוב"
-          : character?.name_he ?? "???"}
-      </Name>
+      <TextContainer>
+        {/* Character Name */}
+        <Name>
+          {variant === "coming-soon"
+            ? placeholderText ?? "בקרוב"
+            : character?.name_he ?? "???"}
+        </Name>
 
-      {/* Character Description */}
-      <Description>
-        {variant === "coming-soon"
-          ? ""
-          : variant === "locked"
-          ? "נעול - השלם אתגרים לפתיחה"
-          : character?.description_he ?? ""}
-      </Description>
-
-      {/* Weapon Info */}
-      {(variant === "unlocked" || variant === "locked") &&
-        weaponName &&
-        weaponIconUrl && (
-          <WeaponInfo>
-            <WeaponName>{weaponName}</WeaponName>
-            <WeaponIcon src={weaponIconUrl} alt={weaponName} />
-          </WeaponInfo>
-        )}
-    </StyledCard>
+        {/* Character Description */}
+        <Description>
+          {variant === "coming-soon"
+            ? ""
+            : variant === "locked"
+            ? "נעול - השלם אתגרים לפתיחה"
+            : character?.description_he ?? ""}
+        </Description>
+      </TextContainer>
+    </StyledCardButton>
   );
 };

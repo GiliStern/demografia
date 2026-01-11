@@ -40,7 +40,7 @@ const OverlayContent = styled.div`
   padding: 16px;
   border-radius: 8px;
   min-width: 450px;
-  max-width: 100%;
+  max-width: 500px;
   width: 100%;
 
   @media (max-width: 768px) {

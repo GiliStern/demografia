@@ -3,7 +3,7 @@
   "description": "Demografia is a satirical Israeli-themed survival game built with React Three Fiber.",
   "homepage": "https://gilistern.github.io/demografia/",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -21,6 +21,7 @@
     "@react-three/drei": "^9.114.0",
     "@react-three/fiber": "^8.16.8",
     "@react-three/rapier": "^1.4.0",
+    "lucide-react": "^0.562.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "^0.160.0",
