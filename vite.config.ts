@@ -8,7 +8,11 @@ export default defineConfig(({ mode }) => ({
   // Ensure assets resolve correctly when hosted at /demografia/ on GitHub Pages
   base: mode === "production" ? "/demografia/" : "/",
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: ["@emotion/babel-plugin"],
+      },
+    }),
     checker({
       typescript: {
         tsconfigPath: "./tsconfig.json",
