@@ -39,4 +39,19 @@ export const CHARACTERS: Record<CharacterId, CharacterData> = {
       spriteFrameSize: 256,
     },
   },
+  [CharacterId.KingOfPitas]: {
+    id: CharacterId.KingOfPitas,
+    name_he: "מלך הפיתות",
+    description_he: "שר המשטרה",
+    starting_weapon_id: WeaponId.Pitas,
+    passive_id: PassiveId.Privilege,
+    stats: INITIAL_PLAYER_STATS,
+    sprite_config: {
+      textureUrl: sprites.kingOfPitas,
+      iconUrl: icons.kingOfPitas,
+      index: 0,
+      scale: 2,
+      spriteFrameSize: 200,
+    },
+  },
 };

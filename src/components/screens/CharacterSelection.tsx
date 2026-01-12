@@ -36,28 +36,6 @@ const MOCK_LOCKED_CHARACTERS: CharacterCardData[] = [
       WEAPONS.keter_chairs.sprite_config.iconUrl ??
       WEAPONS.keter_chairs.sprite_config.textureUrl,
   },
-  {
-    variant: "locked",
-    character: {
-      id: "king_of_pitas" as CharacterId,
-      name_he: "מלך הפיתות",
-      description_he: "שר המשטרה",
-      starting_weapon_id: CHARACTERS[CharacterId.Srulik].starting_weapon_id,
-      passive_id: CHARACTERS[CharacterId.Srulik].passive_id,
-      stats: CHARACTERS[CharacterId.Srulik].stats,
-      sprite_config: {
-        textureUrl: CHARACTERS[CharacterId.Srulik].sprite_config.textureUrl,
-        iconUrl: CHARACTERS[CharacterId.Srulik].sprite_config.iconUrl ?? "",
-        index: 0,
-        scale: 2,
-        spriteFrameSize: 256,
-      },
-    },
-    weaponName: "פיתות",
-    weaponIconUrl:
-      WEAPONS.pitas.sprite_config.iconUrl ??
-      WEAPONS.pitas.sprite_config.textureUrl,
-  },
 ];
 
 // Mock data for coming soon characters

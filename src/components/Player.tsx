@@ -3,17 +3,16 @@ import { Sprite } from "./Sprite";
 import { CHARACTERS } from "../data/config/characters";
 import { useGameStore } from "@/store/gameStore";
 import { usePlayerBehavior } from "../hooks/entities/usePlayerBehavior";
-import { CharacterId } from "@/types";
 
 export const Player = () => {
   const selectedCharacterId = useGameStore(
     (state) => state.selectedCharacterId
   );
-  const charData = CHARACTERS[selectedCharacterId as CharacterId];
+  const charData = CHARACTERS[selectedCharacterId];
 
   const {
     rigidBody,
-      isFacingLeft,
+    isFacingLeft,
     frameIndex,
     playerUserData,
     handleIntersection,

@@ -84,6 +84,7 @@ export interface FloorPickupData {
 
 export enum CharacterId {
   Srulik = "sruLik",
+  KingOfPitas = "king_of_pitas",
 }
 
 export enum WeaponId {

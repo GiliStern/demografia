@@ -7,7 +7,7 @@ import chickenCircleIcon from "./icons/chicken_circle.png";
 import pitaIcon from "./icons/pita_icon.png";
 import srulikIcon from "./icons/srulik_icon.png";
 import starOfDavidIcon from "./icons/star_of_david_icon.png";
-
+import kingOfPitasIcon from "./icons/king_of_pitas_icon.png";
 import jerusalemTheme from "./music/jerusalem_theme.wav";
 import telAvivTheme from "./music/tel_aviv_theme.wav";
 
@@ -25,6 +25,7 @@ import pitaSprite from "./sprites/Pita.png";
 import pricklySprite from "./sprites/prickly.png";
 import scooterSwarmSprite from "./sprites/scooter swarm.png";
 import srulik512Sprite from "./sprites/srulik_512x512.png";
+import kingOfPitasSprite from "./sprites/king_of_pitas.png";
 import starOfDavidSprite from "./sprites/star_of_david.png";
 import tiktokStarSprite from "./sprites/tiktok star.png";
 import touristSprite from "./sprites/tourist.png";
@@ -61,6 +62,7 @@ export const icons = {
   chicken: chickenCircleIcon,
   pita: pitaIcon,
   srulik: srulikIcon,
+  kingOfPitas: kingOfPitasIcon,
   starOfDavid: starOfDavidIcon,
 };
 
@@ -90,6 +92,7 @@ export const sprites = {
   tiktokStar: tiktokStarSprite,
   tourist: touristSprite,
   xp: xpSprite,
+  kingOfPitas: kingOfPitasSprite,
 };
 
 export const passiveSprites: Record<PassiveId, string> = {
