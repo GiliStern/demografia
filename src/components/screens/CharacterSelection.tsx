@@ -102,11 +102,12 @@ const SelectionTitle = styled.h1`
 const CharacterGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
-  height: calc(100vh - 250px);
+  max-height: calc(100vh - 250px);
   overflow-y: auto;
   gap: 20px;
   row-gap: 20px;
-  justify-content: space-evenly;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 40px;
   max-width: 1000px;
   width: 100%;
