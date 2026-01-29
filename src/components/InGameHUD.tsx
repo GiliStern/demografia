@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import { styled } from "@linaria/react";
 import { useGameStore } from "@/store/gameStore";
 import { UI_STRINGS } from "../data/config/ui";
 import { WEAPONS } from "../data/config/weaponsConfig";
@@ -177,9 +177,7 @@ export const InGameHUD = () => {
           const iconUrl = weapon.sprite_config.iconUrl;
           return (
             <WeaponIconContainer key={weaponId}>
-              {iconUrl && (
-                <WeaponIcon src={iconUrl} alt={weapon.name_he} />
-              )}
+              {iconUrl && <WeaponIcon src={iconUrl} alt={weapon.name_he} />}
             </WeaponIconContainer>
           );
         })}

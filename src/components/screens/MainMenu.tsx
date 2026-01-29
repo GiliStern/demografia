@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import styled from "@emotion/styled";
+import { styled } from "@linaria/react";
 
 import { useGameStore } from "@/store/gameStore";
 import { UI_STRINGS } from "../../data/config/ui";

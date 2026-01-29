@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import styled from "@emotion/styled";
+import { styled } from "@linaria/react";
 
 interface TouchJoystickProps {
   isVisible: boolean;
@@ -33,7 +33,9 @@ const JoystickBase = styled.div<JoystickBaseProps>`
   border: ${({ isActive }) => (isActive ? "3px solid #666" : "3px solid #444")};
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
   opacity: ${({ isActive }) => (isActive ? 0.7 : 0.3)};
-  transition: opacity 0.2s ease-in, border-color 0.2s ease-in;
+  transition:
+    opacity 0.2s ease-in,
+    border-color 0.2s ease-in;
   display: flex;
   align-items: center;
   justify-content: center;

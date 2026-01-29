@@ -1,18 +1,14 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
-import styled from "@emotion/styled";
+import type { ComponentProps, ReactNode } from "react";
+import { styled } from "@linaria/react";
 
 type ButtonVariant = "primary" | "disabled" | "outline" | "success" | "compact";
 
-interface AppButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "style"> {
+interface AppButtonProps extends ComponentProps<"button"> {
   children: ReactNode;
   variant?: ButtonVariant;
 }
 
-const StyledButton = styled.button<{
-  variant: ButtonVariant;
-  $disabled?: boolean;
-}>`
+export const StyledButton = styled("button")`
   padding: 8px 16px;
   font-size: 32px;
   background: #444;
@@ -43,70 +39,49 @@ const StyledButton = styled.button<{
     min-height: 44px;
   }
 
-  ${({ variant, $disabled }) => {
-    if ($disabled && variant !== "disabled") {
-      return `
-        background: #222;
-        color: #666;
-        border: 2px solid #333;
-        cursor: not-allowed;
-      `;
-    }
+  &:has([data-variant="disabled"]),
+  &:disabled {
+    background: #222;
+    color: #666;
+    border: 2px solid #333;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 
-    switch (variant) {
-      case "disabled":
-        return `
-          background: #222;
-          color: #666;
-          border: 2px solid #333;
-          cursor: not-allowed;
-        `;
-      case "outline":
-        return `
-          padding: 15px 40px;
-          border: 2px solid white;
-          @media (max-width: 768px) {
-            padding: 12px 24px;
-          }
-          @media (max-width: 480px) {
-            padding: 10px 20px;
-          }
-        `;
-      case "success":
-        return `
-          padding: 10px 18px;
-          background: #4caf50;
-          border: none;
-          font-weight: 600;
-          font-size: 32px;
-          @media (max-width: 768px) {
-            font-size: 24px;
-            padding: 12px 20px;
-          }
-          @media (max-width: 480px) {
-            font-size: 20px;
-            padding: 10px 16px;
-          }
-        `;
-      case "compact":
-        return `
-          padding: 10px;
-          font-size: 16px;
-          @media (max-width: 768px) {
-            font-size: 14px;
-            padding: 8px;
-            min-height: 40px;
-          }
-          @media (max-width: 480px) {
-            font-size: 12px;
-            padding: 6px;
-            min-height: 36px;
-          }
-        `;
-      default:
-        return "";
+  &:has([data-variant="outline"]) {
+    padding: 15px 40px;
+    border: 2px solid white;
+    @media (max-width: 768px) {
+      padding: 12px 24px;
     }
-  }}
+    @media (max-width: 480px) {
+      padding: 10px 20px;
+    }
+  }
+
+  &:has([data-variant="success"]) {
+    padding: 10px 18px;
+    background: #4caf50;
+    border: none;
+    font-weight: 600;
+    font-size: 32px;
+  }
+
+  &:has([data-variant="compact"]) {
+    padding: 10px;
+    font-size: 16px;
+
+    @media (max-width: 768px) {
+      font-size: 14px;
+      padding: 8px;
+      min-height: 40px;
+    }
+    @media (max-width: 480px) {
+      font-size: 12px;
+      padding: 6px;
+      min-height: 36px;
+    }
+  }
 `;
 
 export const AppButton = ({
@@ -116,12 +91,7 @@ export const AppButton = ({
   ...rest
 }: AppButtonProps) => {
   return (
-    <StyledButton
-      variant={variant}
-      $disabled={!!disabled}
-      disabled={disabled}
-      {...rest}
-    >
+    <StyledButton data-variant={variant} disabled={disabled} {...rest}>
       {children}
     </StyledButton>
   );

@@ -1,5 +1,5 @@
 import type { CharacterData } from "@/types";
-import styled from "@emotion/styled";
+import { styled } from "@linaria/react";
 import { Lock } from "lucide-react";
 
 export type CharacterCardVariant = "unlocked" | "locked" | "coming-soon";
@@ -39,7 +39,7 @@ const StyledCardButton = styled.button`
   cursor: pointer;
   user-select: none;
 
-  :has([data-variant="unlocked"]) {
+  &:has([data-variant="unlocked"]) {
     cursor: pointer;
     border-color: #666;
     background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
@@ -52,22 +52,17 @@ const StyledCardButton = styled.button`
     }
   }
 
-  :has([data-variant="locked"]) {
+  &:has([data-variant="locked"]),
+  &:disabled {
     filter: grayscale(0.8);
     opacity: 0.7;
     cursor: not-allowed;
   }
 
-  :has([data-variant="coming-soon"]) {
+  &:has([data-variant="coming-soon"]) {
     opacity: 0.5;
     cursor: default;
     border-style: dashed;
-  }
-
-  :disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-    filter: grayscale(0.8);
   }
 `;
 
@@ -235,8 +230,8 @@ export const CharacterCard = ({ data, onClick }: CharacterCardProps) => {
         {/* Character Name */}
         <Name>
           {variant === "coming-soon"
-            ? placeholderText ?? "בקרוב"
-            : character?.name_he ?? "???"}
+            ? (placeholderText ?? "בקרוב")
+            : (character?.name_he ?? "???")}
         </Name>
 
         {/* Character Description */}
@@ -244,8 +239,8 @@ export const CharacterCard = ({ data, onClick }: CharacterCardProps) => {
           {variant === "coming-soon"
             ? ""
             : variant === "locked"
-            ? "נעול - השלם אתגרים לפתיחה"
-            : character?.description_he ?? ""}
+              ? "נעול - השלם אתגרים לפתיחה"
+              : (character?.description_he ?? "")}
         </Description>
       </TextContainer>
     </StyledCardButton>

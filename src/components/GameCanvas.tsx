@@ -2,7 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrthographicCamera } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
 import { Suspense } from "react";
-import styled from "@emotion/styled";
+import { styled } from "@linaria/react";
 
 import { Player } from "./Player";
 import { ActiveWeapons } from "./weapons/ActiveWeapons";

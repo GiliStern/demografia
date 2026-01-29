@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from "react";
-import styled from "@emotion/styled";
+import { styled } from "@linaria/react";
 import { performanceMonitor } from "../utils/performance/performanceMonitor";
 
 interface PerformanceHUDProps {
@@ -40,9 +40,5 @@ export const PerformanceHUD = ({ visible = true }: PerformanceHUDProps) => {
 
   if (!visible) return null;
 
-  return (
-    <PerformanceContainer>
-      {stats}
-    </PerformanceContainer>
-  );
+  return <PerformanceContainer>{stats}</PerformanceContainer>;
 };

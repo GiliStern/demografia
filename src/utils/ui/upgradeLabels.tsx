@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import { styled } from "@linaria/react";
 import { ItemKind, type UpgradeOption } from "../../types";
 import { UI_STRINGS } from "../../data/config/ui";
 import { WEAPONS } from "@/data/config/weaponsConfig";
@@ -51,33 +51,25 @@ export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
     const weaponData = WEAPONS[choice.weaponId];
     const iconUrl = weaponData.sprite_config.iconUrl;
     const nextLevelData = weaponData.levels?.find(
-      (lvl) => lvl.level === choice.currentLevel + 1
+      (lvl) => lvl.level === choice.currentLevel + 1,
     );
     const upgradeText = choice.isNew
       ? UI_STRINGS.level_up.weapon_new_prefix
-      : nextLevelData?.description ?? UI_STRINGS.level_up.weapon_upgrade_prefix;
+      : (nextLevelData?.description ??
+        UI_STRINGS.level_up.weapon_upgrade_prefix);
 
     return (
       <UpgradeLabelContainer>
         <IconContainer>
-          {iconUrl && (
-            <UpgradeIcon
-              src={iconUrl}
-              alt={weaponData.name_he}
-            />
-          )}
+          {iconUrl && <UpgradeIcon src={iconUrl} alt={weaponData.name_he} />}
           <TextContainer>
             <div>{weaponData.name_he}</div>
             {weaponData.description_he && (
-              <DescriptionText>
-                {weaponData.description_he}
-              </DescriptionText>
+              <DescriptionText>{weaponData.description_he}</DescriptionText>
             )}
           </TextContainer>
         </IconContainer>
-        <UpgradeText isNew={choice.isNew}>
-          {upgradeText}
-        </UpgradeText>
+        <UpgradeText isNew={choice.isNew}>{upgradeText}</UpgradeText>
       </UpgradeLabelContainer>
     );
   }
@@ -89,7 +81,7 @@ export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
   // Get the next level data for description
   const nextLevel = choice.currentLevel + 1;
   const nextLevelData = passiveData.levels.find(
-    (lvl) => lvl.level === nextLevel
+    (lvl) => lvl.level === nextLevel,
   );
 
   // Build upgrade text
@@ -112,32 +104,20 @@ export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
   return (
     <UpgradeLabelContainer>
       <IconContainer>
-        {iconUrl && (
-          <UpgradeIcon
-            src={iconUrl}
-            alt={passiveData.name_he}
-          />
-        )}
+        {iconUrl && <UpgradeIcon src={iconUrl} alt={passiveData.name_he} />}
         <TextContainer>
           <div>
             {passiveData.name_he}
             {levelIndicator && (
-              <LevelIndicator>
-                {" "}
-                {levelIndicator}
-              </LevelIndicator>
+              <LevelIndicator> {levelIndicator}</LevelIndicator>
             )}
           </div>
           {passiveData.description_he && (
-            <DescriptionText>
-              {passiveData.description_he}
-            </DescriptionText>
+            <DescriptionText>{passiveData.description_he}</DescriptionText>
           )}
         </TextContainer>
       </IconContainer>
-      <UpgradeText isNew={choice.isNew}>
-        {upgradeText}
-      </UpgradeText>
+      <UpgradeText isNew={choice.isNew}>{upgradeText}</UpgradeText>
     </UpgradeLabelContainer>
   );
 };

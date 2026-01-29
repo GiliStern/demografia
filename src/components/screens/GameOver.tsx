@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import { styled } from "@linaria/react";
 import { useGameStore } from "@/store/gameStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { AppButton } from "../ui/AppButton";
@@ -69,10 +69,6 @@ const StatsContainer = styled.div`
   }
 `;
 
-const StyledAppButton = styled(AppButton)`
-  border: 2px solid white;
-`;
-
 export const GameOver = () => {
   const { runTimer, gold, killCount } = useGameStore();
 
@@ -97,12 +93,9 @@ export const GameOver = () => {
         <div>הריגות: {killCount}</div>
       </StatsContainer>
 
-      <StyledAppButton
-        onClick={() => window.location.reload()}
-        variant="outline"
-      >
+      <AppButton onClick={() => window.location.reload()} variant="outline">
         {UI_STRINGS.common.main_menu}
-      </StyledAppButton>
+      </AppButton>
     </GameOverContainer>
   );
 };

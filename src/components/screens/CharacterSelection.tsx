@@ -1,9 +1,9 @@
-import styled from "@emotion/styled";
+import { styled } from "@linaria/react";
 import { CharacterId } from "@/types";
 import { CHARACTERS } from "@/data/config/characters";
 import { WEAPONS } from "@/data/config/weaponsConfig";
 import { UI_STRINGS } from "@/data/config/ui";
-import { AppButton } from "../ui/AppButton";
+import { StyledButton } from "../ui/AppButton";
 import { CharacterCard, type CharacterCardData } from "../ui/CharacterCard";
 import { ArrowRight } from "lucide-react";
 
@@ -139,7 +139,7 @@ const CharacterGrid = styled.div`
   }
 `;
 
-const BackButton = styled(AppButton)`
+const BackButton = styled(StyledButton)`
   width: max-content;
   font-size: 24px;
   padding: 12px 24px;
@@ -177,7 +177,7 @@ export const CharacterSelection = ({
         weaponIconUrl:
           weapon.sprite_config.iconUrl ?? weapon.sprite_config.textureUrl,
       };
-    }
+    },
   );
 
   // Combine all cards
