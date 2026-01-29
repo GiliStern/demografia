@@ -10,41 +10,71 @@ export interface SpriteConfig {
 }
 
 export enum PassiveId {
+  /** מקסימום בריאות */
   Privilege = "privilege", // Max health (Hollow Heart)
+  /** קירור */
   Wassach = "wassach", // Cooldown (Empty Tome)
+  /** פרוטקשן */
   Protection = "protection", // Armor
+  /** גת */
   Gat = "gat", // Damage up (Spinach)
+  /** כנפי השכינה */
   WingsOfDivinePresence = "wings_divine_presence", // Move speed (Wings)
+  /** מרבין בשמחה */
   IncreaseJoy = "increase_joy", // Amount (Duplicator)
+  /** נרות שבת */
   ShabbatCandles = "shabbat_candles", // Area (Candelabrador) - Pitas evolution
+  /** הארכה */
   Extension = "extension", // Duration (Spellbinder) - Kaparot evolution
+  /** זרוע נטויה */
   OutstretchedArm = "outstretched_arm", // Projectile speed (Bracer) - Star evolution
+  /** מד"א */
   MDA = "mda", // Recovery (Pummarola)
+  /** מגנט */
   Magnet = "magnet", // Pickup range (Attractorb)
+  /** תלתן */
   Clover = "clover", // Luck
+  /** מלכות שמיים */
   Crown = "crown", // Growth
+  /** עין רע */
   EvilEye = "evil_eye", // Curse (Skull O'Maniac)
+  /** תאוות בצע */
   Greed = "greed", // Greed (Stone Mask)
 }
 
 export enum FloorPickupId {
+  /** חמין */
   Hamin = "hamin",
+  /** תיבה */
   Chest = "chest",
 }
 
 export interface PlayerStats {
+  /** מקסימום בריאות */
   maxHealth: number;
+  /** מהירות תנועה */
   moveSpeed: number;
+  /** כוח */
   might: number;
+  /** שטח */
   area: number;
+  /** קירור */
   cooldown: number;
+  /** שיפור בריאות */
   recovery: number;
+  /** מזל */
   luck: number;
+  /** שיפור בריאות */
   growth: number;
+  /** רצון */
   greed: number;
+  /** שיפור בריאות */
   curse: number;
+  /** שיפור בריאות */
   revivals: number;
+  /** שריון */
   armor: number;
+  /** מגנט */
   magnet: number;
 }
 
@@ -295,7 +325,7 @@ export interface EnemiesStore {
   removeEnemy: (id: string) => void;
   registerEnemyDamageCallback: (
     id: string,
-    callback: (damage: number) => void
+    callback: (damage: number) => void,
   ) => void;
   damageEnemy: (id: string, damage: number) => void;
 }
@@ -367,10 +397,10 @@ export interface ProjectilesStore {
   getProjectilesArray: () => CentralizedProjectile[];
   updateProjectile: (
     id: string,
-    updates: Partial<CentralizedProjectile>
+    updates: Partial<CentralizedProjectile>,
   ) => void;
   updateProjectiles: (
-    updates: { id: string; updates: Partial<CentralizedProjectile> }[]
+    updates: { id: string; updates: Partial<CentralizedProjectile> }[],
   ) => void;
 }
 

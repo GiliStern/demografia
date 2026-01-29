@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
-import { WAVES } from "@/data/config/waves";
+import { WaveId, WAVES } from "@/data/config/waves";
 import type { WaveData, EnemyId } from "@/types";
 import type {
   ActiveEnemy,
@@ -19,7 +19,7 @@ import { distance } from "@/utils/weapons/weaponMath";
 export type { ActiveEnemy };
 
 const waves = WAVES;
-const DEFAULT_STAGE = "stage_1";
+const DEFAULT_STAGE = WaveId.TelAviv;
 
 /**
  * Custom hook for wave management - handles enemy spawning, culling, and tracking
