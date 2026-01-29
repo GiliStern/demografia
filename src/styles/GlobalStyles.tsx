@@ -35,8 +35,7 @@ export const GlobalStyles = () => (
       }
 
       #root {
-        max-width: 1280px;
-        margin: 0 auto;
+        margin: 0;
         text-align: center;
         display: flex;
         align-items: center;
