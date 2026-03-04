@@ -11,5 +11,5 @@
     "allowSyntheticDefaultImports": true,
     "strict": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "vite.phaser.config.ts", "playwright.phaser.config.ts"]
 }

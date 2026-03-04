@@ -7,10 +7,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:phaser": "npm run lint:phaser && vite --config vite.phaser.config.ts --open /index-phaser.html",
     "build": "tsc && vite build",
+    "build:phaser": "npm run lint:phaser && npm run test:phaser && npm run test:e2e:phaser && tsc && vite build --config vite.phaser.config.ts",
     "lint": "eslint --report-unused-disable-directives",
+    "lint:phaser": "eslint src-phaser --max-warnings 0 --report-unused-disable-directives",
     "preview": "vite preview",
+    "preview:phaser": "vite preview --config vite.phaser.config.ts",
     "test": "vitest",
+    "test:phaser": "vitest run src-phaser/core",
+    "test:e2e:phaser": "playwright test --config playwright.phaser.config.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -27,6 +33,7 @@
     "lucide-react": "^0.562.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "phaser": "^3.90.0",
     "three": "^0.160.0",
     "zustand": "^5.0.9"
   },
@@ -41,6 +48,7 @@
     "@storybook/react": "^8.4.7",
     "@storybook/react-vite": "^8.4.7",
     "@storybook/test": "^8.4.7",
+    "@playwright/test": "^1.56.1",
     "@types/node": "^24.10.1",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
