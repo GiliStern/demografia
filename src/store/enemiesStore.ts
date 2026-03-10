@@ -6,6 +6,7 @@ export const createEnemiesStore: StoreCreator<EnemiesStore> = (set) => {
 
   return {
     killCount: 0,
+    enemyPositionsRegistry: enemyPositions,
 
     resetEnemies: () => {
       enemyPositions.clear();

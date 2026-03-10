@@ -27,7 +27,8 @@ interface GameCanvasProps {
 }
 
 export const GameCanvas = ({ $menuVisible = false }: GameCanvasProps) => {
-  const { isPaused, isRunning } = useGameStore();
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
   const physicsPaused = !isRunning || isPaused;
 
   return (

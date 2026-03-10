@@ -78,7 +78,9 @@ const ButtonList = styled.div`
 `;
 
 export const LevelUpOverlay = () => {
-  const { pauseReason, upgradeChoices, applyUpgrade } = useGameStore();
+  const pauseReason = useGameStore((state) => state.pauseReason);
+  const upgradeChoices = useGameStore((state) => state.upgradeChoices);
+  const applyUpgrade = useGameStore((state) => state.applyUpgrade);
   const isLevelUpMenu = pauseReason === PauseReason.LevelUp;
   const buttonListRef = useRef<HTMLDivElement>(null);
 

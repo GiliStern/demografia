@@ -20,15 +20,13 @@ const AppContainer = styled.div`
 `;
 
 const App = () => {
-  const {
-    isRunning,
-    isGameOver,
-    isPaused,
-    pauseGame,
-    resumeGame,
-    pauseReason,
-    startGame,
-  } = useGameStore();
+  const isRunning = useGameStore((state) => state.isRunning);
+  const isGameOver = useGameStore((state) => state.isGameOver);
+  const isPaused = useGameStore((state) => state.isPaused);
+  const pauseGame = useGameStore((state) => state.pauseGame);
+  const resumeGame = useGameStore((state) => state.resumeGame);
+  const pauseReason = useGameStore((state) => state.pauseReason);
+  const startGame = useGameStore((state) => state.startGame);
 
   const [showCharacterSelection, setShowCharacterSelection] = useState(false);
   const isMobile = useMobileDetection();

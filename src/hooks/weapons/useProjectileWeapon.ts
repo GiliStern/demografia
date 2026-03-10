@@ -33,14 +33,14 @@ export function useProjectileWeapon({
   const pendingShots = useRef<ProjectileData[]>([]);
   const nextStaggerTime = useRef<number | null>(null);
 
-  const {
-    isPaused,
-    isRunning,
-    getWeaponStats,
-    getEffectivePlayerStats,
-    addProjectiles,
-  } = useGameStore();
-  
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
+  const getWeaponStats = useGameStore((state) => state.getWeaponStats);
+  const getEffectivePlayerStats = useGameStore(
+    (state) => state.getEffectivePlayerStats
+  );
+  const addProjectiles = useGameStore((state) => state.addProjectiles);
+
   const playerStats = getEffectivePlayerStats();
 
   const weaponData = WEAPONS[weaponId];

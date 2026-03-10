@@ -13,7 +13,8 @@ export const useSpriteAnimation = ({
   variant,
   currentAnimation,
 }: UseSpriteAnimationProps) => {
-  const { isPaused, isRunning } = useGameStore();
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
   const [, setFrameIndex] = useState(0);
   const frameIndexRef = useRef(0);
   const timer = useRef(0);

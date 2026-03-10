@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
 import { WaveId, WAVES } from "@/data/config/waves";
 import type { WaveData, EnemyId } from "@/types";
+import type { EnemyPositionMap } from "@/utils/game/waveUtils";
 import type {
   ActiveEnemy,
   SpawnTracker,
@@ -31,8 +32,13 @@ export function useWaveManager(): UseWaveManagerReturn {
   const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
   const spawnTrackerRef = useRef<SpawnTracker>({});
 
-  // Zustand selectors
-  const { runTimer, playerPosition, isPaused, isRunning } = useGameStore();
+  const runTimer = useGameStore((state) => state.runTimer);
+  const playerPosition = useGameStore((state) => state.playerPosition);
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
+  const viewportBounds = useGameStore((state) => state.viewportBounds);
+  const getEnemyPositionsRegistry = (): EnemyPositionMap =>
+    useGameStore.getState().enemyPositionsRegistry as unknown as EnemyPositionMap;
 
   // Determine current wave based on run timer
   const currentWave: WaveData | undefined = useMemo(() => {
@@ -45,7 +51,6 @@ export function useWaveManager(): UseWaveManagerReturn {
   // Spawn enemy at a random position outside viewport
   const spawnEnemy = useCallback(
     (typeId: EnemyId) => {
-      const viewportBounds = useGameStore.getState().viewportBounds;
       if (!viewportBounds) return;
 
       const spawnPos = getSpawnPositionOutsideViewport(
@@ -67,7 +72,7 @@ export function useWaveManager(): UseWaveManagerReturn {
 
       setEnemies((prev) => [...prev, newEnemy]);
     },
-    [playerPosition]
+    [playerPosition, viewportBounds]
   );
 
   // Remove enemy from the active wave roster.
@@ -80,7 +85,6 @@ export function useWaveManager(): UseWaveManagerReturn {
     if (isPaused || !isRunning || !currentWave) return;
 
     // Get viewport bounds for culling
-    const viewportBounds = useGameStore.getState().viewportBounds;
     if (viewportBounds) {
       // Cull enemies that are too far from player (Vampire Survivors style)
       const cullDistance = getCullDistance(
@@ -89,7 +93,7 @@ export function useWaveManager(): UseWaveManagerReturn {
       );
 
       setEnemies((prev) => {
-        const enemyPositions = useGameStore.getState().getEnemyPositions();
+        const enemyPositions = getEnemyPositionsRegistry();
         return filterEnemiesWithinCullDistance(
           prev,
           enemyPositions,

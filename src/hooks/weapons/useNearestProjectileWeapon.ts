@@ -34,17 +34,17 @@ export function useNearestProjectileWeapon({
   const pendingShots = useRef<ProjectileData[]>([]);
   const nextStaggerTime = useRef<number | null>(null);
 
-  const {
-    playerPosition,
-    playerDirection,
-    isPaused,
-    isRunning,
-    getWeaponStats,
-    getEffectivePlayerStats,
-    getEnemyPositions,
-    addProjectiles,
-  } = useGameStore();
-  
+  const playerPosition = useGameStore((state) => state.playerPosition);
+  const playerDirection = useGameStore((state) => state.playerDirection);
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
+  const getWeaponStats = useGameStore((state) => state.getWeaponStats);
+  const getEffectivePlayerStats = useGameStore(
+    (state) => state.getEffectivePlayerStats
+  );
+  const getEnemyPositions = useGameStore((state) => state.getEnemyPositions);
+  const addProjectiles = useGameStore((state) => state.addProjectiles);
+
   const playerStats = getEffectivePlayerStats();
 
   const weaponData = WEAPONS[weaponId];

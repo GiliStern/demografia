@@ -12,7 +12,8 @@ export const usePauseAwareFrame = (
   callback: (state: RootState, delta: number) => void,
   priority?: number
 ) => {
-  const { isPaused, isRunning } = useGameStore();
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
 
   useFrame((state, delta) => {
     if (isPaused || !isRunning) return;

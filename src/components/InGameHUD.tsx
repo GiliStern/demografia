@@ -113,16 +113,16 @@ const WeaponIcon = styled.img`
 `;
 
 export const InGameHUD = () => {
-  const {
-    currentHealth,
-    level,
-    gold,
-    xp,
-    nextLevelXp,
-    runTimer,
-    activeWeapons,
-    getEffectivePlayerStats,
-  } = useGameStore();
+  const currentHealth = useGameStore((state) => state.currentHealth);
+  const level = useGameStore((state) => state.level);
+  const gold = useGameStore((state) => state.gold);
+  const xp = useGameStore((state) => state.xp);
+  const nextLevelXp = useGameStore((state) => state.nextLevelXp);
+  const runTimer = useGameStore((state) => state.runTimer);
+  const activeWeapons = useGameStore((state) => state.activeWeapons);
+  const getEffectivePlayerStats = useGameStore(
+    (state) => state.getEffectivePlayerStats
+  );
 
   const effectiveStats = getEffectivePlayerStats();
 

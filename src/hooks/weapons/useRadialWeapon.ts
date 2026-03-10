@@ -22,16 +22,15 @@ interface UseRadialWeaponParams {
 export function useRadialWeapon({ weaponId }: UseRadialWeaponParams): void {
   const lastFireTime = useRef(0);
 
-  // Zustand selectors
-  const {
-    playerPosition,
-    isPaused,
-    isRunning,
-    getWeaponStats,
-    getEffectivePlayerStats,
-    addProjectiles,
-  } = useGameStore();
-  
+  const playerPosition = useGameStore((state) => state.playerPosition);
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
+  const getWeaponStats = useGameStore((state) => state.getWeaponStats);
+  const getEffectivePlayerStats = useGameStore(
+    (state) => state.getEffectivePlayerStats
+  );
+  const addProjectiles = useGameStore((state) => state.addProjectiles);
+
   const playerStats = getEffectivePlayerStats();
 
   const weapon = WEAPONS[weaponId];

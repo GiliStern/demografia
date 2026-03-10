@@ -70,7 +70,9 @@ const StatsContainer = styled.div`
 `;
 
 export const GameOver = () => {
-  const { runTimer, gold, killCount } = useGameStore();
+  const runTimer = useGameStore((state) => state.runTimer);
+  const gold = useGameStore((state) => state.gold);
+  const killCount = useGameStore((state) => state.killCount);
 
   const minutes = Math.floor(runTimer / 60)
     .toString()

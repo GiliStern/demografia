@@ -108,7 +108,9 @@ const VersionText = styled.div`
 `;
 
 export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
-  const { resumeGame, isPaused, isRunning } = useGameStore();
+  const resumeGame = useGameStore((state) => state.resumeGame);
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
   const canResume = isRunning && isPaused;
   const buttonColumnRef = useRef<HTMLDivElement>(null);
 

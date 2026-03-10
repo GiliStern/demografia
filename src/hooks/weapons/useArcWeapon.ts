@@ -19,13 +19,13 @@ interface UseArcWeaponParams {
 export function useArcWeapon({ weaponId }: UseArcWeaponParams): void {
   const lastFireTime = useRef(0);
 
-  const {
-    isPaused,
-    isRunning,
-    getWeaponStats,
-    getEffectivePlayerStats,
-    addProjectiles,
-  } = useGameStore();
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
+  const getWeaponStats = useGameStore((state) => state.getWeaponStats);
+  const getEffectivePlayerStats = useGameStore(
+    (state) => state.getEffectivePlayerStats
+  );
+  const addProjectiles = useGameStore((state) => state.addProjectiles);
 
   const playerStats = getEffectivePlayerStats();
   const weapon = WEAPONS[weaponId];

@@ -17,17 +17,16 @@ interface UseBounceWeaponParams {
 export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
   const lastFireTime = useRef(0);
 
-  // Zustand selectors
-  const {
-    isPaused,
-    isRunning,
-    getWeaponStats,
-    getEffectivePlayerStats,
-    addProjectiles,
-    getProjectilesArray,
-    updateProjectile,
-  } = useGameStore();
-  
+  const isPaused = useGameStore((state) => state.isPaused);
+  const isRunning = useGameStore((state) => state.isRunning);
+  const getWeaponStats = useGameStore((state) => state.getWeaponStats);
+  const getEffectivePlayerStats = useGameStore(
+    (state) => state.getEffectivePlayerStats
+  );
+  const addProjectiles = useGameStore((state) => state.addProjectiles);
+  const getProjectilesArray = useGameStore((state) => state.getProjectilesArray);
+  const updateProjectile = useGameStore((state) => state.updateProjectile);
+
   const playerStats = getEffectivePlayerStats();
 
   const weapon = WEAPONS[weaponId];

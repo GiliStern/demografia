@@ -317,6 +317,7 @@ export interface PlayerStore {
 
 export interface EnemiesStore {
   killCount: number;
+  enemyPositionsRegistry: ReadonlyMap<string, { x: number; y: number }>;
   resetEnemies: () => void;
   addKill: () => void;
   registerEnemy: (id: string, position: { x: number; y: number }) => void;
