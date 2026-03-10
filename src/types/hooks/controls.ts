@@ -1,5 +1,10 @@
 import type { RefObject } from "react";
 
+export interface MoveInput {
+  x: number;
+  y: number;
+}
+
 /**
  * Parameters for useMenuNavigation hook
  * Enables arrow-key navigation between focusable buttons inside a container.

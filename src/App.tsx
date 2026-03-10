@@ -8,7 +8,8 @@ import { CharacterSelection } from "./components/screens/CharacterSelection";
 import { TouchJoystick } from "./components/TouchJoystick";
 import { useGameStore } from "@/store/gameStore";
 import { useMobileDetection } from "./hooks/utils/useMobileDetection";
-import { useTouchControls } from "./hooks/controls/useTouchControls";
+import { useUnifiedControls } from "./hooks/controls/useUnifiedControls";
+import { MovementInputProvider } from "./hooks/controls/MovementInputContext";
 import { PauseReason, CharacterId } from "./types";
 import "./styles/GlobalStyles";
 
@@ -40,19 +41,9 @@ const App = () => {
       (!isRunning || (isPaused && pauseReason === PauseReason.Manual))) ||
     isGameOver;
 
-  const touchControls = useTouchControls(
+  const movementInput = useUnifiedControls(
     !isMenuVisible && isRunning && !isPaused && !isGameOver,
   );
-  const [touchInput, setTouchInput] = useState({ x: 0, y: 0 });
-
-  // Update touch input state for TouchJoystick component
-  useEffect(() => {
-    const updateTouchInput = () => {
-      setTouchInput(touchControls.current);
-    };
-    const interval = setInterval(updateTouchInput, 16); // 60fps
-    return () => clearInterval(interval);
-  }, [touchControls]);
 
   const handleShowCharacterSelection = () => {
     setShowCharacterSelection(true);
@@ -99,34 +90,36 @@ const App = () => {
 
   return (
     <>
-      <AppContainer>
-        {showCharacterSelection && (
-          <CharacterSelection
-            onSelectCharacter={handleSelectCharacter}
-            onBack={handleBackToMainMenu}
-          />
-        )}
-        {!showCharacterSelection &&
-          !isGameOver &&
-          (!isRunning || (isPaused && pauseReason === PauseReason.Manual)) && (
-            <MainMenu onShowCharacterSelection={handleShowCharacterSelection} />
+      <MovementInputProvider inputRef={movementInput.inputRef}>
+        <AppContainer>
+          {showCharacterSelection && (
+            <CharacterSelection
+              onSelectCharacter={handleSelectCharacter}
+              onBack={handleBackToMainMenu}
+            />
           )}
-        {isGameOver && <GameOver />}
-        <GameCanvas
-          $menuVisible={
-            showCharacterSelection ||
-            (!showCharacterSelection &&
-              !isGameOver &&
-              (!isRunning ||
-                (isPaused && pauseReason === PauseReason.Manual))) ||
-            isGameOver
-          }
-        />
-        {isRunning && !isPaused && !isGameOver && <InGameHUD />}
-        {isRunning && !isPaused && !isGameOver && isMobile && (
-          <TouchJoystick isVisible={true} touchInput={touchInput} />
-        )}
-      </AppContainer>
+          {!showCharacterSelection &&
+            !isGameOver &&
+            (!isRunning || (isPaused && pauseReason === PauseReason.Manual)) && (
+              <MainMenu onShowCharacterSelection={handleShowCharacterSelection} />
+            )}
+          {isGameOver && <GameOver />}
+          <GameCanvas
+            $menuVisible={
+              showCharacterSelection ||
+              (!showCharacterSelection &&
+                !isGameOver &&
+                (!isRunning ||
+                  (isPaused && pauseReason === PauseReason.Manual))) ||
+              isGameOver
+            }
+          />
+          {isRunning && !isPaused && !isGameOver && <InGameHUD />}
+          {isRunning && !isPaused && !isGameOver && isMobile && (
+            <TouchJoystick isVisible={true} touchInput={movementInput.touchInput} />
+          )}
+        </AppContainer>
+      </MovementInputProvider>
     </>
   );
 };
