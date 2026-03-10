@@ -110,7 +110,7 @@ export const BatchedProjectileRenderer = () => {
         if (distSq < collisionRadius * collisionRadius) {
           // Apply damage to enemy via callback system
           damageEnemy(enemyId, projectile.damage);
-          
+
           toRemove.push(projectile.id);
           hitEnemy = true;
           break;
@@ -133,7 +133,7 @@ export const BatchedProjectileRenderer = () => {
         toUpdate.map(({ id, position, velocity }) => ({
           id,
           updates: { position, velocity },
-        }))
+        })),
       );
       // Force React re-render to pick up new positions
       forceUpdate((n) => n + 1);
@@ -147,7 +147,7 @@ export const BatchedProjectileRenderer = () => {
       position: [p.position.x, p.position.y, p.position.z] as [
         number,
         number,
-        number
+        number,
       ],
       scale: p.scale,
       spriteIndex: p.spriteIndex,
