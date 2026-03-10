@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 import { getProjectileTickContext } from "@/store/gameStoreAccess";
 import { getProjectileManager } from "@/simulation/projectileManager";
 import { InstancedSprite } from "./InstancedSprite";
@@ -31,6 +31,7 @@ function toBatchable(p: CentralizedProjectile): BatchableEntity {
  * Zustand writes or forced React rerenders.
  */
 export const BatchedProjectileRenderer = () => {
+  const batchKeysRef = useRef<Set<string>>(new Set());
   const [batchKeys, setBatchKeys] = useState<string[]>([]);
   const batchDataRef = useRef<
     Map<
@@ -43,8 +44,8 @@ export const BatchedProjectileRenderer = () => {
     >
   >(new Map());
 
-  const isPaused = useGameStore((state) => state.isPaused);
-  const isRunning = useGameStore((state) => state.isRunning);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
 
   const manager = getProjectileManager();
 
@@ -65,11 +66,16 @@ export const BatchedProjectileRenderer = () => {
       (b) => `${b.textureUrl}::${b.spriteFrameSize ?? 32}`
     );
 
-    setBatchKeys((prev) => {
-      const next = new Set([...prev, ...keys]);
-      if (next.size === prev.length) return prev;
-      return [...next];
-    });
+    let changed = false;
+    for (const key of keys) {
+      if (!batchKeysRef.current.has(key)) {
+        batchKeysRef.current.add(key);
+        changed = true;
+      }
+    }
+    if (changed) {
+      setBatchKeys([...batchKeysRef.current]);
+    }
 
     for (const batch of batches) {
       const key = `${batch.textureUrl}::${batch.spriteFrameSize ?? 32}`;

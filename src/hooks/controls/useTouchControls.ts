@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { MoveInput } from "@/types/hooks/controls";
 
 type TouchPosition = MoveInput;
@@ -31,10 +31,13 @@ export const useTouchControls = (
   const DEAD_ZONE_PERCENT = 0.08; // 8% dead zone
   const DEAD_ZONE_RADIUS = MAX_RADIUS * DEAD_ZONE_PERCENT;
 
-  const setInput = (nextInput: TouchPosition) => {
-    inputRef.current = nextInput;
-    onChange?.(nextInput);
-  };
+  const setInput = useCallback(
+    (nextInput: TouchPosition) => {
+      inputRef.current = nextInput;
+      onChange?.(nextInput);
+    },
+    [onChange]
+  );
 
   useEffect(() => {
     // If touch controls are disabled, don't set up event listeners
@@ -206,7 +209,7 @@ export const useTouchControls = (
       joystickCenterRef.current = null;
       setInput({ x: 0, y: 0 });
     };
-  }, [enabled, onChange]);
+  }, [enabled, onChange, DEAD_ZONE_RADIUS, setInput]);
 
   return inputRef;
 };

@@ -6,6 +6,8 @@ import type {
 } from "@react-three/rapier";
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
+import { getPlayerPositionSnapshot } from "@/store/gameStoreAccess";
 import { useSpriteAnimation } from "../rendering/useSpriteAnimation";
 import { getEnemy } from "@/data/config/enemiesNormalized";
 import { buildEnemyDeathRewards } from "@/utils/entities/enemyLifecycle";
@@ -21,6 +23,8 @@ import type {
   UseEnemyBehaviorReturn,
 } from "@/types/hooks/entities";
 
+const _direction = new THREE.Vector3();
+
 /**
  * Custom hook for enemy behavior - handles movement AI, collision, damage, and death
  */
@@ -33,14 +37,13 @@ export function useEnemyBehavior({
   const rigidBody = useRef<RapierRigidBody>(null);
 
   // Zustand selectors - selective to prevent unnecessary re-renders
-  const playerPosition = useGameStore((state) => state.playerPosition);
-  const isPaused = useGameStore((state) => state.isPaused);
-  const isRunning = useGameStore((state) => state.isRunning);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
+  const addGold = useSessionStore((state) => state.addGold);
   const updateEnemyPosition = useGameStore(
     (state) => state.updateEnemyPosition
   );
   const addXpOrb = useGameStore((state) => state.addXpOrb);
-  const addGold = useGameStore((state) => state.addGold);
   const addKill = useGameStore((state) => state.addKill);
   const registerEnemy = useGameStore((state) => state.registerEnemy);
   const registerEnemyDamageCallback = useGameStore(
@@ -164,23 +167,24 @@ export function useEnemyBehavior({
       return;
     }
 
-    // Calculate direction to player
-    const direction = new THREE.Vector3(
+    // Calculate direction to player (use getState to avoid re-renders on every player move)
+    const playerPosition = getPlayerPositionSnapshot();
+    _direction.set(
       playerPosition.x - rigidBody.current.translation().x,
       playerPosition.y - rigidBody.current.translation().y,
       0
     );
 
-    if (direction.length() > 0.1) {
-      direction.normalize().multiplyScalar(speed);
+    if (_direction.length() > 0.1) {
+      _direction.normalize().multiplyScalar(speed);
       rigidBody.current.setLinvel(
-        { x: direction.x, y: direction.y, z: 0 },
+        { x: _direction.x, y: _direction.y, z: 0 },
         true
       );
 
       // Update facing direction
-      if (direction.x < 0 && !isFacingLeft) setFacingLeft(true);
-      if (direction.x > 0 && isFacingLeft) setFacingLeft(false);
+      if (_direction.x < 0 && !isFacingLeft) setFacingLeft(true);
+      if (_direction.x > 0 && isFacingLeft) setFacingLeft(false);
     } else {
       rigidBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
     }

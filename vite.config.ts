@@ -1,4 +1,3 @@
-// @ts-nocheck - wyw-in-js plugin has no call signatures in types; config validated at runtime
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import checker from "vite-plugin-checker";
@@ -10,6 +9,7 @@ export default defineConfig(({ mode }) => ({
   base: mode === "production" ? "/demografia/" : "/",
   plugins: [
     react(),
+    // @ts-expect-error - wyw-in-js default export has no call signatures in type definitions
     wyw({
       include: ["./src/**/*.{ts,tsx}"],
       babelOptions: {

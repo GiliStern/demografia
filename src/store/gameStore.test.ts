@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { useGameStore, collectUpgradeChoices } from "./gameStore";
+import { usePlayerStore } from "./playerStore";
+import { useSessionStore } from "./sessionStore";
+import { useWeaponsStore } from "./weaponsStore";
 import {
   CharacterId,
   ItemKind,
@@ -13,6 +16,9 @@ const resetStore = () => {
   useGameStore.getState().clearProjectiles();
   useGameStore.getState().resetXpOrbs();
   useGameStore.setState(useGameStore.getInitialState(), true);
+  usePlayerStore.setState(usePlayerStore.getInitialState(), true);
+  useSessionStore.setState(useSessionStore.getInitialState(), true);
+  useWeaponsStore.setState(useWeaponsStore.getInitialState(), true);
 };
 
 describe("gameStore progression", () => {
@@ -21,11 +27,11 @@ describe("gameStore progression", () => {
   });
 
   it("preserves overflow XP when leveling up", () => {
-    useGameStore.getState().startGame(CharacterId.Srulik);
+    useSessionStore.getState().startGame(CharacterId.Srulik);
 
-    useGameStore.getState().addXp(150);
+    useSessionStore.getState().addXp(150);
 
-    const state = useGameStore.getState();
+    const state = useSessionStore.getState();
     expect(state.level).toBe(2);
     expect(state.xp).toBe(50);
     expect(state.nextLevelXp).toBe(120);
@@ -35,11 +41,11 @@ describe("gameStore progression", () => {
   });
 
   it("queues repeated level gains from a single XP pickup", () => {
-    useGameStore.getState().startGame(CharacterId.Srulik);
+    useSessionStore.getState().startGame(CharacterId.Srulik);
 
-    useGameStore.getState().addXp(250);
+    useSessionStore.getState().addXp(250);
 
-    let state = useGameStore.getState();
+    let state = useSessionStore.getState();
     expect(state.level).toBe(3);
     expect(state.xp).toBe(30);
     expect(state.nextLevelXp).toBe(144);
@@ -50,7 +56,7 @@ describe("gameStore progression", () => {
     expect(firstChoice).toBeDefined();
     state.applyUpgrade(firstChoice!);
 
-    state = useGameStore.getState();
+    state = useSessionStore.getState();
     expect(state.pendingLevelUps).toBe(0);
     expect(state.pauseReason).toBe(PauseReason.LevelUp);
     expect(state.upgradeChoices.length).toBeGreaterThan(0);
@@ -59,7 +65,7 @@ describe("gameStore progression", () => {
     expect(secondChoice).toBeDefined();
     state.applyUpgrade(secondChoice!);
 
-    state = useGameStore.getState();
+    state = useSessionStore.getState();
     expect(state.isPaused).toBe(false);
     expect(state.pauseReason).toBe(PauseReason.None);
     expect(state.pendingLevelUps).toBe(0);
@@ -72,15 +78,15 @@ describe("gameStore evolution upgrades", () => {
   });
 
   it("offers explicit evolution choices for maxed weapons with required passives", () => {
-    useGameStore.getState().startGame(CharacterId.Srulik);
-    useGameStore.setState({
+    useSessionStore.getState().startGame(CharacterId.Srulik);
+    useWeaponsStore.setState({
       activeWeapons: [WeaponId.Sabra],
       weaponLevels: { [WeaponId.Sabra]: 8 },
       activeItems: [PassiveId.Wassach],
       passiveLevels: { [PassiveId.Wassach]: 1 },
     });
 
-    const choices = collectUpgradeChoices(useGameStore.getState());
+    const choices = collectUpgradeChoices(useWeaponsStore.getState());
     const evolutionChoice = choices.find(
       (choice) =>
         choice.kind === ItemKind.Weapon &&
@@ -100,15 +106,15 @@ describe("gameStore evolution upgrades", () => {
   });
 
   it("replaces the base weapon when applying an evolution", () => {
-    useGameStore.getState().startGame(CharacterId.Srulik);
-    useGameStore.setState({
+    useSessionStore.getState().startGame(CharacterId.Srulik);
+    useWeaponsStore.setState({
       activeWeapons: [WeaponId.Sabra],
       weaponLevels: { [WeaponId.Sabra]: 8 },
       activeItems: [PassiveId.Wassach],
       passiveLevels: { [PassiveId.Wassach]: 1 },
     });
 
-    const evolutionChoice = collectUpgradeChoices(useGameStore.getState()).find(
+    const evolutionChoice = collectUpgradeChoices(useWeaponsStore.getState()).find(
       (choice) =>
         choice.kind === ItemKind.Weapon &&
         choice.weaponId === WeaponId.HolyCactus &&
@@ -117,9 +123,9 @@ describe("gameStore evolution upgrades", () => {
 
     expect(evolutionChoice).toBeDefined();
 
-    useGameStore.getState().applyUpgrade(evolutionChoice!);
+    useSessionStore.getState().applyUpgrade(evolutionChoice!);
 
-    const state = useGameStore.getState();
+    const state = useWeaponsStore.getState();
     expect(state.activeWeapons).toEqual([WeaponId.HolyCactus]);
     expect(state.weaponLevels[WeaponId.HolyCactus]).toBe(1);
     expect(state.weaponLevels[WeaponId.Sabra]).toBeUndefined();

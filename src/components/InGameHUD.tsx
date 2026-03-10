@@ -1,5 +1,7 @@
 import { styled } from "@linaria/react";
-import { useGameStore } from "@/store/gameStore";
+import { usePlayerStore } from "@/store/playerStore";
+import { useSessionStore } from "@/store/sessionStore";
+import { useWeaponsStore } from "@/store/weaponsStore";
 import { UI_STRINGS } from "../data/config/ui";
 import { getWeapon } from "../data/config/weaponsNormalized";
 import { WeaponId } from "@/types";
@@ -113,14 +115,14 @@ const WeaponIcon = styled.img`
 `;
 
 export const InGameHUD = () => {
-  const currentHealth = useGameStore((state) => state.currentHealth);
-  const level = useGameStore((state) => state.level);
-  const gold = useGameStore((state) => state.gold);
-  const xp = useGameStore((state) => state.xp);
-  const nextLevelXp = useGameStore((state) => state.nextLevelXp);
-  const runTimer = useGameStore((state) => state.runTimer);
-  const activeWeapons = useGameStore((state) => state.activeWeapons);
-  const getEffectivePlayerStats = useGameStore(
+  const currentHealth = usePlayerStore((state) => state.currentHealth);
+  const level = useSessionStore((state) => state.level);
+  const gold = useSessionStore((state) => state.gold);
+  const xp = useSessionStore((state) => state.xp);
+  const nextLevelXp = useSessionStore((state) => state.nextLevelXp);
+  const runTimer = useSessionStore((state) => state.runTimer);
+  const activeWeapons = useWeaponsStore((state) => state.activeWeapons);
+  const getEffectivePlayerStats = usePlayerStore(
     (state) => state.getEffectivePlayerStats
   );
 

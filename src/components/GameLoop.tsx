@@ -1,10 +1,10 @@
 import { useFrame } from "@react-three/fiber";
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 import { performanceMonitor } from "../utils/performance/performanceMonitor";
 import { useRef } from "react";
 
 export const GameLoop = () => {
-  const updateTimer = useGameStore((state) => state.updateTimer);
+  const updateTimer = useSessionStore((state) => state.updateTimer);
   const logIntervalRef = useRef(0);
 
   useFrame((_state, delta) => {

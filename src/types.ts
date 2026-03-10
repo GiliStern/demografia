@@ -341,6 +341,7 @@ export interface WeaponsStore {
   resetWeapons: (weaponIds: WeaponId[]) => void;
   addWeapon: (weaponId: WeaponId) => void;
   levelUpWeapon: (weaponId: WeaponId) => void;
+  evolveWeapon: (evolvesFrom: WeaponId, weaponId: WeaponId) => void;
   addPassive: (passiveId: PassiveId) => void;
   levelUpPassive: (passiveId: PassiveId) => void;
   getWeaponStats: (weaponId: WeaponId) => WeaponStats;
@@ -410,6 +411,7 @@ export type CoreGameState = Omit<
 
 export interface GameSlice extends CoreGameState {
   startGame: (characterId: CharacterId) => void;
+  resetToMainMenu: () => void;
   pauseGame: () => void;
   resumeGame: () => void;
   togglePause: () => void;
@@ -423,10 +425,8 @@ export interface GameSlice extends CoreGameState {
   collectPickup: (pickupId: FloorPickupId) => void;
 }
 
-export type GameStore = GameSlice &
-  PlayerStore &
+export type GameStore =
   EnemiesStore &
-  WeaponsStore &
   ViewportStore &
   XpOrbsStore &
   ProjectilesStore;

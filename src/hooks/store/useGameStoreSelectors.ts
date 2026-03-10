@@ -4,6 +4,9 @@
  */
 
 import { useGameStore } from "@/store/gameStore";
+import { usePlayerStore } from "@/store/playerStore";
+import { useSessionStore } from "@/store/sessionStore";
+import { useWeaponsStore } from "@/store/weaponsStore";
 import type { WeaponId, PlayerStats, WeaponStats } from "@/types";
 
 /**
@@ -11,8 +14,8 @@ import type { WeaponId, PlayerStats, WeaponStats } from "@/types";
  * Used by hooks that need to check if the game is paused or running
  */
 export const useGamePauseState = () => {
-  const isPaused = useGameStore((state) => state.isPaused);
-  const isRunning = useGameStore((state) => state.isRunning);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
   return { isPaused, isRunning };
 };
 
@@ -21,8 +24,8 @@ export const useGamePauseState = () => {
  * Used by hooks that need to track player movement
  */
 export const usePlayerPositionState = () => {
-  const playerPosition = useGameStore((state) => state.playerPosition);
-  const playerDirection = useGameStore((state) => state.playerDirection);
+  const playerPosition = usePlayerStore((state) => state.playerPosition);
+  const playerDirection = usePlayerStore((state) => state.playerDirection);
   return { playerPosition, playerDirection };
 };
 
@@ -31,7 +34,7 @@ export const usePlayerPositionState = () => {
  * Used by hooks that need player stats for calculations
  */
 export const usePlayerStats = (): PlayerStats => {
-  return useGameStore((state) => state.getEffectivePlayerStats());
+  return usePlayerStore((state) => state.getEffectivePlayerStats());
 };
 
 /**
@@ -41,7 +44,7 @@ export const usePlayerStats = (): PlayerStats => {
 export const useWeaponStats = (
   weaponId: WeaponId
 ): { getWeaponStats: (id: WeaponId) => WeaponStats; stats: WeaponStats } => {
-  const getWeaponStats = useGameStore((state) => state.getWeaponStats);
+  const getWeaponStats = useWeaponsStore((state) => state.getWeaponStats);
   const stats = getWeaponStats(weaponId);
   return { getWeaponStats, stats };
 };
@@ -89,7 +92,7 @@ export const useWeaponHookState = ({ weaponId }: { weaponId: WeaponId }) => {
  */
 export const useEntityBehaviorState = () => {
   const { isPaused, isRunning } = useGamePauseState();
-  const playerPosition = useGameStore((state) => state.playerPosition);
+  const playerPosition = usePlayerStore((state) => state.playerPosition);
 
   return {
     isPaused,

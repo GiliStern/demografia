@@ -1,8 +1,24 @@
+import { create } from "zustand";
 import { CHARACTERS, INITIAL_PLAYER_STATS } from "../data/config/characters";
-import type { StoreCreator, PlayerStore, PlayerStats } from "../types";
+import type { PlayerStore, PlayerStats } from "../types";
 import { applyPassivesToPlayerStats } from "../utils/passives/passiveUtils";
+import { useWeaponsStore } from "./weaponsStore";
+import { useSessionStore } from "./sessionStore";
 
-export const createPlayerStore: StoreCreator<PlayerStore> = (set, get) => ({
+let cachedStats: PlayerStats | null = null;
+let cacheValid = false;
+
+// Invalidate cache when passives change
+useWeaponsStore.subscribe((state, prevState) => {
+  if (
+    state.activeItems !== prevState.activeItems ||
+    state.passiveLevels !== prevState.passiveLevels
+  ) {
+    cacheValid = false;
+  }
+});
+
+export const usePlayerStore = create<PlayerStore>()((set, get) => ({
   currentHealth: INITIAL_PLAYER_STATS.maxHealth,
   playerStats: INITIAL_PLAYER_STATS,
   playerPosition: { x: 0, y: 0 },
@@ -15,6 +31,7 @@ export const createPlayerStore: StoreCreator<PlayerStore> = (set, get) => ({
     const character = CHARACTERS[characterId];
     if (!character) return;
 
+    cacheValid = false;
     set({
       playerStats: { ...character.stats },
       currentHealth: character.stats.maxHealth,
@@ -24,14 +41,13 @@ export const createPlayerStore: StoreCreator<PlayerStore> = (set, get) => ({
   },
 
   takeDamage: (amount) => {
-    // Apply armor reduction from effective stats
     const effectiveStats = get().getEffectivePlayerStats();
     const reducedDamage = Math.max(1, amount - effectiveStats.armor);
     const newHealth = Math.max(0, get().currentHealth - reducedDamage);
     set({ currentHealth: newHealth });
 
     if (newHealth === 0) {
-      get().endGame();
+      useSessionStore.getState().endGame();
     }
 
     return newHealth;
@@ -49,8 +65,11 @@ export const createPlayerStore: StoreCreator<PlayerStore> = (set, get) => ({
     }),
 
   getEffectivePlayerStats: (): PlayerStats => {
+    if (cacheValid && cachedStats) return cachedStats;
     const baseStats = get().playerStats;
-    const passiveEffects = get().getAccumulatedPassiveEffects();
-    return applyPassivesToPlayerStats(baseStats, passiveEffects);
+    const passiveEffects = useWeaponsStore.getState().getAccumulatedPassiveEffects();
+    cachedStats = applyPassivesToPlayerStats(baseStats, passiveEffects);
+    cacheValid = true;
+    return cachedStats;
   },
-});
+}));

@@ -1,11 +1,11 @@
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { Sprite } from "./Sprite";
 import { getCharacter } from "../data/config/charactersNormalized";
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 import { usePlayerBehavior } from "../hooks/entities/usePlayerBehavior";
 
 export const Player = () => {
-  const selectedCharacterId = useGameStore(
+  const selectedCharacterId = useSessionStore(
     (state) => state.selectedCharacterId
   );
   const charData = getCharacter(selectedCharacterId);

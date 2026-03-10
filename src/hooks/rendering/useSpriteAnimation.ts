@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
 import { ANIMATIONS_BY_CATEGORY } from "@/data/config/animationMaps";
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 import type { UseSpriteAnimationProps } from "@/types/hooks/rendering";
 
 /**
@@ -13,8 +13,8 @@ export const useSpriteAnimation = ({
   variant,
   currentAnimation,
 }: UseSpriteAnimationProps) => {
-  const isPaused = useGameStore((state) => state.isPaused);
-  const isRunning = useGameStore((state) => state.isRunning);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
   const [, setFrameIndex] = useState(0);
   const frameIndexRef = useRef(0);
   const timer = useRef(0);

@@ -1,6 +1,8 @@
 import { useState, useRef, useMemo, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
+import { usePlayerStore } from "@/store/playerStore";
+import { useSessionStore } from "@/store/sessionStore";
 import { getEnemyPositionsRegistrySnapshot } from "@/store/gameStoreAccess";
 import { WaveId } from "@/data/config/waves";
 import { getNormalizedWaves } from "@/data/config/wavesNormalized";
@@ -25,6 +27,7 @@ import {
 export type { ActiveEnemy };
 
 const DEFAULT_STAGE = WaveId.TelAviv;
+const CULL_INTERVAL = 0.25; // seconds, ~4 Hz
 
 function generateId(): string {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -39,11 +42,12 @@ function generateId(): string {
 export function useWaveManager(): UseWaveManagerReturn {
   const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
   const spawnTrackerRef = useRef<SpawnTracker>({});
+  const lastCullTimeRef = useRef(0);
 
-  const runTimer = useGameStore((state) => state.runTimer);
-  const playerPosition = useGameStore((state) => state.playerPosition);
-  const isPaused = useGameStore((state) => state.isPaused);
-  const isRunning = useGameStore((state) => state.isRunning);
+  const runTimer = useSessionStore((state) => state.runTimer);
+  const playerPosition = usePlayerStore((state) => state.playerPosition);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
   const viewportBounds = useGameStore((state) => state.viewportBounds);
 
   const currentWave = useMemo(() => {
@@ -79,7 +83,9 @@ export function useWaveManager(): UseWaveManagerReturn {
   useFrame(() => {
     if (isPaused || !isRunning || !currentWave) return;
 
-    if (viewportBounds) {
+    const now = performance.now() / 1000;
+    if (viewportBounds && now - lastCullTimeRef.current >= CULL_INTERVAL) {
+      lastCullTimeRef.current = now;
       const cullDistance = getCullDistance(
         viewportBounds,
         VIEWPORT_CONFIG.ENEMY_CULL_MULTIPLIER

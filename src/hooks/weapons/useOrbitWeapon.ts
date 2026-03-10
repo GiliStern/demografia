@@ -1,9 +1,19 @@
+/**
+ * Orbit weapon - body-based weapon runtime model
+ *
+ * Unlike projectile-based weapons (useWeaponFiringLoop), orbit weapons use Rapier
+ * kinematic bodies that orbit the player. They are rendered via OrbitingBody
+ * components, not the centralized BatchedProjectileRenderer. This is the
+ * "body-based weapon" model alongside the "projectile-based weapon" model.
+ */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { WeaponStats, PlayerStats, WeaponId } from "@/types";
 import type { OrbitingOrb, OrbitWeaponInstance } from "@/types/hooks/weapons";
 import { getWeapon } from "@/data/config/weaponsNormalized";
-import { useGameStore } from "@/store/gameStore";
+import { usePlayerStore } from "@/store/playerStore";
+import { useSessionStore } from "@/store/sessionStore";
+import { useWeaponsStore } from "@/store/weaponsStore";
 import { radialDirections } from "@/utils/weapons/weaponMath";
 
 // Re-export for components
@@ -46,11 +56,11 @@ export const useOrbitWeapon = ({
   const lastSpawnRef = useRef(0);
   const baseAngleRef = useRef(0);
 
-  const playerPosition = useGameStore((state) => state.playerPosition);
-  const isPaused = useGameStore((state) => state.isPaused);
-  const isRunning = useGameStore((state) => state.isRunning);
-  const getWeaponStats = useGameStore((state) => state.getWeaponStats);
-  const getEffectivePlayerStats = useGameStore(
+  const playerPosition = usePlayerStore((state) => state.playerPosition);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
+  const getWeaponStats = useWeaponsStore((state) => state.getWeaponStats);
+  const getEffectivePlayerStats = usePlayerStore(
     (state) => state.getEffectivePlayerStats
   );
 

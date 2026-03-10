@@ -13,7 +13,7 @@ import { GameLoop } from "./GameLoop";
 import { XpOrbsManager } from "./XpOrbsManager";
 import { BatchedProjectileRenderer } from "./BatchedProjectileRenderer";
 import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 
 const CanvasContainer = styled.div<{ $menuVisible?: boolean }>`
   width: 100vw;
@@ -27,8 +27,8 @@ interface GameCanvasProps {
 }
 
 export const GameCanvas = ({ $menuVisible = false }: GameCanvasProps) => {
-  const isPaused = useGameStore((state) => state.isPaused);
-  const isRunning = useGameStore((state) => state.isRunning);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
   const physicsPaused = !isRunning || isPaused;
 
   return (

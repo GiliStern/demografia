@@ -1,5 +1,5 @@
+import { create } from "zustand";
 import type {
-  StoreCreator,
   WeaponsStore,
   PassiveId,
   WeaponId,
@@ -13,7 +13,7 @@ import {
   applyPassivesToWeaponStats,
 } from "../utils/passives/passiveUtils";
 
-export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
+export const useWeaponsStore = create<WeaponsStore>()((set, get) => ({
   activeWeapons: [],
   activeItems: [],
   weaponLevels: {},
@@ -48,6 +48,17 @@ export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
       };
     }),
 
+  evolveWeapon: (evolvesFrom: WeaponId, weaponId: WeaponId): void =>
+    set((state: WeaponsStore) => {
+      const nextWeapons = [
+        ...state.activeWeapons.filter((id) => id !== evolvesFrom),
+        weaponId,
+      ];
+      const nextWeaponLevels = { ...state.weaponLevels, [weaponId]: 1 };
+      delete nextWeaponLevels[evolvesFrom];
+      return { activeWeapons: nextWeapons, weaponLevels: nextWeaponLevels };
+    }),
+
   addPassive: (passiveId: PassiveId): void =>
     set((state: WeaponsStore) =>
       state.activeItems.includes(passiveId)
@@ -71,14 +82,12 @@ export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
     const level = get().weaponLevels[weaponId] ?? 1;
     const baseStats = resolveWeaponStats(weaponDef, level);
 
-    // Apply passive effects to weapon stats
     const passiveEffects = get().getAccumulatedPassiveEffects();
     return applyPassivesToWeaponStats(baseStats, passiveEffects);
   },
 
   getAccumulatedPassiveEffects: (): PassiveStatDelta => {
     const { activeItems, passiveLevels } = get();
-    const result = accumulatePassiveEffects({ activeItems, passiveLevels });
-    return result;
+    return accumulatePassiveEffects({ activeItems, passiveLevels });
   },
-});
+}));

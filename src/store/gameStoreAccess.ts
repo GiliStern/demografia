@@ -2,6 +2,7 @@ import type { CentralizedProjectile, ViewportBounds } from "@/types";
 import type { EnemyPositionMap } from "@/utils/game/waveUtils";
 import type { TickContext } from "@/simulation/projectileManager";
 import { useGameStore } from "./gameStore";
+import { usePlayerStore } from "./playerStore";
 
 /**
  * Frame-system adapters: isolate imperative store access for simulation hot paths.
@@ -9,10 +10,10 @@ import { useGameStore } from "./gameStore";
  */
 
 export const getPlayerPositionSnapshot = (): { x: number; y: number } =>
-  useGameStore.getState().playerPosition;
+  usePlayerStore.getState().playerPosition;
 
 export const getPlayerDirectionSnapshot = (): { x: number; y: number } =>
-  useGameStore.getState().playerDirection;
+  usePlayerStore.getState().playerDirection;
 
 export const getViewportBoundsSnapshot = (): ViewportBounds | null =>
   useGameStore.getState().viewportBounds;
@@ -25,11 +26,12 @@ export const getProjectilesSnapshot = (): CentralizedProjectile[] =>
 
 /** Builds tick context for projectile manager; single getState() per frame. */
 export const getProjectileTickContext = (): TickContext => {
-  const store = useGameStore.getState();
+  const gameStore = useGameStore.getState();
+  const playerStore = usePlayerStore.getState();
   return {
-    getEnemyPositions: () => store.enemyPositionsRegistry as EnemyPositionMap,
-    getViewportBounds: () => store.viewportBounds,
-    getPlayerPosition: () => store.playerPosition,
-    damageEnemy: (id, damage) => store.damageEnemy(id, damage),
+    getEnemyPositions: () => gameStore.enemyPositionsRegistry as EnemyPositionMap,
+    getViewportBounds: () => gameStore.viewportBounds,
+    getPlayerPosition: () => playerStore.playerPosition,
+    damageEnemy: (id, damage) => gameStore.damageEnemy(id, damage),
   };
 };

@@ -82,7 +82,7 @@ export function useInstancedSprite({
       cols: c,
       rows: r,
     };
-  }, [texture, spriteFrameSize, textureUrl]);
+  }, [texture, spriteFrameSize]);
 
   // Custom shader material for per-instance UV offsets
   const material = useMemo(() => {
