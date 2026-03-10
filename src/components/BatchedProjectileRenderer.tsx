@@ -1,12 +1,40 @@
 import { useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
+import {
+  getEnemyPositionsRegistrySnapshot,
+  getProjectilesSnapshot,
+} from "@/store/gameStoreAccess";
 import { InstancedSprite } from "./InstancedSprite";
 import { advanceProjectile } from "@/utils/projectiles/projectileRuntime";
 import {
   batchEntitiesByTexture,
   type BatchableEntity,
 } from "@/utils/performance/entityBatcher";
+import type { EnemyPositionMap, WorldPosition2D } from "@/utils/game/waveUtils";
+
+const enemyEntries = (
+  enemies: EnemyPositionMap,
+): [string, WorldPosition2D][] => {
+  if (enemies instanceof Map) {
+    const entries: [string, WorldPosition2D][] = [];
+    const registry = enemies as ReadonlyMap<string, WorldPosition2D>;
+    for (const [enemyId, enemyPos] of registry.entries()) {
+      entries.push([enemyId, enemyPos]);
+    }
+    return entries;
+  }
+
+  const entries: [string, WorldPosition2D][] = [];
+  const enemyRecord = enemies as Record<string, WorldPosition2D>;
+  for (const enemyId of Object.keys(enemyRecord)) {
+    const enemyPos = enemyRecord[enemyId];
+    if (enemyPos) {
+      entries.push([enemyId, enemyPos]);
+    }
+  }
+  return entries;
+};
 
 /**
  * BatchedProjectileRenderer - Centralized high-performance projectile rendering
@@ -34,7 +62,7 @@ export const BatchedProjectileRenderer = () => {
 
   // Convert Map to array (re-fetch when size changes OR when forceUpdate is triggered)
   const projectiles = useMemo(() => {
-    return useGameStore.getState().getProjectilesArray();
+    return getProjectilesSnapshot();
   }, [projectileCount, forceUpdateCounter]);
 
   // Update projectile positions, handle expiration, and check collisions
@@ -46,9 +74,8 @@ export const BatchedProjectileRenderer = () => {
     const currentTime = state.clock.getElapsedTime();
 
     // Get fresh projectiles and enemies inside useFrame to avoid stale closures
-    const gameState = useGameStore.getState();
-    const currentProjectiles = gameState.getProjectilesArray();
-    const currentEnemies = gameState.getEnemyPositions();
+    const currentProjectiles = getProjectilesSnapshot();
+    const currentEnemies = getEnemyPositionsRegistrySnapshot();
 
     // Batch updates to minimize re-renders
     const toRemove: string[] = [];
@@ -75,7 +102,7 @@ export const BatchedProjectileRenderer = () => {
       const collisionRadius = 0.5;
       let hitEnemy = false;
 
-      for (const [enemyId, enemyPos] of currentEnemies.entries()) {
+      for (const [enemyId, enemyPos] of enemyEntries(currentEnemies)) {
         const dx = newPosition.x - enemyPos.x;
         const dy = newPosition.y - enemyPos.y;
         const distSq = dx * dx + dy * dy;

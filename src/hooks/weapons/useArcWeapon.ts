@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import type { WeaponId, CentralizedProjectile } from "@/types";
 import { WEAPONS } from "@/data/config/weaponsConfig";
 import { useGameStore } from "@/store/gameStore";
+import { getPlayerPositionSnapshot } from "@/store/gameStoreAccess";
 import {
   buildWeaponRuntime,
   shouldFire,
@@ -35,7 +36,7 @@ export function useArcWeapon({ weaponId }: UseArcWeaponParams): void {
   const fire = (time: number) => {
     lastFireTime.current = time;
 
-    const freshPlayerPosition = useGameStore.getState().playerPosition;
+    const freshPlayerPosition = getPlayerPositionSnapshot();
     const projectiles: CentralizedProjectile[] = Array.from({
       length: runtime.amount,
     }).map((_, idx) => {

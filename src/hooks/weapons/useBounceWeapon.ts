@@ -2,6 +2,10 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { WeaponId } from "@/types";
 import { useGameStore } from "@/store/gameStore";
+import {
+  getPlayerPositionSnapshot,
+  getViewportBoundsSnapshot,
+} from "@/store/gameStoreAccess";
 import { WEAPONS } from "@/data/config/weaponsConfig";
 import { reflectInBounds } from "@/utils/weapons/weaponMath";
 import type { CentralizedProjectile } from "@/types";
@@ -41,8 +45,7 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
   // Fire projectiles in random directions
   const fire = (time: number) => {
     lastFireTime.current = time;
-    // Read fresh player position from store inside fire
-    const freshPlayerPosition = useGameStore.getState().playerPosition;
+    const freshPlayerPosition = getPlayerPositionSnapshot();
     const shots: CentralizedProjectile[] = Array.from({ length: amount }).map(
       (_, idx) => {
         const angle = Math.random() * Math.PI * 2;
@@ -80,7 +83,7 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
     }
 
     // Get viewport bounds for bouncing at screen edges
-    const viewportBounds = useGameStore.getState().viewportBounds;
+    const viewportBounds = getViewportBoundsSnapshot();
     if (!viewportBounds) return;
 
     // Update bounce projectiles - only handle velocity changes, not removal
@@ -90,7 +93,7 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
     );
 
     // Get fresh player position for bounce calculations
-    const freshPlayerPosition = useGameStore.getState().playerPosition;
+    const freshPlayerPosition = getPlayerPositionSnapshot();
     
     for (const p of bounceProjectiles) {
       // Check and apply bounce

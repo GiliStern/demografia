@@ -39,6 +39,14 @@ export function useEnemyBehavior({
   const updateEnemyPosition = useGameStore(
     (state) => state.updateEnemyPosition
   );
+  const addXpOrb = useGameStore((state) => state.addXpOrb);
+  const addGold = useGameStore((state) => state.addGold);
+  const addKill = useGameStore((state) => state.addKill);
+  const registerEnemy = useGameStore((state) => state.registerEnemy);
+  const registerEnemyDamageCallback = useGameStore(
+    (state) => state.registerEnemyDamageCallback
+  );
+  const removeEnemy = useGameStore((state) => state.removeEnemy);
 
   // Local state
   const [isFacingLeft, setFacingLeft] = useState(false);
@@ -78,14 +86,13 @@ export function useEnemyBehavior({
       xpValue: enemy.stats.xpDrop,
     });
 
-    const { addXpOrb, addGold, addKill } = useGameStore.getState();
     addXpOrb(rewards.xpOrb);
     addGold(rewards.goldReward);
     if (rewards.killIncrement > 0) {
       addKill();
     }
     onDeath();
-  }, [enemy.stats.xpDrop, onDeath]);
+  }, [addGold, addKill, addXpOrb, enemy.stats.xpDrop, onDeath]);
 
   // Damage handler for batched projectile collisions - stable reference
   const handleDamage = useCallback(
@@ -106,11 +113,10 @@ export function useEnemyBehavior({
   // Register enemy position and damage callback on mount, cleanup on unmount
   useEffect(() => {
     const [x, y] = position;
-    const { registerEnemy, registerEnemyDamageCallback, removeEnemy } = useGameStore.getState();
-    
+
     registerEnemy(id, { x, y });
     registerEnemyDamageCallback(id, handleDamage);
-    
+
     return () => {
       removeEnemy(id);
     };

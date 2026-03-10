@@ -3,6 +3,10 @@ import { useFrame } from "@react-three/fiber";
 import type { ProjectileData, WeaponId } from "@/types";
 import { WEAPONS } from "@/data/config/weaponsConfig";
 import { useGameStore } from "@/store/gameStore";
+import {
+  getPlayerDirectionSnapshot,
+  getPlayerPositionSnapshot,
+} from "@/store/gameStoreAccess";
 import { resolveDirection } from "@/utils/weapons/weaponUtils";
 import {
   buildWeaponRuntime,
@@ -48,11 +52,9 @@ export function useProjectileWeapon({
   const runtime = buildWeaponRuntime(stats, playerStats);
 
   const fire = (time: number) => {
-    // Read fresh direction and position from store inside fire to avoid stale closures
-    const gameState = useGameStore.getState();
-    const freshPlayerDirection = gameState.playerDirection;
-    const freshPlayerPosition = gameState.playerPosition;
-    
+    const freshPlayerDirection = getPlayerDirectionSnapshot();
+    const freshPlayerPosition = getPlayerPositionSnapshot();
+
     const direction = resolveDirection(freshPlayerDirection.x, freshPlayerDirection.y);
     const baseVelocity = buildVelocity(direction, runtime.speed);
 

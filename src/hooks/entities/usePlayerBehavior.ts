@@ -36,6 +36,9 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
   const isRunning = useGameStore((state) => state.isRunning);
   const isPaused = useGameStore((state) => state.isPaused);
   const hasEnemy = useGameStore((state) => state.hasEnemy);
+  const updateViewportBounds = useGameStore(
+    (state) => state.updateViewportBounds
+  );
 
   // Local state
   const [isFacingLeft, setFacingLeft] = useState(false);
@@ -81,7 +84,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
       state.camera,
       VIEWPORT_CONFIG.CAMERA_ZOOM
     );
-    useGameStore.getState().updateViewportBounds(viewportBounds);
+    updateViewportBounds(viewportBounds);
   });
 
   // Determine current animation state
