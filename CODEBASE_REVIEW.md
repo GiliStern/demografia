@@ -8,8 +8,8 @@ This review is based on a static inspection of the repository, focused on gamepl
 
 I also attempted to validate the current developer workflow:
 
-- `yarn test --run` failed because the `vitest` binary was not available in the current environment.
-- `yarn lint` failed immediately because `eslint.config.js` imports `@eslint/js`, but that package is not declared in `package.json`.
+- `yarn test --run` works in a normal shell environment, but the suite currently has one failing test: `src/utils/weapons/weapons.test.ts` (`resolveWeaponStats > applies Sabra level bonuses`).
+- `yarn lint` passes.
 
 Because of that, this report should be read as a source-level expert review, not as a runtime certification.
 
@@ -21,9 +21,37 @@ The main problems are not cosmetic. There are several gameplay correctness issue
 
 The second major issue is inconsistency of execution models. Some systems are moving toward centralized, batched, data-oriented processing, while others still use local React state, per-entity physics, or ad hoc polling. That mixed model makes performance harder to reason about and makes the codebase feel less coherent than it should for a game of this size.
 
+## Verification Pass
+
+Current verification against the repository state on 2026-03-10:
+
+- `yarn lint` now passes.
+- `yarn build` now passes.
+- `yarn test --run` works in a normal shell environment and currently reports one failing test in `src/utils/weapons/weapons.test.ts`.
+
+Finding status summary:
+
+| # | Status | Notes |
+|---|---|---|
+| 1 | Fixed | XP overflow and repeated level-ups are handled by `resolveLevelProgression()` and covered by store tests. |
+| 2 | Fixed | Evolution choices now carry `evolvesFrom`, and applying them replaces the base weapon cleanly. |
+| 3 | Fixed | Kill counting/reward side effects are owned by `useEnemyBehavior`, while wave removal only removes roster entries. |
+| 4 | Fixed | Wave culling now reads live enemy positions from the registry rather than stale spawn coordinates. |
+| 5 | Undone | `ArcWeapon` was migrated, but projectile simulation still depends on store-backed frame updates plus forced rerenders. |
+| 6 | Undone | Zustand is still carrying simulation-path data, and imperative `getState()` adapters remain in hot paths. |
+| 7 | Fixed | Enemy positions now live in a mutable `Map` registry without cloning the full collection on each update. |
+| 8 | Fixed | Touch input now flows through a single shared hook and no longer relies on duplicated polling loops. |
+| 9 | Undone | `src/types.ts` is still broad, and config remains concentrated in large modules. |
+| 10 | Undone | Snake_case config fields still leak directly into runtime code across the app. |
+| 11 | Undone | Some drift is gone, but `vite.config.ts`, README/Node versioning, package declarations, and CI coverage are still not aligned. |
+
 ## Findings
 
 ### 1. Critical: XP carryover and multi-level progression are incorrect
+
+Status: Fixed.
+
+Verification note: `addXp()` now routes through `resolveLevelProgression()`, preserves overflow XP, supports repeated level gains, and tracks extra level-up rewards with `pendingLevelUps`.
 
 Affected files:
 
@@ -50,6 +78,10 @@ Recommendation:
   - upgrade choice generation for the final resulting level state
 
 ### 2. High: Weapon evolution flow is internally inconsistent
+
+Status: Fixed.
+
+Verification note: upgrade choices now include `evolvesFrom`, and `applyUpgrade()` explicitly replaces the base weapon when an evolution is selected.
 
 Affected files:
 
@@ -78,6 +110,10 @@ Recommendation:
 - Generate choices in terms of those actions instead of overloading `isNew`.
 
 ### 3. High: Enemy death side effects have no single owner
+
+Status: Fixed.
+
+Verification note: `useEnemyBehavior.handleDeath()` now owns reward spawning and kill increments, while `useWaveManager.removeEnemy()` only removes enemies from the active wave list.
 
 Affected files:
 
@@ -108,6 +144,10 @@ Recommendation:
 
 ### 4. High: Wave culling uses stale spawn coordinates instead of live enemy positions
 
+Status: Fixed.
+
+Verification note: `useWaveManager()` now reads `enemyPositionsRegistry`, and `filterEnemiesWithinCullDistance()` resolves live tracked positions before culling.
+
 Affected files:
 
 - `src/hooks/game/useWaveManager.ts`
@@ -128,6 +168,10 @@ Recommendation:
 - Either keep live positions in the wave manager itself or keep the active roster in a shared simulation layer and derive wave bookkeeping from that.
 
 ### 5. High: Projectile architecture is only partially centralized, and the new path still writes frame-rate state through Zustand
+
+Status: Undone.
+
+Verification note: `useArcWeapon()` now feeds the centralized projectile path, but `BatchedProjectileRenderer` still performs per-frame projectile updates and forces React rerenders from that simulation path.
 
 Affected files:
 
@@ -156,6 +200,10 @@ Recommendation:
 - Delete legacy projectile paths once the centralized model is complete.
 
 ### 6. High: Zustand is used as both domain boundary and frame-loop transport layer
+
+Status: Undone.
+
+Verification note: hot-path adapters such as `src/store/gameStoreAccess.ts` still rely on `useGameStore.getState()`, and simulation data such as projectile/enemy registries remain coupled to the global store boundary.
 
 Affected files:
 
@@ -192,6 +240,10 @@ Recommendation:
 
 ### 7. Medium: Enemy position tracking clones a global object on every enemy update
 
+Status: Fixed.
+
+Verification note: `src/store/enemiesStore.ts` now keeps enemy positions in a mutable `Map` registry and updates entries in place instead of cloning a global object.
+
 Affected files:
 
 - `src/store/enemiesStore.ts`
@@ -213,6 +265,10 @@ Recommendation:
 - If the store must remain the source of truth, batch updates per frame rather than per enemy.
 
 ### 8. Medium: Touch input is duplicated and driven by polling loops
+
+Status: Fixed.
+
+Verification note: `App` now consumes `useUnifiedControls()` directly, `useTouchControls()` is only instantiated there through that shared path, and the polling loops were replaced with event-driven updates.
 
 Affected files:
 
@@ -238,6 +294,10 @@ Recommendation:
 - Prefer event-driven updates or a shared ref store over multiple 60 FPS polling loops.
 
 ### 9. Medium: Type and config boundaries are too coarse for the current size of the project
+
+Status: Undone.
+
+Verification note: `src/types.ts` remains a large catch-all module, and the weapon/passive config still lives in large aggregate files rather than narrower feature modules.
 
 Affected files:
 
@@ -268,6 +328,10 @@ Recommendation:
 
 ### 10. Medium: Naming conventions mix runtime camelCase with config snake_case across the whole app
 
+Status: Undone.
+
+Verification note: fields such as `starting_weapon_id`, `sprite_config`, `time_start`, `spawn_interval`, and `max_active` are still used directly throughout runtime code.
+
 Affected files:
 
 - `src/types.ts`
@@ -291,6 +355,10 @@ Recommendation:
 - Either keep raw config in snake_case and map it once into camelCase runtime types, or rename config contracts entirely.
 
 ### 11. Medium: Tooling and documentation drift reduce confidence
+
+Status: Undone.
+
+Verification note: `yarn lint` and `yarn build` now work, `yarn test --run` reaches the suite in a normal shell environment, and `ArcWeapon` is no longer a legacy projectile path, but `vite.config.ts` still uses `@ts-nocheck`, `README.md` still says Node 18+, `package.json` still does not declare `@eslint/js`, the repo still only has a deployment workflow, and one existing test failure remains in `src/utils/weapons/weapons.test.ts`.
 
 Affected files:
 
