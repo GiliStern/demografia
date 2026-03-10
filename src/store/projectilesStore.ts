@@ -1,7 +1,7 @@
 import type { StoreCreator, CentralizedProjectile } from "../types";
 
 export interface ProjectilesStore {
-  projectiles: Map<string, CentralizedProjectile>;
+  projectileCount: number;
 
   // Add a projectile to the central pool
   addProjectile: (projectile: CentralizedProjectile) => void;
@@ -17,6 +17,8 @@ export interface ProjectilesStore {
 
   // Get all projectiles as array
   getProjectilesArray: () => CentralizedProjectile[];
+  getProjectile: (id: string) => CentralizedProjectile | undefined;
+  getProjectiles: () => ReadonlyMap<string, CentralizedProjectile>;
 
   // Update projectile position (for bouncing, homing, etc.)
   updateProjectile: (
@@ -31,60 +33,62 @@ export interface ProjectilesStore {
 }
 
 export const createProjectilesStore: StoreCreator<ProjectilesStore> = (
-  set,
-  get
-) => ({
-  projectiles: new Map(),
+  set
+) => {
+  const projectiles = new Map<string, CentralizedProjectile>();
 
-  addProjectile: (projectile) => {
-    const projectiles = new Map(get().projectiles);
-    projectiles.set(projectile.id, projectile);
-    set({ projectiles });
-  },
+  return {
+    projectileCount: 0,
 
-  removeProjectile: (id) => {
-    const projectiles = new Map(get().projectiles);
-    projectiles.delete(id);
-    set({ projectiles });
-  },
-
-  addProjectiles: (newProjectiles) => {
-    const projectiles = new Map(get().projectiles);
-    for (const projectile of newProjectiles) {
+    addProjectile: (projectile) => {
       projectiles.set(projectile.id, projectile);
-    }
-    set({ projectiles });
-  },
+      set({ projectileCount: projectiles.size });
+    },
 
-  clearProjectiles: () => {
-    set({ projectiles: new Map() });
-  },
+    removeProjectile: (id) => {
+      if (!projectiles.has(id)) return;
+      projectiles.delete(id);
+      set({ projectileCount: projectiles.size });
+    },
 
-  getProjectilesArray: () => {
-    return Array.from(get().projectiles.values());
-  },
+    addProjectiles: (newProjectiles) => {
+      for (const projectile of newProjectiles) {
+        projectiles.set(projectile.id, projectile);
+      }
+      set({ projectileCount: projectiles.size });
+    },
 
-  updateProjectile: (id, updates) => {
-    const projectiles = new Map(get().projectiles);
-    const existing = projectiles.get(id);
-    if (existing) {
-      projectiles.set(id, { ...existing, ...updates });
-      set({ projectiles });
-    }
-  },
+    clearProjectiles: () => {
+      projectiles.clear();
+      set({ projectileCount: 0 });
+    },
 
-  updateProjectiles: (batchUpdates) => {
-    const projectiles = new Map(get().projectiles);
-    let changed = false;
-    for (const { id, updates } of batchUpdates) {
+    getProjectilesArray: () => {
+      return Array.from(projectiles.values());
+    },
+
+    getProjectile: (id) => {
+      return projectiles.get(id);
+    },
+
+    getProjectiles: () => {
+      return projectiles;
+    },
+
+    updateProjectile: (id, updates) => {
       const existing = projectiles.get(id);
       if (existing) {
         projectiles.set(id, { ...existing, ...updates });
-        changed = true;
       }
-    }
-    if (changed) {
-      set({ projectiles });
-    }
-  },
-});
+    },
+
+    updateProjectiles: (batchUpdates) => {
+      for (const { id, updates } of batchUpdates) {
+        const existing = projectiles.get(id);
+        if (existing) {
+          projectiles.set(id, { ...existing, ...updates });
+        }
+      }
+    },
+  };
+};

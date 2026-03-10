@@ -7,14 +7,35 @@ export interface WorldPosition2D {
   y: number;
 }
 
-export type EnemyPositionMap = Record<string, WorldPosition2D>;
+export type EnemyPositionMap =
+  | Record<string, WorldPosition2D>
+  | ReadonlyMap<string, WorldPosition2D>;
+
+const isEnemyPositionRegistry = (
+  enemyPositions: EnemyPositionMap,
+): enemyPositions is ReadonlyMap<string, WorldPosition2D> => {
+  return enemyPositions instanceof Map;
+};
+
+const readEnemyPosition = (
+  enemyPositions: EnemyPositionMap,
+  enemyId: string,
+): WorldPosition2D | undefined => {
+  if (isEnemyPositionRegistry(enemyPositions)) {
+    return enemyPositions.get(enemyId);
+  }
+
+  return Object.prototype.hasOwnProperty.call(enemyPositions, enemyId)
+    ? enemyPositions[enemyId]
+    : undefined;
+};
 
 export const resolveEnemyWorldPosition = (
   enemy: ActiveEnemy,
   enemyPositions: EnemyPositionMap,
 ): WorldPosition2D => {
   return (
-    enemyPositions[enemy.id] ?? {
+    readEnemyPosition(enemyPositions, enemy.id) ?? {
       x: enemy.position[0],
       y: enemy.position[1],
     }

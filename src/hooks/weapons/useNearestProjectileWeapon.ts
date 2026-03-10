@@ -41,7 +41,7 @@ export function useNearestProjectileWeapon({
     isRunning,
     getWeaponStats,
     getEffectivePlayerStats,
-    enemiesPositions,
+    getEnemyPositions,
     addProjectiles,
   } = useGameStore();
   
@@ -53,7 +53,7 @@ export function useNearestProjectileWeapon({
 
   const fire = (time: number) => {
     const targetDir =
-      nearestEnemyDirection(playerPosition, enemiesPositions) ??
+      nearestEnemyDirection(playerPosition, getEnemyPositions()) ??
       resolveDirection(playerDirection.x, playerDirection.y);
 
     const baseVelocity = buildVelocity(targetDir, runtime.speed);

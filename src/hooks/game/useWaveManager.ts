@@ -89,7 +89,7 @@ export function useWaveManager(): UseWaveManagerReturn {
       );
 
       setEnemies((prev) => {
-        const enemyPositions = useGameStore.getState().enemiesPositions;
+        const enemyPositions = useGameStore.getState().getEnemyPositions();
         return filterEnemiesWithinCullDistance(
           prev,
           enemyPositions,

@@ -51,7 +51,7 @@ export const useWeaponStats = (
  * Used by hooks that need to locate enemies (e.g., for targeting)
  */
 export const useEnemiesPositions = () => {
-  return useGameStore((state) => state.enemiesPositions);
+  return useGameStore((state) => state.getEnemyPositions());
 };
 
 /**

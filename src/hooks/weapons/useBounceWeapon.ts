@@ -24,11 +24,11 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
     getWeaponStats,
     getEffectivePlayerStats,
     addProjectiles,
+    getProjectilesArray,
     updateProjectile,
   } = useGameStore();
   
   const playerStats = getEffectivePlayerStats();
-  const projectilesMap = useGameStore((state) => state.projectiles);
 
   const weapon = WEAPONS[weaponId];
   const stats = getWeaponStats(weaponId);
@@ -85,7 +85,7 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
     if (!viewportBounds) return;
 
     // Update bounce projectiles - only handle velocity changes, not removal
-    const bounceProjectiles = Array.from(projectilesMap.values()).filter(
+    const bounceProjectiles = getProjectilesArray().filter(
       (p: CentralizedProjectile) =>
         p.weaponId === weaponId && p.behaviorType === "bounce"
     );

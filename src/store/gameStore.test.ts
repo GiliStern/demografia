@@ -9,6 +9,9 @@ import {
 } from "@/types";
 
 const resetStore = () => {
+  useGameStore.getState().resetEnemies();
+  useGameStore.getState().clearProjectiles();
+  useGameStore.getState().resetXpOrbs();
   useGameStore.setState(useGameStore.getInitialState(), true);
 };
 

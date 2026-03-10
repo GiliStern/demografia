@@ -1,48 +1,55 @@
 import type { StoreCreator, EnemiesStore } from "../types";
 
-export const createEnemiesStore: StoreCreator<EnemiesStore> = (set, get) => ({
-  killCount: 0,
-  enemiesPositions: {},
-  enemyDamageCallbacks: new Map(),
+export const createEnemiesStore: StoreCreator<EnemiesStore> = (set) => {
+  const enemyPositions = new Map<string, { x: number; y: number }>();
+  const enemyDamageCallbacks = new Map<string, (damage: number) => void>();
 
-  resetEnemies: () => set({ killCount: 0, enemiesPositions: {}, enemyDamageCallbacks: new Map() }),
-  addKill: () =>
-    set((state: EnemiesStore) => ({ killCount: state.killCount + 1 })),
+  return {
+    killCount: 0,
 
-  registerEnemy: (id, position) =>
-    set((state: EnemiesStore) => ({
-      enemiesPositions: { ...state.enemiesPositions, [id]: position },
-    })),
+    resetEnemies: () => {
+      enemyPositions.clear();
+      enemyDamageCallbacks.clear();
+      set({ killCount: 0 });
+    },
+    addKill: () =>
+      set((state: EnemiesStore) => ({ killCount: state.killCount + 1 })),
 
-  updateEnemyPosition: (id, position) =>
-    set((state: EnemiesStore) => {
-      if (!state.enemiesPositions[id]) return state;
-      return {
-        enemiesPositions: { ...state.enemiesPositions, [id]: position },
-      };
-    }),
+    registerEnemy: (id, position) => {
+      enemyPositions.set(id, position);
+    },
 
-  removeEnemy: (id) =>
-    set((state: EnemiesStore) => {
-      if (!state.enemiesPositions[id]) return state;
-      const next = { ...state.enemiesPositions };
-      delete next[id];
-      const callbacks = new Map(state.enemyDamageCallbacks);
-      callbacks.delete(id);
-      return { enemiesPositions: next, enemyDamageCallbacks: callbacks };
-    }),
+    updateEnemyPosition: (id, position) => {
+      if (!enemyPositions.has(id)) return;
+      enemyPositions.set(id, position);
+    },
 
-  registerEnemyDamageCallback: (id, callback) =>
-    set((state: EnemiesStore) => {
-      const callbacks = new Map(state.enemyDamageCallbacks);
-      callbacks.set(id, callback);
-      return { enemyDamageCallbacks: callbacks };
-    }),
+    removeEnemy: (id) => {
+      enemyPositions.delete(id);
+      enemyDamageCallbacks.delete(id);
+    },
 
-  damageEnemy: (id, damage) => {
-    const callback = get().enemyDamageCallbacks.get(id);
-    if (callback) {
-      callback(damage);
-    }
-  },
-});
+    registerEnemyDamageCallback: (id, callback) => {
+      enemyDamageCallbacks.set(id, callback);
+    },
+
+    damageEnemy: (id, damage) => {
+      const callback = enemyDamageCallbacks.get(id);
+      if (callback) {
+        callback(damage);
+      }
+    },
+
+    getEnemyPosition: (id) => {
+      return enemyPositions.get(id);
+    },
+
+    getEnemyPositions: () => {
+      return enemyPositions;
+    },
+
+    hasEnemy: (id) => {
+      return enemyPositions.has(id);
+    },
+  };
+};

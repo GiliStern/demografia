@@ -319,8 +319,6 @@ export interface EnemiesStore {
   killCount: number;
   resetEnemies: () => void;
   addKill: () => void;
-  enemiesPositions: Record<string, { x: number; y: number }>;
-  enemyDamageCallbacks: Map<string, (damage: number) => void>;
   registerEnemy: (id: string, position: { x: number; y: number }) => void;
   updateEnemyPosition: (id: string, position: { x: number; y: number }) => void;
   removeEnemy: (id: string) => void;
@@ -329,6 +327,9 @@ export interface EnemiesStore {
     callback: (damage: number) => void,
   ) => void;
   damageEnemy: (id: string, damage: number) => void;
+  getEnemyPosition: (id: string) => { x: number; y: number } | undefined;
+  getEnemyPositions: () => ReadonlyMap<string, { x: number; y: number }>;
+  hasEnemy: (id: string) => boolean;
 }
 
 export interface WeaponsStore {
@@ -374,6 +375,7 @@ export interface CentralizedProjectile {
   id: string;
   position: { x: number; y: number; z: number };
   velocity: { x: number; y: number; z?: number };
+  acceleration?: { x: number; y: number; z?: number };
   damage: number;
   textureUrl: string;
   spriteIndex: number;
@@ -385,17 +387,19 @@ export interface CentralizedProjectile {
   shouldSpin?: boolean;
   // Weapon-specific behavior
   weaponId: WeaponId;
-  behaviorType?: "normal" | "bounce" | "homing";
+  behaviorType?: "normal" | "bounce" | "homing" | "arc";
 }
 
 // Re-export ProjectilesStore interface from projectilesStore
 export interface ProjectilesStore {
-  projectiles: Map<string, CentralizedProjectile>;
+  projectileCount: number;
   addProjectile: (projectile: CentralizedProjectile) => void;
   removeProjectile: (id: string) => void;
   addProjectiles: (projectiles: CentralizedProjectile[]) => void;
   clearProjectiles: () => void;
   getProjectilesArray: () => CentralizedProjectile[];
+  getProjectile: (id: string) => CentralizedProjectile | undefined;
+  getProjectiles: () => ReadonlyMap<string, CentralizedProjectile>;
   updateProjectile: (
     id: string,
     updates: Partial<CentralizedProjectile>,
@@ -479,12 +483,6 @@ export interface ProjectileData {
   velocity: Velocity;
   duration: number;
   damage: number;
-}
-
-export interface ProjectileProps extends ProjectileData {
-  spriteConfig: SpriteConfig;
-  shouldSpin: boolean;
-  onDespawn: () => void;
 }
 
 export enum AnimationType {

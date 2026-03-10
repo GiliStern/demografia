@@ -23,23 +23,33 @@ export const normalize = (v: Vec2): Vec2 => {
 
 export const nearestEnemyDirection = (
   playerPos: Vec2,
-  enemies: Record<string, Vec2>
+  enemies: Record<string, Vec2> | ReadonlyMap<string, Vec2>,
 ): Vec2 | null => {
-  let bestId: string | null = null;
+  let bestPos: Vec2 | null = null;
   let bestDist = Number.POSITIVE_INFINITY;
-  for (const [id, pos] of Object.entries(enemies)) {
-    const d = distanceSq(playerPos, pos);
-    if (d < bestDist) {
-      bestDist = d;
-      bestId = id;
+
+  if (enemies instanceof Map) {
+    for (const pos of enemies.values()) {
+      const d = distanceSq(playerPos, pos as Vec2);
+      if (d < bestDist) {
+        bestDist = d;
+        bestPos = pos as Vec2;
+      }
+    }
+  } else {
+    for (const pos of Object.values(enemies)) {
+      const d = distanceSq(playerPos, pos as Vec2);
+      if (d < bestDist) {
+        bestDist = d;
+        bestPos = pos as Vec2;
+      }
     }
   }
-  if (!bestId) return null;
-  const enemyPos = enemies[bestId];
-  if (!enemyPos) return null;
+
+  if (!bestPos) return null;
   const dir = normalize({
-    x: enemyPos.x - playerPos.x,
-    y: enemyPos.y - playerPos.y,
+    x: bestPos.x - playerPos.x,
+    y: bestPos.y - playerPos.y,
   });
   return dir;
 };
@@ -49,7 +59,7 @@ export const reflectInBounds = (
   vel: Vec2,
   playerPos: Vec2,
   halfWidth: number,
-  halfHeight: number
+  halfHeight: number,
 ): Vec2 => {
   const nextVel = { ...vel };
   const rightBound = playerPos.x + halfWidth;

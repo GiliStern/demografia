@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback, useMemo } from "react";
+import { useRef, useState, useCallback, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import type {
   RapierRigidBody,
@@ -35,7 +35,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
   );
   const isRunning = useGameStore((state) => state.isRunning);
   const isPaused = useGameStore((state) => state.isPaused);
-  const enemiesPositions = useGameStore((state) => state.enemiesPositions);
+  const hasEnemy = useGameStore((state) => state.hasEnemy);
 
   // Local state
   const [isFacingLeft, setFacingLeft] = useState(false);
@@ -67,6 +67,13 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
       activeEnemyContacts: activeEnemyContacts.current,
       lastDamageTime,
       takeDamage,
+    });
+
+    const contacts = activeEnemyContacts.current;
+    contacts.forEach((_, id) => {
+      if (!hasEnemy(id)) {
+        contacts.delete(id);
+      }
     });
 
     // Calculate and update viewport bounds for viewport-relative game systems
@@ -111,16 +118,6 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
     },
     []
   );
-
-  // Clean up contacts for enemies that no longer exist
-  useEffect(() => {
-    const contacts = activeEnemyContacts.current;
-    contacts.forEach((_, id) => {
-      if (!enemiesPositions[id]) {
-        contacts.delete(id);
-      }
-    });
-  }, [enemiesPositions]);
 
   // User data for collision detection
   const playerUserData = useMemo<PlayerUserData>(
