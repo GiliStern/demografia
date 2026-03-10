@@ -293,6 +293,7 @@ export interface GameState {
   level: number;
   xp: number;
   nextLevelXp: number;
+  pendingLevelUps: number;
   gold: number;
   killCount: number;
   selectedCharacterId: CharacterId;
@@ -449,6 +450,7 @@ interface WeaponUpgradeOption {
   weaponId: WeaponId;
   isNew: boolean;
   currentLevel: number;
+  evolvesFrom?: WeaponId;
 }
 
 interface PassiveUpgradeOption {

@@ -53,7 +53,9 @@ export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
     const nextLevelData = weaponData.levels?.find(
       (lvl) => lvl.level === choice.currentLevel + 1,
     );
-    const upgradeText = choice.isNew
+    const upgradeText = choice.evolvesFrom
+      ? UI_STRINGS.level_up.weapon_evolve_prefix
+      : choice.isNew
       ? UI_STRINGS.level_up.weapon_new_prefix
       : (nextLevelData?.description ??
         UI_STRINGS.level_up.weapon_upgrade_prefix);

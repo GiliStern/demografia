@@ -32,6 +32,7 @@ const INITIAL_GAME_STATE: CoreGameState = {
   level: 1,
   xp: 0,
   nextLevelXp: 100,
+  pendingLevelUps: 0,
   gold: 0,
   selectedCharacterId: CharacterId.Srulik,
   upgradeChoices: [],
@@ -94,23 +95,62 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
   },
 
   addXp: (amount) => {
-    const { xp, nextLevelXp } = get(); // access growth from stats later
-    const newXp = xp + amount;
-    if (newXp >= nextLevelXp) {
-      get().levelUp();
-    } else {
-      set({ xp: newXp });
+    const state = get();
+    const progression = resolveLevelProgression({
+      level: state.level,
+      xp: state.xp,
+      nextLevelXp: state.nextLevelXp,
+      gainedXp: amount,
+    });
+
+    if (progression.levelsGained === 0) {
+      set({ xp: progression.xp });
+      return;
     }
+
+    const upgradeChoices = buildUpgradeChoices(state);
+    if (upgradeChoices.length === 0) {
+      set({
+        level: progression.level,
+        xp: progression.xp,
+        nextLevelXp: progression.nextLevelXp,
+        pendingLevelUps: 0,
+      });
+      return;
+    }
+
+    set({
+      level: progression.level,
+      xp: progression.xp,
+      nextLevelXp: progression.nextLevelXp,
+      pendingLevelUps: state.pendingLevelUps + progression.levelsGained - 1,
+      isPaused: true,
+      pauseReason: PauseReason.LevelUp,
+      upgradeChoices,
+    });
   },
 
   levelUp: () => {
-    const { level, nextLevelXp, xp } = get();
-    const upgradeChoices = buildUpgradeChoices(get);
+    const state = get();
+    const upgradeChoices = buildUpgradeChoices(state);
+    const nextLevelXp = Math.floor(state.nextLevelXp * 1.2);
+
+    if (upgradeChoices.length === 0) {
+      set({
+        level: state.level + 1,
+        xp: 0,
+        nextLevelXp,
+        pendingLevelUps: 0,
+      });
+      return;
+    }
+
     set({
-      level: level + 1,
-      xp: xp - nextLevelXp,
-      nextLevelXp: Math.floor(nextLevelXp * 1.2), // Simple exponential curve
-      isPaused: true, // Pause for selection screen
+      level: state.level + 1,
+      xp: 0,
+      nextLevelXp,
+      pendingLevelUps: state.pendingLevelUps,
+      isPaused: true,
       pauseReason: PauseReason.LevelUp,
       upgradeChoices,
     });
@@ -122,37 +162,25 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
 
   applyUpgrade: (choice: UpgradeOption) => {
     if (choice.kind === ItemKind.Weapon) {
-      const { weaponId, isNew } = choice;
-      if (isNew) {
+      const { weaponId, isNew, evolvesFrom } = choice;
+      if (evolvesFrom) {
+        set((state: GameStore) => {
+          const nextWeapons = [
+            ...state.activeWeapons.filter((id: WeaponId) => id !== evolvesFrom),
+            weaponId,
+          ];
+          const nextWeaponLevels = { ...state.weaponLevels, [weaponId]: 1 };
+          delete nextWeaponLevels[evolvesFrom];
+
+          return {
+            activeWeapons: nextWeapons,
+            weaponLevels: nextWeaponLevels,
+          };
+        });
+      } else if (isNew) {
         get().addWeapon(weaponId);
       } else {
         get().levelUpWeapon(weaponId);
-        // Handle evolution swap if reached max level and passive present
-        const def = WEAPONS[weaponId];
-        const max = def.maxLevel ?? 1;
-        const currentLevel = get().weaponLevels[weaponId] ?? 1;
-        if (
-          def.evolution &&
-          currentLevel >= max &&
-          get().activeItems.includes(def.evolution.passiveRequired)
-        ) {
-          set((state: GameStore) => {
-            const evolvedId = def.evolution?.evolvesTo;
-            if (!evolvedId) return state;
-
-            const nextWeapons = [
-              ...state.activeWeapons.filter((id: WeaponId) => id !== weaponId),
-              evolvedId,
-            ];
-            const nextWeaponLevels = { ...state.weaponLevels, [evolvedId]: 1 };
-            delete nextWeaponLevels[weaponId];
-
-            return {
-              activeWeapons: nextWeapons,
-              weaponLevels: nextWeaponLevels,
-            };
-          });
-        }
       }
     }
 
@@ -165,6 +193,23 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
       }
     }
 
+    const nextState = get();
+    if (nextState.pendingLevelUps > 0) {
+      const upgradeChoices = buildUpgradeChoices(nextState);
+      if (upgradeChoices.length === 0) {
+        get().resumeFromLevelUp();
+        return;
+      }
+
+      set({
+        pendingLevelUps: nextState.pendingLevelUps - 1,
+        isPaused: true,
+        pauseReason: PauseReason.LevelUp,
+        upgradeChoices,
+      });
+      return;
+    }
+
     get().resumeFromLevelUp();
   },
 
@@ -172,6 +217,7 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
     set({
       isPaused: false,
       pauseReason: PauseReason.None,
+      pendingLevelUps: 0,
       upgradeChoices: [],
     }),
 
@@ -205,8 +251,52 @@ const BASE_WEAPON_POOL: WeaponId[] = [
   WeaponId.StarOfDavid,
 ];
 
-const buildUpgradeChoices = (get: () => GameStore): UpgradeOption[] => {
-  const state = get();
+type UpgradeChoiceState = Pick<
+  GameStore,
+  "activeWeapons" | "weaponLevels" | "activeItems" | "passiveLevels"
+>;
+
+interface LevelProgressionInput {
+  level: number;
+  xp: number;
+  nextLevelXp: number;
+  gainedXp: number;
+}
+
+interface LevelProgressionResult {
+  level: number;
+  xp: number;
+  nextLevelXp: number;
+  levelsGained: number;
+}
+
+export const resolveLevelProgression = ({
+  level,
+  xp,
+  nextLevelXp,
+  gainedXp,
+}: LevelProgressionInput): LevelProgressionResult => {
+  let nextLevel = level;
+  let remainingXp = xp + gainedXp;
+  let nextXpThreshold = nextLevelXp;
+  let levelsGained = 0;
+
+  while (remainingXp >= nextXpThreshold) {
+    remainingXp -= nextXpThreshold;
+    nextLevel += 1;
+    levelsGained += 1;
+    nextXpThreshold = Math.floor(nextXpThreshold * 1.2);
+  }
+
+  return {
+    level: nextLevel,
+    xp: remainingXp,
+    nextLevelXp: nextXpThreshold,
+    levelsGained,
+  };
+};
+
+export const collectUpgradeChoices = (state: UpgradeChoiceState): UpgradeOption[] => {
   const choices: UpgradeOption[] = [];
 
   // Upgradable existing weapons
@@ -223,13 +313,15 @@ const buildUpgradeChoices = (get: () => GameStore): UpgradeOption[] => {
       });
     } else if (
       def?.evolution &&
-      state.activeItems.includes(def.evolution.passiveRequired)
+      state.activeItems.includes(def.evolution.passiveRequired) &&
+      !state.activeWeapons.includes(def.evolution.evolvesTo)
     ) {
       choices.push({
         kind: ItemKind.Weapon,
         weaponId: def.evolution.evolvesTo,
-        isNew: true,
-        currentLevel: 0,
+        isNew: false,
+        currentLevel: level,
+        evolvesFrom: weaponId,
       });
     }
   });
@@ -276,8 +368,12 @@ const buildUpgradeChoices = (get: () => GameStore): UpgradeOption[] => {
       );
   }
 
+  return choices;
+};
+
+export const buildUpgradeChoices = (state: UpgradeChoiceState): UpgradeOption[] => {
   // Shuffle and return first 3 choices (or fewer if not enough available)
-  return shuffleArray(choices).slice(0, 3);
+  return shuffleArray(collectUpgradeChoices(state)).slice(0, 3);
 };
 
 /** Fisher-Yates shuffle */

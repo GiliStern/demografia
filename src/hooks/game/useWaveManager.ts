@@ -13,7 +13,10 @@ import {
   getCullDistance,
 } from "@/utils/rendering/viewportBounds";
 import { VIEWPORT_CONFIG } from "@/data/config/viewportConfig";
-import { distance } from "@/utils/weapons/weaponMath";
+import {
+  countActiveEnemiesOfType,
+  filterEnemiesWithinCullDistance,
+} from "@/utils/game/waveUtils";
 
 // Re-export for components
 export type { ActiveEnemy };
@@ -29,8 +32,7 @@ export function useWaveManager(): UseWaveManagerReturn {
   const spawnTrackerRef = useRef<SpawnTracker>({});
 
   // Zustand selectors
-  const { runTimer, playerPosition, isPaused, isRunning, addKill } =
-    useGameStore();
+  const { runTimer, playerPosition, isPaused, isRunning } = useGameStore();
 
   // Determine current wave based on run timer
   const currentWave: WaveData | undefined = useMemo(() => {
@@ -68,16 +70,10 @@ export function useWaveManager(): UseWaveManagerReturn {
     [playerPosition]
   );
 
-  // Remove enemy and award kill
-  const removeEnemy = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (id: string, rewardGold = 1, rewardXp = 10) => {
-      setEnemies((prev) => prev.filter((e) => e.id !== id));
-      addKill();
-      // TODO: connect rewards to store when XP/Gold drop entities exist
-    },
-    [addKill]
-  );
+  // Remove enemy from the active wave roster.
+  const removeEnemy = useCallback((id: string) => {
+    setEnemies((prev) => prev.filter((e) => e.id !== id));
+  }, []);
 
   // Handle enemy spawning and culling each frame
   useFrame(() => {
@@ -92,15 +88,15 @@ export function useWaveManager(): UseWaveManagerReturn {
         VIEWPORT_CONFIG.ENEMY_CULL_MULTIPLIER
       );
 
-      setEnemies((prev) =>
-        prev.filter((enemy) => {
-          const dist = distance(
-            { x: enemy.position[0], y: enemy.position[1] },
-            playerPosition
-          );
-          return dist <= cullDistance;
-        })
-      );
+      setEnemies((prev) => {
+        const enemyPositions = useGameStore.getState().enemiesPositions;
+        return filterEnemiesWithinCullDistance(
+          prev,
+          enemyPositions,
+          playerPosition,
+          cullDistance
+        );
+      });
     }
 
     // Spawn enemies based on wave configuration
@@ -108,7 +104,7 @@ export function useWaveManager(): UseWaveManagerReturn {
       const tracker = spawnTrackerRef.current[config.id] ?? { lastSpawn: 0 };
 
       // Count current active of this type
-      const activeOfType = enemies.filter((e) => e.typeId === config.id).length;
+      const activeOfType = countActiveEnemiesOfType(enemies, config.id);
       if (activeOfType >= config.max_active) {
         return;
       }

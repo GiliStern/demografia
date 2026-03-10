@@ -19,6 +19,6 @@ export type SpawnTracker = Record<
 
 export interface UseWaveManagerReturn {
   enemies: ActiveEnemy[];
-  removeEnemy: (id: string, rewardGold?: number, rewardXp?: number) => void;
+  removeEnemy: (id: string) => void;
 }
 

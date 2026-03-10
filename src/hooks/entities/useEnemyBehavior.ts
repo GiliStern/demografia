@@ -8,6 +8,7 @@ import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
 import { useSpriteAnimation } from "../rendering/useSpriteAnimation";
 import { ENEMIES } from "@/data/config/enemies";
+import { buildEnemyDeathRewards } from "@/utils/entities/enemyLifecycle";
 import {
   AnimationCategory,
   AnimationType,
@@ -65,38 +66,41 @@ export function useEnemyBehavior({
     hpRef.current = hp;
   }, [hp]);
 
+  const handleDeath = useCallback(() => {
+    if (!rigidBody.current) {
+      onDeath();
+      return;
+    }
+
+    const pos = rigidBody.current.translation();
+    const rewards = buildEnemyDeathRewards({
+      position: { x: pos.x, y: pos.y },
+      xpValue: enemy.stats.xpDrop,
+    });
+
+    const { addXpOrb, addGold, addKill } = useGameStore.getState();
+    addXpOrb(rewards.xpOrb);
+    addGold(rewards.goldReward);
+    if (rewards.killIncrement > 0) {
+      addKill();
+    }
+    onDeath();
+  }, [enemy.stats.xpDrop, onDeath]);
+
   // Damage handler for batched projectile collisions - stable reference
   const handleDamage = useCallback(
     (damage: number) => {
       if (isDead.current) return;
-      
+
       const newHp = hpRef.current - damage;
       setHp(newHp);
 
       if (newHp <= 0 && !isDead.current) {
         isDead.current = true;
-
-        // Drop XP orb at death position
-        if (rigidBody.current) {
-          const pos = rigidBody.current.translation();
-          const orbId = crypto.randomUUID
-            ? crypto.randomUUID()
-            : `xp-${id}-${Date.now()}-${Math.random()}`;
-          
-          const { addXpOrb, addGold, addKill } = useGameStore.getState();
-          addXpOrb({
-            id: orbId,
-            position: { x: pos.x, y: pos.y },
-            xpValue: enemy.stats.xpDrop,
-          });
-          addGold(1);
-          addKill();
-        }
-
-        onDeath();
+        handleDeath();
       }
     },
-    [id, enemy.stats.xpDrop, onDeath]
+    [handleDeath]
   );
 
   // Register enemy position and damage callback on mount, cleanup on unmount
@@ -128,29 +132,11 @@ export function useEnemyBehavior({
 
         if (newHp <= 0 && !isDead.current) {
           isDead.current = true;
-
-          // Drop XP orb at death position
-          if (rigidBody.current) {
-            const pos = rigidBody.current.translation();
-            const orbId = crypto.randomUUID
-              ? crypto.randomUUID()
-              : `xp-${id}-${Date.now()}-${Math.random()}`;
-            
-            const { addXpOrb, addGold, addKill } = useGameStore.getState();
-            addXpOrb({
-              id: orbId,
-              position: { x: pos.x, y: pos.y },
-              xpValue: enemy.stats.xpDrop,
-            });
-            addGold(1);
-            addKill();
-          }
-
-          onDeath();
+          handleDeath();
         }
       }
     },
-    [id, enemy.stats.xpDrop, onDeath]
+    [handleDeath]
   );
 
   // Movement AI - chase player

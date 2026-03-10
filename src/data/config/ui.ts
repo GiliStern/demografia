@@ -45,6 +45,7 @@ export const UI_STRINGS = {
     choose_one: "בחר אחד",
     weapon_new_prefix: "חדש",
     weapon_upgrade_prefix: "שדרוג",
+    weapon_evolve_prefix: "התפתחות",
     passive_prefix: "פסיבי: ",
     no_upgrades: "אין שדרוגים זמינים",
   },
