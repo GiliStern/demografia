@@ -9,12 +9,10 @@ import {
   ItemKind,
   WeaponId,
 } from "../types";
-import { createEnemiesStore } from "./enemiesStore";
 import { createViewportStore } from "./viewportStore";
 import { createXpOrbsStore } from "./xpOrbsStore";
 import { createProjectilesStore } from "./projectilesStore";
 const useGameStore = create<GameStore>()((...args) => ({
-  ...createEnemiesStore(...args),
   ...createViewportStore(...args),
   ...createXpOrbsStore(...args),
   ...createProjectilesStore(...args),

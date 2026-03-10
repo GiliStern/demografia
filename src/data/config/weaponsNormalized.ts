@@ -9,18 +9,9 @@ import {
   normalizeWeaponDefinition,
   type WeaponDefinitionRuntime,
 } from "../normalizeConfig";
+import { createNormalizedAccessor } from "../createNormalizedAccessor";
 
-const cache = new Map<WeaponId, WeaponDefinitionRuntime>();
-
-export function getWeapon(
-  id: WeaponId
-): WeaponDefinitionRuntime | undefined {
-  let normalized = cache.get(id);
-  if (!normalized) {
-    const raw = WEAPONS[id];
-    if (!raw) return undefined;
-    normalized = normalizeWeaponDefinition(raw);
-    cache.set(id, normalized);
-  }
-  return normalized;
-}
+export const getWeapon = createNormalizedAccessor(
+  WEAPONS,
+  normalizeWeaponDefinition
+) as (id: WeaponId) => WeaponDefinitionRuntime | undefined;

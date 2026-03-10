@@ -3,6 +3,7 @@ import { useGameStore, collectUpgradeChoices } from "./gameStore";
 import { usePlayerStore } from "./playerStore";
 import { useSessionStore } from "./sessionStore";
 import { useWeaponsStore } from "./weaponsStore";
+import { enemyManager } from "@/simulation/enemyManager";
 import {
   CharacterId,
   ItemKind,
@@ -12,7 +13,7 @@ import {
 } from "@/types";
 
 const resetStore = () => {
-  useGameStore.getState().resetEnemies();
+  enemyManager.reset();
   useGameStore.getState().clearProjectiles();
   useGameStore.getState().resetXpOrbs();
   useGameStore.setState(useGameStore.getInitialState(), true);

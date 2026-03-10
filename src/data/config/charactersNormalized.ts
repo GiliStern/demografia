@@ -9,18 +9,9 @@ import {
   normalizeCharacterData,
   type CharacterDataRuntime,
 } from "../normalizeConfig";
+import { createNormalizedAccessor } from "../createNormalizedAccessor";
 
-const cache = new Map<CharacterId, CharacterDataRuntime>();
-
-export function getCharacter(
-  id: CharacterId
-): CharacterDataRuntime | undefined {
-  let normalized = cache.get(id);
-  if (!normalized) {
-    const raw = CHARACTERS[id];
-    if (!raw) return undefined;
-    normalized = normalizeCharacterData(raw);
-    cache.set(id, normalized);
-  }
-  return normalized;
-}
+export const getCharacter = createNormalizedAccessor(
+  CHARACTERS,
+  normalizeCharacterData
+) as (id: CharacterId) => CharacterDataRuntime | undefined;

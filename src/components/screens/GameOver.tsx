@@ -1,5 +1,4 @@
 import { styled } from "@linaria/react";
-import { useGameStore } from "@/store/gameStore";
 import { useSessionStore } from "@/store/sessionStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { AppButton } from "../ui/AppButton";
@@ -73,7 +72,7 @@ const StatsContainer = styled.div`
 export const GameOver = () => {
   const runTimer = useSessionStore((state) => state.runTimer);
   const gold = useSessionStore((state) => state.gold);
-  const killCount = useGameStore((state) => state.killCount);
+  const killCount = useSessionStore((state) => state.killCount);
 
   const minutes = Math.floor(runTimer / 60)
     .toString()

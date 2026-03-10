@@ -15,6 +15,7 @@ import {
   resolveLevelProgression,
   buildUpgradeChoices,
 } from "./gameStore";
+import { enemyManager } from "../simulation/enemyManager";
 
 export interface SessionState {
   isRunning: boolean;
@@ -27,6 +28,7 @@ export interface SessionState {
   nextLevelXp: number;
   pendingLevelUps: number;
   gold: number;
+  killCount: number;
   selectedCharacterId: CharacterId;
   upgradeChoices: UpgradeOption[];
 }
@@ -42,6 +44,7 @@ const INITIAL_SESSION_STATE: SessionState = {
   nextLevelXp: 100,
   pendingLevelUps: 0,
   gold: 0,
+  killCount: 0,
   selectedCharacterId: CharacterId.Srulik,
   upgradeChoices: [],
 };
@@ -49,6 +52,7 @@ const INITIAL_SESSION_STATE: SessionState = {
 export interface SessionActions {
   startGame: (characterId: CharacterId) => void;
   resetToMainMenu: () => void;
+  addKill: () => void;
   pauseGame: () => void;
   resumeGame: () => void;
   togglePause: () => void;
@@ -74,7 +78,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
     usePlayerStore.getState().resetPlayer(characterId);
     const gameStore = useGameStore.getState();
     useWeaponsStore.getState().resetWeapons([character.startingWeaponId]);
-    gameStore.resetEnemies();
+    enemyManager.reset();
     gameStore.resetXpOrbs();
     gameStore.clearProjectiles();
 
@@ -88,7 +92,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
 
   resetToMainMenu: () => {
     const gameStore = useGameStore.getState();
-    gameStore.resetEnemies();
+    enemyManager.reset();
     gameStore.resetXpOrbs();
     gameStore.clearProjectiles();
     set({
@@ -99,6 +103,8 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
       pauseReason: PauseReason.None,
     });
   },
+
+  addKill: () => set((state) => ({ killCount: state.killCount + 1 })),
 
   pauseGame: () =>
     set((state) =>

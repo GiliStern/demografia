@@ -9,18 +9,9 @@ import {
   normalizePassiveData,
   type PassiveDataRuntime,
 } from "../normalizeConfig";
+import { createNormalizedAccessor } from "../createNormalizedAccessor";
 
-const cache = new Map<PassiveId, PassiveDataRuntime>();
-
-export function getPassive(
-  id: PassiveId
-): PassiveDataRuntime | undefined {
-  let normalized = cache.get(id);
-  if (!normalized) {
-    const raw = PASSIVES[id];
-    if (!raw) return undefined;
-    normalized = normalizePassiveData(raw);
-    cache.set(id, normalized);
-  }
-  return normalized;
-}
+export const getPassive = createNormalizedAccessor(
+  PASSIVES,
+  normalizePassiveData
+) as (id: PassiveId) => PassiveDataRuntime | undefined;

@@ -5,8 +5,9 @@ import type {
   IntersectionEnterHandler,
 } from "@react-three/rapier";
 import * as THREE from "three";
-import { useGameStore } from "@/store/gameStore";
 import { useSessionStore } from "@/store/sessionStore";
+import { useGameStore } from "@/store/gameStore";
+import { enemyManager } from "@/simulation/enemyManager";
 import { getPlayerPositionSnapshot } from "@/store/gameStoreAccess";
 import { useSpriteAnimation } from "../rendering/useSpriteAnimation";
 import { getEnemy } from "@/data/config/enemiesNormalized";
@@ -40,16 +41,8 @@ export function useEnemyBehavior({
   const isPaused = useSessionStore((state) => state.isPaused);
   const isRunning = useSessionStore((state) => state.isRunning);
   const addGold = useSessionStore((state) => state.addGold);
-  const updateEnemyPosition = useGameStore(
-    (state) => state.updateEnemyPosition
-  );
+  const addKill = useSessionStore((state) => state.addKill);
   const addXpOrb = useGameStore((state) => state.addXpOrb);
-  const addKill = useGameStore((state) => state.addKill);
-  const registerEnemy = useGameStore((state) => state.registerEnemy);
-  const registerEnemyDamageCallback = useGameStore(
-    (state) => state.registerEnemyDamageCallback
-  );
-  const removeEnemy = useGameStore((state) => state.removeEnemy);
 
   // Local state
   const [isFacingLeft, setFacingLeft] = useState(false);
@@ -127,11 +120,11 @@ export function useEnemyBehavior({
   useEffect(() => {
     const [x, y] = position;
 
-    registerEnemy(id, { x, y });
-    registerEnemyDamageCallback(id, handleDamage);
+    enemyManager.registerEnemy(id, { x, y });
+    enemyManager.registerEnemyDamageCallback(id, handleDamage);
 
     return () => {
-      removeEnemy(id);
+      enemyManager.removeEnemy(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]); // Only run on mount - handleDamage uses refs for latest values
@@ -189,9 +182,9 @@ export function useEnemyBehavior({
       rigidBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
     }
 
-    // Update position in store
+    // Update position in manager
     const translation = rigidBody.current.translation();
-    updateEnemyPosition(id, { x: translation.x, y: translation.y });
+    enemyManager.updateEnemyPosition(id, { x: translation.x, y: translation.y });
   });
 
   // User data for collision detection

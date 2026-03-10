@@ -4,6 +4,7 @@
  */
 
 import { useGameStore } from "@/store/gameStore";
+import { enemyManager } from "@/simulation/enemyManager";
 import { usePlayerStore } from "@/store/playerStore";
 import { useSessionStore } from "@/store/sessionStore";
 import { useWeaponsStore } from "@/store/weaponsStore";
@@ -54,7 +55,7 @@ export const useWeaponStats = (
  * Used by hooks that need to locate enemies (e.g., for targeting)
  */
 export const useEnemiesPositions = () => {
-  return useGameStore((state) => state.getEnemyPositions());
+  return enemyManager.getEnemyPositions();
 };
 
 /**

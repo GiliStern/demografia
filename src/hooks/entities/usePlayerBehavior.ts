@@ -7,6 +7,7 @@ import type {
 } from "@react-three/rapier";
 import { useGameStore } from "@/store/gameStore";
 import { usePlayerStore } from "@/store/playerStore";
+import { enemyManager } from "@/simulation/enemyManager";
 import { useSessionStore } from "@/store/sessionStore";
 import { useMovementInput } from "../controls/useMovementInput";
 import { useSpriteAnimation } from "../rendering/useSpriteAnimation";
@@ -69,7 +70,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
 
     const contacts = activeEnemyContacts.current;
     contacts.forEach((_, id) => {
-      if (!gameStore.hasEnemy(id)) {
+      if (!enemyManager.hasEnemy(id)) {
         contacts.delete(id);
       }
     });

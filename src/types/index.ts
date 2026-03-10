@@ -1,8 +1,9 @@
 /**
- * Types barrel - re-exports from split modules.
- * @see src/types/ for the split type modules.
+ * Types barrel - re-exports all types for backward compatibility.
+ * Consumers can migrate to direct imports from submodules gradually.
  */
 
+// Domain
 export type {
   CharacterData,
   EnemyData,
@@ -17,18 +18,20 @@ export type {
   WeaponData,
   WeaponStats,
   WavesConfig,
-} from "./types/domain";
+} from "./domain";
 export {
   CharacterId,
   EnemyId,
   FloorPickupId,
   PassiveId,
   WeaponId,
-} from "./types/domain";
+} from "./domain";
 
-export type { PassiveUpgradeOption, UpgradeOption, WeaponUpgradeOption } from "./types/upgrades";
-export { ItemKind } from "./types/upgrades";
+// Upgrades
+export type { PassiveUpgradeOption, UpgradeOption, WeaponUpgradeOption } from "./upgrades";
+export { ItemKind } from "./upgrades";
 
+// Weapons
 export type {
   ActiveWeaponRenderItem,
   ProjectileWeaponInstance,
@@ -39,29 +42,32 @@ export type {
   WeaponEvolution,
   WeaponLevel,
   WeaponStatDelta,
-} from "./types/weapons";
+} from "./weapons";
 
+// Rendering
 export type {
   AnimationConfig,
   CentralizedProjectile,
   Position,
   ProjectileData,
   Velocity,
-} from "./types/rendering";
+} from "./rendering";
 export {
   AnimationCategory,
   AnimationType,
   AnimationVariant,
-} from "./types/rendering";
+} from "./rendering";
 
+// Physics
 export type {
   EnemyUserData,
   PlayerUserData,
   ProjectileUserData,
   RigidBodyUserData,
   XpOrbUserData,
-} from "./types/physics";
+} from "./physics";
 
+// Store
 export type {
   CoreGameState,
   GameSlice,
@@ -75,5 +81,5 @@ export type {
   WeaponsStore,
   XpOrbData,
   XpOrbsStore,
-} from "./types/store";
-export { PauseReason } from "./types/store";
+} from "./store";
+export { PauseReason } from "./store";

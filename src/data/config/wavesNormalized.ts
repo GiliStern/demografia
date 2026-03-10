@@ -5,20 +5,12 @@
 
 import { WaveId, WAVES } from "./waves";
 import { normalizeWaveData, type WaveDataRuntime } from "../normalizeConfig";
+import { createNormalizedArrayAccessor } from "../createNormalizedAccessor";
 
-const cache = new Map<string, WaveDataRuntime[]>();
+const getRawWaves = (stage: WaveId) => WAVES[stage] ?? [];
 
-function getCacheKey(stage: WaveId): string {
-  return stage;
-}
-
-export function getNormalizedWaves(stage: WaveId): WaveDataRuntime[] {
-  const key = getCacheKey(stage);
-  let normalized = cache.get(key);
-  if (!normalized) {
-    const rawWaves = WAVES[stage] ?? [];
-    normalized = rawWaves.map(normalizeWaveData);
-    cache.set(key, normalized);
-  }
-  return normalized;
-}
+export const getNormalizedWaves = createNormalizedArrayAccessor<
+  WaveId,
+  (typeof WAVES)[WaveId][number],
+  WaveDataRuntime
+>(getRawWaves, normalizeWaveData);

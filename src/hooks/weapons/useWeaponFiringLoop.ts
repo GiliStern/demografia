@@ -4,6 +4,7 @@ import type { ProjectileData, WeaponId } from "@/types";
 import type { CentralizedProjectile } from "@/types";
 import { getWeapon } from "@/data/config/weaponsNormalized";
 import { useGameStore } from "@/store/gameStore";
+import { getEnemyPositionsRegistrySnapshot } from "@/store/gameStoreAccess";
 import { usePlayerStore } from "@/store/playerStore";
 import { useSessionStore } from "@/store/sessionStore";
 import { useWeaponsStore } from "@/store/weaponsStore";
@@ -70,7 +71,6 @@ export function useWeaponFiringLoop(
     (state) => state.getEffectivePlayerStats
   );
   const addProjectiles = useGameStore((state) => state.addProjectiles);
-  const getEnemyPositions = useGameStore((state) => state.getEnemyPositions);
   const playerPosition = usePlayerStore((state) => state.playerPosition);
   const playerDirection = usePlayerStore((state) => state.playerDirection);
 
@@ -100,7 +100,7 @@ export function useWeaponFiringLoop(
       }
       case "nearestEnemy": {
         const targetDir =
-          nearestEnemyDirection(playerPosition, getEnemyPositions()) ??
+          nearestEnemyDirection(playerPosition, getEnemyPositionsRegistrySnapshot()) ??
           resolveDirection(playerDirection.x, playerDirection.y);
         const baseVelocity = buildVelocity(targetDir, runtime.speed);
         return createSpreadProjectiles({
