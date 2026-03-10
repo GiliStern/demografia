@@ -398,16 +398,10 @@ export interface ProjectilesStore {
   removeProjectile: (id: string) => void;
   addProjectiles: (projectiles: CentralizedProjectile[]) => void;
   clearProjectiles: () => void;
+  syncProjectileCount: () => void;
   getProjectilesArray: () => CentralizedProjectile[];
   getProjectile: (id: string) => CentralizedProjectile | undefined;
   getProjectiles: () => ReadonlyMap<string, CentralizedProjectile>;
-  updateProjectile: (
-    id: string,
-    updates: Partial<CentralizedProjectile>,
-  ) => void;
-  updateProjectiles: (
-    updates: { id: string; updates: Partial<CentralizedProjectile> }[],
-  ) => void;
 }
 
 export type CoreGameState = Omit<

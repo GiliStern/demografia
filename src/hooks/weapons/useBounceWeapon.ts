@@ -2,12 +2,8 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { WeaponId } from "@/types";
 import { useGameStore } from "@/store/gameStore";
-import {
-  getPlayerPositionSnapshot,
-  getViewportBoundsSnapshot,
-} from "@/store/gameStoreAccess";
+import { getPlayerPositionSnapshot } from "@/store/gameStoreAccess";
 import { WEAPONS } from "@/data/config/weaponsConfig";
-import { reflectInBounds } from "@/utils/weapons/weaponMath";
 import type { CentralizedProjectile } from "@/types";
 
 interface UseBounceWeaponParams {
@@ -15,8 +11,8 @@ interface UseBounceWeaponParams {
 }
 
 /**
- * Custom hook for bounce weapon behavior - fires projectiles that bounce at screen edges
- * Now uses centralized projectile store for batched rendering
+ * Custom hook for bounce weapon behavior - fires projectiles that bounce at screen edges.
+ * Bounce simulation is handled by the projectile manager in BatchedProjectileRenderer.
  */
 export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
   const lastFireTime = useRef(0);
@@ -28,8 +24,6 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
     (state) => state.getEffectivePlayerStats
   );
   const addProjectiles = useGameStore((state) => state.addProjectiles);
-  const getProjectilesArray = useGameStore((state) => state.getProjectilesArray);
-  const updateProjectile = useGameStore((state) => state.updateProjectile);
 
   const playerStats = getEffectivePlayerStats();
 
@@ -42,7 +36,6 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
   const cooldown =
     (stats.cooldown ?? Number.POSITIVE_INFINITY) * playerStats.cooldown;
 
-  // Fire projectiles in random directions
   const fire = (time: number) => {
     lastFireTime.current = time;
     const freshPlayerPosition = getPlayerPositionSnapshot();
@@ -71,44 +64,12 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
     addProjectiles(shots);
   };
 
-  // Handle firing and bouncing logic
   useFrame((state) => {
     if (isPaused || !isRunning) return;
 
     const time = state.clock.getElapsedTime();
-
-    // Fire new projectiles
     if (time - lastFireTime.current > cooldown) {
       fire(time);
-    }
-
-    // Get viewport bounds for bouncing at screen edges
-    const viewportBounds = getViewportBoundsSnapshot();
-    if (!viewportBounds) return;
-
-    // Update bounce projectiles - only handle velocity changes, not removal
-    const bounceProjectiles = getProjectilesArray().filter(
-      (p: CentralizedProjectile) =>
-        p.weaponId === weaponId && p.behaviorType === "bounce"
-    );
-
-    // Get fresh player position for bounce calculations
-    const freshPlayerPosition = getPlayerPositionSnapshot();
-    
-    for (const p of bounceProjectiles) {
-      // Check and apply bounce
-      const nextVel = reflectInBounds(
-        { x: p.position.x, y: p.position.y },
-        p.velocity,
-        freshPlayerPosition,
-        viewportBounds.halfWidth,
-        viewportBounds.halfHeight
-      );
-
-      // Update velocity if changed
-      if (nextVel.x !== p.velocity.x || nextVel.y !== p.velocity.y) {
-        updateProjectile(p.id, { velocity: nextVel });
-      }
     }
   });
 }

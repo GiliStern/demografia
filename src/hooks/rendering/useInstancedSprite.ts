@@ -1,5 +1,6 @@
 import { useRef, useEffect, useMemo } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import type {
   UseInstancedSpriteParams,
@@ -10,13 +11,54 @@ import type {
 // Re-export for convenience
 export type { InstanceData };
 
+function updateMeshFromInstances(
+  mesh: THREE.InstancedMesh,
+  instances: InstanceData[],
+  maxInstances: number,
+  spriteIndicesAttr: THREE.InstancedBufferAttribute,
+  flipXValuesAttr: THREE.InstancedBufferAttribute
+): void {
+  const count = Math.min(instances.length, maxInstances);
+  const matrix = new THREE.Matrix4();
+
+  for (let i = 0; i < count; i++) {
+    const instance = instances[i];
+    if (!instance) continue;
+
+    matrix.makeTranslation(
+      instance.position[0],
+      instance.position[1],
+      instance.position[2]
+    );
+    matrix.scale(new THREE.Vector3(instance.scale, instance.scale, 1));
+    mesh.setMatrixAt(i, matrix);
+
+    spriteIndicesAttr.setX(i, instance.spriteIndex);
+    flipXValuesAttr.setX(i, instance.flipX ? 1.0 : 0.0);
+  }
+
+  for (let i = count; i < maxInstances; i++) {
+    matrix.makeScale(0, 0, 0);
+    mesh.setMatrixAt(i, matrix);
+  }
+
+  mesh.instanceMatrix.needsUpdate = true;
+  spriteIndicesAttr.needsUpdate = true;
+  flipXValuesAttr.needsUpdate = true;
+  mesh.count = count;
+  mesh.frustumCulled = false;
+}
+
 /**
- * Custom hook for GPU-instanced sprite rendering with per-instance sprite animation
+ * Custom hook for GPU-instanced sprite rendering with per-instance sprite animation.
+ * When instancesRef is provided, updates the mesh in useFrame (no React rerenders).
+ * When instances is provided, updates via useEffect (triggers rerenders when instances change).
  */
 export function useInstancedSprite({
   textureUrl,
   spriteFrameSize,
   instances,
+  instancesRef,
   maxInstances,
 }: UseInstancedSpriteParams): UseInstancedSpriteReturn {
   const meshRef = useRef<THREE.InstancedMesh>(null);
@@ -125,48 +167,38 @@ export function useInstancedSprite({
     geometry.setAttribute("flipX", flipXValuesAttr);
   }, [spriteIndicesAttr, flipXValuesAttr]);
 
-  // Update instance matrices and custom attributes
+  // When instancesRef: update mesh in useFrame (no React rerenders)
+  useFrame(() => {
+    if (!instancesRef || !meshRef.current) return;
+    const inst = instancesRef.current;
+    if (!inst) return;
+    updateMeshFromInstances(
+      meshRef.current,
+      inst,
+      maxInstances,
+      spriteIndicesAttr,
+      flipXValuesAttr
+    );
+  });
+
+  // When instances (no instancesRef): update mesh in useEffect
   useEffect(() => {
-    if (!meshRef.current) return;
-
-    const mesh = meshRef.current;
-    const count = Math.min(instances.length, maxInstances);
-
-    // Update each instance
-    const matrix = new THREE.Matrix4();
-    for (let i = 0; i < count; i++) {
-      const instance = instances[i];
-      if (!instance) continue;
-
-      // Set position and scale
-      matrix.makeTranslation(
-        instance.position[0],
-        instance.position[1],
-        instance.position[2]
-      );
-      matrix.scale(new THREE.Vector3(instance.scale, instance.scale, 1));
-      mesh.setMatrixAt(i, matrix);
-
-      // Set sprite index and flip
-      spriteIndicesAttr.setX(i, instance.spriteIndex);
-      flipXValuesAttr.setX(i, instance.flipX ? 1.0 : 0.0);
-    }
-
-    // Hide unused instances
-    for (let i = count; i < maxInstances; i++) {
-      matrix.makeScale(0, 0, 0);
-      mesh.setMatrixAt(i, matrix);
-    }
-
-    // Update attributes
-    mesh.instanceMatrix.needsUpdate = true;
-    spriteIndicesAttr.needsUpdate = true;
-    flipXValuesAttr.needsUpdate = true;
-
-    // Set render count
-    mesh.count = count;
-    mesh.frustumCulled = false;
-  }, [instances, maxInstances, textureUrl, spriteIndicesAttr, flipXValuesAttr]);
+    if (instancesRef || !instances || !meshRef.current) return;
+    updateMeshFromInstances(
+      meshRef.current,
+      instances,
+      maxInstances,
+      spriteIndicesAttr,
+      flipXValuesAttr
+    );
+  }, [
+    instancesRef,
+    instances,
+    maxInstances,
+    textureUrl,
+    spriteIndicesAttr,
+    flipXValuesAttr,
+  ]);
 
   return {
     meshRef,

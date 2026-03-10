@@ -1,179 +1,123 @@
-import { useMemo, useState } from "react";
+import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
-import {
-  getEnemyPositionsRegistrySnapshot,
-  getProjectilesSnapshot,
-} from "@/store/gameStoreAccess";
+import { getProjectileManager } from "@/simulation/projectileManager";
 import { InstancedSprite } from "./InstancedSprite";
-import { advanceProjectile } from "@/utils/projectiles/projectileRuntime";
 import {
   batchEntitiesByTexture,
   type BatchableEntity,
+  type EntityInstance,
 } from "@/utils/performance/entityBatcher";
-import type { EnemyPositionMap, WorldPosition2D } from "@/utils/game/waveUtils";
+import type { CentralizedProjectile } from "@/types";
 
-const enemyEntries = (
-  enemies: EnemyPositionMap,
-): [string, WorldPosition2D][] => {
-  if (enemies instanceof Map) {
-    const entries: [string, WorldPosition2D][] = [];
-    const registry = enemies as ReadonlyMap<string, WorldPosition2D>;
-    for (const [enemyId, enemyPos] of registry.entries()) {
-      entries.push([enemyId, enemyPos]);
-    }
-    return entries;
-  }
-
-  const entries: [string, WorldPosition2D][] = [];
-  const enemyRecord = enemies as Record<string, WorldPosition2D>;
-  for (const enemyId of Object.keys(enemyRecord)) {
-    const enemyPos = enemyRecord[enemyId];
-    if (enemyPos) {
-      entries.push([enemyId, enemyPos]);
-    }
-  }
-  return entries;
-};
+function toBatchable(p: CentralizedProjectile): BatchableEntity {
+  return {
+    id: p.id,
+    position: [p.position.x, p.position.y, p.position.z],
+    scale: p.scale,
+    spriteIndex: p.spriteIndex,
+    flipX: p.flipX,
+    textureUrl: p.textureUrl,
+    spriteFrameSize: p.spriteFrameSize,
+  };
+}
 
 /**
  * BatchedProjectileRenderer - Centralized high-performance projectile rendering
  *
- * Uses GPU instancing to render ALL projectiles in just a few draw calls instead of
- * creating individual React components for each projectile.
- *
- * Performance Benefits:
- * - 100 projectiles: 100 components + 100 draw calls → 1-3 components + 1-3 draw calls
- * - Eliminates per-projectile React overhead
- * - Eliminates per-projectile physics body overhead
- * - Reduces memory allocations and GC pressure
+ * Simulation runs in the projectile manager (ref-backed). This component only
+ * runs the manager tick and renders snapshots via GPU instancing. No per-frame
+ * Zustand writes or forced React rerenders.
  */
 export const BatchedProjectileRenderer = () => {
-  // Subscribe only to size for add/remove operations
-  const projectileCount = useGameStore((state) => state.projectileCount);
-  const removeProjectile = useGameStore((state) => state.removeProjectile);
+  const [batchKeys, setBatchKeys] = useState<string[]>([]);
+  const batchDataRef = useRef<
+    Map<
+      string,
+      {
+        textureUrl: string;
+        spriteFrameSize: number;
+        instancesRef: { current: EntityInstance[] };
+      }
+    >
+  >(new Map());
+
   const isPaused = useGameStore((state) => state.isPaused);
   const isRunning = useGameStore((state) => state.isRunning);
-  const updateProjectiles = useGameStore((state) => state.updateProjectiles);
-  const damageEnemy = useGameStore((state) => state.damageEnemy);
+  const syncProjectileCount = useGameStore(
+    (state) => state.syncProjectileCount
+  );
 
-  // Force re-render on every frame to get updated positions
-  const [forceUpdateCounter, forceUpdate] = useState(0);
+  const manager = getProjectileManager();
 
-  // Convert Map to array (re-fetch when size changes OR when forceUpdate is triggered)
-  const projectiles = useMemo(() => {
-    return getProjectilesSnapshot();
-  }, [projectileCount, forceUpdateCounter]);
-
-  // Update projectile positions, handle expiration, and check collisions
   useFrame((state, frameDelta) => {
     if (isPaused || !isRunning) return;
 
-    // Use the delta passed by useFrame (much more reliable than getDelta())
-    const delta = frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
+    const delta =
+      frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
     const currentTime = state.clock.getElapsedTime();
 
-    // Get fresh projectiles and enemies inside useFrame to avoid stale closures
-    const currentProjectiles = getProjectilesSnapshot();
-    const currentEnemies = getEnemyPositionsRegistrySnapshot();
+    const store = useGameStore.getState();
+    manager.tick(delta, currentTime, {
+      getEnemyPositions: () => store.enemyPositionsRegistry,
+      getViewportBounds: () => store.viewportBounds,
+      getPlayerPosition: () => store.playerPosition,
+      damageEnemy: (id, damage) => store.damageEnemy(id, damage),
+    });
 
-    // Batch updates to minimize re-renders
-    const toRemove: string[] = [];
-    const toUpdate: {
-      id: string;
-      position: { x: number; y: number; z: number };
-      velocity: { x: number; y: number; z?: number };
-    }[] = [];
+    syncProjectileCount();
 
-    // Update all projectiles
-    for (const projectile of currentProjectiles) {
-      const age = currentTime - projectile.spawnTime;
+    const snapshot = manager.getSnapshot();
+    const batchableEntities = snapshot.map(toBatchable);
+    const batches = batchEntitiesByTexture(batchableEntities);
 
-      // Remove expired projectiles
-      if (age >= projectile.duration) {
-        toRemove.push(projectile.id);
-        continue;
+    const keys = batches.map(
+      (b) => `${b.textureUrl}::${b.spriteFrameSize ?? 32}`
+    );
+
+    setBatchKeys((prev) => {
+      const next = new Set([...prev, ...keys]);
+      if (next.size === prev.length) return prev;
+      return [...next];
+    });
+
+    for (const batch of batches) {
+      const key = `${batch.textureUrl}::${batch.spriteFrameSize ?? 32}`;
+      let data = batchDataRef.current.get(key);
+      if (!data) {
+        data = {
+          textureUrl: batch.textureUrl,
+          spriteFrameSize: batch.spriteFrameSize ?? 32,
+          instancesRef: { current: [] },
+        };
+        batchDataRef.current.set(key, data);
       }
-
-      const nextState = advanceProjectile(projectile, delta);
-      const newPosition = nextState.position;
-
-      // Check collision with enemies
-      const collisionRadius = 0.5;
-      let hitEnemy = false;
-
-      for (const [enemyId, enemyPos] of enemyEntries(currentEnemies)) {
-        const dx = newPosition.x - enemyPos.x;
-        const dy = newPosition.y - enemyPos.y;
-        const distSq = dx * dx + dy * dy;
-
-        if (distSq < collisionRadius * collisionRadius) {
-          // Apply damage to enemy via callback system
-          damageEnemy(enemyId, projectile.damage);
-
-          toRemove.push(projectile.id);
-          hitEnemy = true;
-          break;
-        }
-      }
-
-      if (!hitEnemy) {
-        toUpdate.push({
-          id: projectile.id,
-          position: newPosition,
-          velocity: nextState.velocity,
-        });
-      }
-    }
-
-    // Apply all updates
-    toRemove.forEach((id) => removeProjectile(id));
-    if (toUpdate.length > 0) {
-      updateProjectiles(
-        toUpdate.map(({ id, position, velocity }) => ({
-          id,
-          updates: { position, velocity },
-        })),
-      );
-      // Force React re-render to pick up new positions
-      forceUpdate((n) => n + 1);
+      data.instancesRef.current = batch.instances;
     }
   });
 
-  // Convert projectiles to batchable entities
-  const batchableEntities: BatchableEntity[] = useMemo(() => {
-    return projectiles.map((p) => ({
-      id: p.id,
-      position: [p.position.x, p.position.y, p.position.z] as [
-        number,
-        number,
-        number,
-      ],
-      scale: p.scale,
-      spriteIndex: p.spriteIndex,
-      spriteFrameSize: p.spriteFrameSize,
-      flipX: p.flipX,
-      textureUrl: p.textureUrl,
-    }));
-  }, [projectiles]);
-
-  // Batch entities by texture for instanced rendering
-  const batches = useMemo(() => {
-    return batchEntitiesByTexture(batchableEntities);
-  }, [batchableEntities]);
-
-  // Render each batch with GPU instancing
   return (
     <>
-      {batches.map((batch) => (
-        <InstancedSprite
-          key={`${batch.textureUrl}_${batch.spriteFrameSize}`}
-          textureUrl={batch.textureUrl}
-          spriteFrameSize={batch.spriteFrameSize ?? 32}
-          instances={batch.instances}
-          maxInstances={Math.max(200, batch.instances.length + 50)}
-        />
-      ))}
+      {batchKeys.map((key) => {
+        const data = batchDataRef.current.get(key);
+        if (!data) return null;
+        return (
+          <InstancedSprite
+            key={key}
+            textureUrl={data.textureUrl}
+            instancesRef={
+              data.instancesRef as React.MutableRefObject<
+                EntityInstance[] | undefined
+              >
+            }
+            spriteFrameSize={data.spriteFrameSize}
+            maxInstances={Math.max(
+              200,
+              (data.instancesRef.current?.length ?? 0) + 50
+            )}
+          />
+        );
+      })}
     </>
   );
 };

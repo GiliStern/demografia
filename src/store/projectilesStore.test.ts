@@ -46,40 +46,6 @@ describe("projectilesStore registry", () => {
     expect(store.getProjectile("p2")).toBeUndefined();
   });
 
-  it("updates projectile runtime data without changing projectileCount", () => {
-    const store = useGameStore.getState();
-
-    store.addProjectile(createProjectile("p1"));
-    const countBeforeUpdate = useGameStore.getState().projectileCount;
-
-    store.updateProjectile("p1", {
-      position: { x: 5, y: 3, z: 0 },
-      velocity: { x: -1, y: 2 },
-    });
-
-    expect(useGameStore.getState().projectileCount).toBe(countBeforeUpdate);
-    expect(store.getProjectile("p1")).toEqual(
-      expect.objectContaining({
-        position: { x: 5, y: 3, z: 0 },
-        velocity: { x: -1, y: 2 },
-      }),
-    );
-  });
-
-  it("applies batched updates across multiple projectiles", () => {
-    const store = useGameStore.getState();
-
-    store.addProjectiles([createProjectile("p1"), createProjectile("p2")]);
-    store.updateProjectiles([
-      { id: "p1", updates: { position: { x: 1, y: 1, z: 0 } } },
-      { id: "p2", updates: { position: { x: 2, y: 2, z: 0 } } },
-    ]);
-
-    expect(store.getProjectile("p1")?.position).toEqual({ x: 1, y: 1, z: 0 });
-    expect(store.getProjectile("p2")?.position).toEqual({ x: 2, y: 2, z: 0 });
-    expect(useGameStore.getState().projectileCount).toBe(2);
-  });
-
   it("stores projectile acceleration for runtime-driven motion", () => {
     const store = useGameStore.getState();
 

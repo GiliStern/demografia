@@ -1,94 +1,62 @@
 import type { StoreCreator, CentralizedProjectile } from "../types";
+import { getProjectileManager } from "../simulation/projectileManager";
 
 export interface ProjectilesStore {
   projectileCount: number;
 
-  // Add a projectile to the central pool
   addProjectile: (projectile: CentralizedProjectile) => void;
-
-  // Remove a projectile by ID
   removeProjectile: (id: string) => void;
-
-  // Batch add multiple projectiles (for weapons that fire volleys)
   addProjectiles: (projectiles: CentralizedProjectile[]) => void;
-
-  // Clear all projectiles
   clearProjectiles: () => void;
+  syncProjectileCount: () => void;
 
-  // Get all projectiles as array
   getProjectilesArray: () => CentralizedProjectile[];
   getProjectile: (id: string) => CentralizedProjectile | undefined;
   getProjectiles: () => ReadonlyMap<string, CentralizedProjectile>;
-
-  // Update projectile position (for bouncing, homing, etc.)
-  updateProjectile: (
-    id: string,
-    updates: Partial<CentralizedProjectile>
-  ) => void;
-
-  // Batch update multiple projectiles
-  updateProjectiles: (
-    updates: { id: string; updates: Partial<CentralizedProjectile> }[]
-  ) => void;
 }
 
 export const createProjectilesStore: StoreCreator<ProjectilesStore> = (
   set
 ) => {
-  const projectiles = new Map<string, CentralizedProjectile>();
+  const manager = getProjectileManager();
 
   return {
     projectileCount: 0,
 
     addProjectile: (projectile) => {
-      projectiles.set(projectile.id, projectile);
-      set({ projectileCount: projectiles.size });
+      manager.addProjectile(projectile);
+      set({ projectileCount: manager.getCount() });
     },
 
     removeProjectile: (id) => {
-      if (!projectiles.has(id)) return;
-      projectiles.delete(id);
-      set({ projectileCount: projectiles.size });
+      manager.removeProjectile(id);
+      set({ projectileCount: manager.getCount() });
     },
 
     addProjectiles: (newProjectiles) => {
-      for (const projectile of newProjectiles) {
-        projectiles.set(projectile.id, projectile);
-      }
-      set({ projectileCount: projectiles.size });
+      manager.addProjectiles(newProjectiles);
+      set({ projectileCount: manager.getCount() });
     },
 
     clearProjectiles: () => {
-      projectiles.clear();
+      manager.clearProjectiles();
       set({ projectileCount: 0 });
     },
 
-    getProjectilesArray: () => {
-      return Array.from(projectiles.values());
+    syncProjectileCount: () => {
+      set({ projectileCount: manager.getCount() });
     },
 
-    getProjectile: (id) => {
-      return projectiles.get(id);
-    },
+    getProjectilesArray: () => manager.getSnapshot(),
+
+    getProjectile: (id) => manager.getProjectile(id),
 
     getProjectiles: () => {
-      return projectiles;
-    },
-
-    updateProjectile: (id, updates) => {
-      const existing = projectiles.get(id);
-      if (existing) {
-        projectiles.set(id, { ...existing, ...updates });
-      }
-    },
-
-    updateProjectiles: (batchUpdates) => {
-      for (const { id, updates } of batchUpdates) {
-        const existing = projectiles.get(id);
-        if (existing) {
-          projectiles.set(id, { ...existing, ...updates });
-        }
-      }
+      const snapshot = manager.getSnapshot();
+      return new Map(snapshot.map((p) => [p.id, p])) as ReadonlyMap<
+        string,
+        CentralizedProjectile
+      >;
     },
   };
 };

@@ -1,8 +1,9 @@
 import { useState, useRef, useMemo, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
-import { WaveId, WAVES } from "@/data/config/waves";
-import type { WaveData, EnemyId } from "@/types";
+import { WaveId } from "@/data/config/waves";
+import { getNormalizedWaves } from "@/data/config/wavesNormalized";
+import type { EnemyId } from "@/types";
 import type { EnemyPositionMap } from "@/utils/game/waveUtils";
 import type {
   ActiveEnemy,
@@ -14,19 +15,26 @@ import {
   getCullDistance,
 } from "@/utils/rendering/viewportBounds";
 import { VIEWPORT_CONFIG } from "@/data/config/viewportConfig";
+import { filterEnemiesWithinCullDistance } from "@/utils/game/waveUtils";
 import {
-  countActiveEnemiesOfType,
-  filterEnemiesWithinCullDistance,
-} from "@/utils/game/waveUtils";
+  findCurrentWave,
+  getEnemyTypesToSpawn,
+} from "@/utils/game/wavePlanning";
 
 // Re-export for components
 export type { ActiveEnemy };
 
-const waves = WAVES;
 const DEFAULT_STAGE = WaveId.TelAviv;
 
+function generateId(): string {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2);
+}
+
 /**
- * Custom hook for wave management - handles enemy spawning, culling, and tracking
+ * Custom hook for wave management - handles enemy spawning, culling, and tracking.
+ * Uses pure wave planning helpers for spawn decisions.
  */
 export function useWaveManager(): UseWaveManagerReturn {
   const [enemies, setEnemies] = useState<ActiveEnemy[]>([]);
@@ -40,15 +48,11 @@ export function useWaveManager(): UseWaveManagerReturn {
   const getEnemyPositionsRegistry = (): EnemyPositionMap =>
     useGameStore.getState().enemyPositionsRegistry as unknown as EnemyPositionMap;
 
-  // Determine current wave based on run timer
-  const currentWave: WaveData | undefined = useMemo(() => {
-    const stageWaves = waves[DEFAULT_STAGE] ?? [];
-    return stageWaves.find(
-      (w) => runTimer >= w.time_start && runTimer < w.time_end
-    );
+  const currentWave = useMemo(() => {
+    const stageWaves = getNormalizedWaves(DEFAULT_STAGE);
+    return findCurrentWave(stageWaves, runTimer);
   }, [runTimer]);
 
-  // Spawn enemy at a random position outside viewport
   const spawnEnemy = useCallback(
     (typeId: EnemyId) => {
       if (!viewportBounds) return;
@@ -59,13 +63,8 @@ export function useWaveManager(): UseWaveManagerReturn {
         VIEWPORT_CONFIG.ENEMY_SPAWN_MARGIN
       );
 
-      const id =
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : Math.random().toString(36).slice(2);
-
       const newEnemy: ActiveEnemy = {
-        id,
+        id: generateId(),
         typeId,
         position: [spawnPos.x, spawnPos.y, 0],
       };
@@ -75,18 +74,14 @@ export function useWaveManager(): UseWaveManagerReturn {
     [playerPosition, viewportBounds]
   );
 
-  // Remove enemy from the active wave roster.
   const removeEnemy = useCallback((id: string) => {
     setEnemies((prev) => prev.filter((e) => e.id !== id));
   }, []);
 
-  // Handle enemy spawning and culling each frame
   useFrame(() => {
     if (isPaused || !isRunning || !currentWave) return;
 
-    // Get viewport bounds for culling
     if (viewportBounds) {
-      // Cull enemies that are too far from player (Vampire Survivors style)
       const cullDistance = getCullDistance(
         viewportBounds,
         VIEWPORT_CONFIG.ENEMY_CULL_MULTIPLIER
@@ -103,22 +98,17 @@ export function useWaveManager(): UseWaveManagerReturn {
       });
     }
 
-    // Spawn enemies based on wave configuration
-    currentWave.enemies.forEach((config) => {
-      const tracker = spawnTrackerRef.current[config.id] ?? { lastSpawn: 0 };
+    const toSpawn = getEnemyTypesToSpawn(
+      currentWave,
+      enemies,
+      spawnTrackerRef.current,
+      runTimer
+    );
 
-      // Count current active of this type
-      const activeOfType = countActiveEnemiesOfType(enemies, config.id);
-      if (activeOfType >= config.max_active) {
-        return;
-      }
-
-      const now = runTimer;
-      if (now - tracker.lastSpawn >= config.spawn_interval) {
-        spawnEnemy(config.id);
-        spawnTrackerRef.current[config.id] = { lastSpawn: now };
-      }
-    });
+    for (const typeId of toSpawn) {
+      spawnEnemy(typeId);
+      spawnTrackerRef.current[typeId] = { lastSpawn: runTimer };
+    }
   });
 
   return {

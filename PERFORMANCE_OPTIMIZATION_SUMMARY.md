@@ -19,10 +19,10 @@ The game was experiencing severe lag, especially with weapons at the beginning o
 
 ## Solution Implemented
 
-### 1. Centralized Projectile Store (`src/store/projectilesStore.ts`)
-- Created a single Zustand store to manage ALL projectiles from ALL weapons
-- Eliminates per-weapon state management
-- Enables batch operations across all projectiles
+### 1. Projectile Simulation Manager (`src/simulation/projectileManager.ts`)
+- Ref-backed simulation owns advance, expiry, collision, and bounce
+- Store (`src/store/projectilesStore.ts`) handles coarse lifecycle only (add/remove/clear)
+- No per-frame Zustand writes or forced React rerenders
 
 ```typescript
 interface CentralizedProjectile {
@@ -41,10 +41,10 @@ interface CentralizedProjectile {
 ```
 
 ### 2. Batched GPU Instancing (`src/components/BatchedProjectileRenderer.tsx`)
-- **Single component** renders ALL projectiles using GPU instancing
+- Runs the projectile manager's `tick()` each frame; renders from a snapshot
+- Uses `instancesRef` + `useFrame` to update InstancedMesh matrices without React rerenders
 - Groups projectiles by texture (1 draw call per texture)
-- Eliminates individual React components for each projectile
-- No physics bodies needed - manual collision detection
+- No physics bodies for projectiles - manual collision in the manager
 
 **Performance Gains**:
 - 100 projectiles: ~~100 components + 100 draw calls~~ → **1-3 components + 1-3 draw calls**
@@ -56,19 +56,15 @@ interface CentralizedProjectile {
 - Runs in single batch loop instead of per-projectile
 - O(n*m) where n=projectiles, m=enemies (acceptable for game scale)
 
-### 4. Updated All Weapon Hooks
-Refactored all weapon types to use the centralized system:
+### 4. Weapon Runtime Models (see `docs/WEAPON_RUNTIME.md`)
+**Centralized projectile runtime** (Sabra, Pitas, Star of David, etc.):
+- ✅ `useArcWeapon`, `useRadialWeapon`, `useBounceWeapon`, `useProjectileWeapon`, `useNearestProjectileWeapon`
+- Hooks add projectiles to the store (which delegates to the manager)
+- Return `null`; `BatchedProjectileRenderer` handles all rendering
 
-- ✅ `useRadialWeapon` - Fires in all directions
-- ✅ `useBounceWeapon` - Bounces at screen edges
-- ✅ `useProjectileWeapon` - Standard directional firing
-- ✅ `useNearestProjectileWeapon` - Targets nearest enemy
-
-All weapons now:
-1. Calculate projectile data
-2. Add to central store
-3. Return `null` (no rendering)
-4. `BatchedProjectileRenderer` handles all rendering
+**Orbit runtime** (Kaparot, Unholy Selichot):
+- Uses `useOrbitWeapon` + `OrbitingBody` with Rapier kinematic bodies
+- Separate path for persistent orbiting bodies around the player
 
 ### 5. Weapon Components Simplified
 **Before** (~40-120 lines each):
@@ -134,7 +130,11 @@ NEW ARCHITECTURE:
     └────────┴────┬───┴────────┘
                   │
          ┌────────▼────────┐
-         │ Projectile Store│  (Centralized Zustand store)
+         │ Projectile Store│  (Lifecycle only; delegates to manager)
+         └────────┬────────┘
+                  │
+         ┌────────▼────────┐
+         │ Projectile Mgr  │  (Ref-backed simulation: advance, collide, bounce)
          └────────┬────────┘
                   │
       ┌───────────▼────────────┐

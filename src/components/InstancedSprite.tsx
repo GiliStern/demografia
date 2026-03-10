@@ -5,25 +5,31 @@ export type { InstanceData };
 
 interface InstancedSpriteProps {
   textureUrl: string;
-  instances: InstanceData[];
+  instances?: InstanceData[];
+  instancesRef?: React.MutableRefObject<InstanceData[] | undefined>;
   spriteFrameSize?: number;
   maxInstances?: number;
 }
 
 /**
- * InstancedSprite - High-performance sprite rendering using GPU instancing
- * Renders multiple sprites in a single draw call, eliminating texture cloning overhead
+ * InstancedSprite - High-performance sprite rendering using GPU instancing.
+ * Use instancesRef for frame-rate updates without React rerenders.
  */
 export const InstancedSprite = ({
   textureUrl,
   instances,
+  instancesRef,
   spriteFrameSize = 32,
   maxInstances = 200,
 }: InstancedSpriteProps) => {
   const { meshRef, material } = useInstancedSprite({
     textureUrl,
     spriteFrameSize,
-    instances,
+    ...(instancesRef
+      ? { instancesRef }
+      : instances !== undefined
+        ? { instances }
+        : {}),
     maxInstances,
   });
 

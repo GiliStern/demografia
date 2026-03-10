@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { CHARACTERS } from "../data/config/characters";
+import { getCharacter } from "../data/config/charactersNormalized";
 import { WEAPONS } from "../data/config/weaponsConfig";
 import { PASSIVES, MAX_PASSIVE_SLOTS } from "../data/config/passives";
 import { FLOOR_PICKUPS } from "../data/config/floorPickups";
@@ -42,13 +42,14 @@ const createGameSlice: StoreCreator<GameSlice> = (set, get) => ({
   ...INITIAL_GAME_STATE,
 
   startGame: (characterId) => {
-    const character = CHARACTERS[characterId];
+    const character = getCharacter(characterId);
     if (!character) return;
 
     get().resetPlayer(characterId);
-    get().resetWeapons([character.starting_weapon_id]);
+    get().resetWeapons([character.startingWeaponId]);
     get().resetEnemies();
     get().resetXpOrbs();
+    get().clearProjectiles();
 
     set({
       ...INITIAL_GAME_STATE,

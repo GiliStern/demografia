@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import type { MutableRefObject, RefObject } from "react";
 import type * as THREE from "three";
 import type { AnimationCategory, AnimationType, AnimationVariant } from "../../types";
 
@@ -16,7 +16,8 @@ export interface InstanceData {
 export interface UseInstancedSpriteParams {
   textureUrl: string;
   spriteFrameSize: number;
-  instances: InstanceData[];
+  instances?: InstanceData[];
+  instancesRef?: MutableRefObject<InstanceData[] | undefined>;
   maxInstances: number;
 }
 

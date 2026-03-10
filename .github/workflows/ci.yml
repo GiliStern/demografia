@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "review-and-refactor"]
+  pull_request:
+    branches: ["main", "review-and-refactor"]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Test
+        run: yarn test --run
+
+      - name: Build
+        run: yarn build
