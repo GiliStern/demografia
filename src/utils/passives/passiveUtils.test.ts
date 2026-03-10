@@ -55,6 +55,18 @@ describe("passiveUtils", () => {
       expect(result.add).toBeDefined();
       expect(result.mult).toBeDefined();
     });
+
+    it("stacks effects from multiple passives with levels", () => {
+      const result = accumulatePassiveEffects({
+        activeItems: [PassiveId.Protection, PassiveId.Gat],
+        passiveLevels: {
+          [PassiveId.Protection]: 2,
+          [PassiveId.Gat]: 3,
+        },
+      });
+      expect(result.add?.armor).toBe(2);
+      expect(result.mult?.might).toBeCloseTo(1.1 * 1.1 * 1.1);
+    });
   });
 
   describe("applyPassivesToPlayerStats", () => {

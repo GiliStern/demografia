@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import type { ProjectileData, WeaponId } from "@/types";
 import type { CentralizedProjectile } from "@/types";
 import { getWeapon } from "@/data/config/weaponsNormalized";
-import { useGameStore } from "@/store/gameStore";
+import { useProjectilesStore } from "@/store/gameStore";
 import { getEnemyPositionsRegistrySnapshot } from "@/store/gameStoreAccess";
 import { usePlayerStore } from "@/store/playerStore";
 import { useSessionStore } from "@/store/sessionStore";
@@ -70,7 +70,7 @@ export function useWeaponFiringLoop(
   const getEffectivePlayerStats = usePlayerStore(
     (state) => state.getEffectivePlayerStats
   );
-  const addProjectiles = useGameStore((state) => state.addProjectiles);
+  const addProjectiles = useProjectilesStore((state) => state.addProjectiles);
   const playerPosition = usePlayerStore((state) => state.playerPosition);
   const playerDirection = usePlayerStore((state) => state.playerDirection);
 

@@ -42,6 +42,7 @@ export interface ProjectileManager {
   removeProjectile(id: string): void;
   clearProjectiles(): void;
   getSnapshot(): CentralizedProjectile[];
+  getMap(): ReadonlyMap<string, CentralizedProjectile>;
   getProjectile(id: string): CentralizedProjectile | undefined;
   getCount(): number;
   tick(delta: number, currentTime: number, ctx: TickContext): void;
@@ -71,6 +72,10 @@ export function createProjectileManager(): ProjectileManager {
 
     getSnapshot() {
       return Array.from(projectiles.values());
+    },
+
+    getMap() {
+      return projectiles as ReadonlyMap<string, CentralizedProjectile>;
     },
 
     getCount() {

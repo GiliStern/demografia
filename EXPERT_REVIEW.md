@@ -25,6 +25,7 @@
 Demografia is a browser-based arcade survivor game (React 18 + TypeScript + React Three Fiber + Vite 5) with no backend. The codebase is ~12,100 LOC across 124 source files with a clear top-level structure and data-driven game content.
 
 **Strengths:**
+
 - Appropriate technology stack for a client-side 2D game.
 - Data-driven content design (weapons, passives, enemies, waves, characters) with clean normalization layer.
 - Intentional performance work: instanced rendering, centralized projectile manager, mutable enemy position registry.
@@ -32,6 +33,7 @@ Demografia is a browser-based arcade survivor game (React 18 + TypeScript + Reac
 - Pure utility modules for weapon math, wave planning, and projectile runtime are well-isolated and testable.
 
 **Critical Issues:**
+
 - The Zustand store is a 7-slice mega-store that mixes UI state, gameplay state, and frame-rate simulation concerns into a single object. This is the project's central architectural bottleneck.
 - ~1,200 lines of performance infrastructure (`objectPools.ts`, `spatialPartitioning.ts`, `optimizedProjectilePhysics.ts`, `stressTest.ts`) are built but **never wired into the game loop** — dead code that adds maintenance burden without benefit.
 - React state updates are triggered inside `useFrame` loops (per-frame `setState` calls in `BatchedProjectileRenderer` and `useWaveManager`), defeating the intended performance optimization of the centralized projectile manager.
@@ -42,38 +44,38 @@ Demografia is a browser-based arcade survivor game (React 18 + TypeScript + Reac
 
 ## Codebase Metrics
 
-| Metric | Value |
-|---|---|
-| Source files (`.ts`/`.tsx`) | 124 |
-| Total LOC (source) | ~12,100 |
-| Test files | 10 |
-| Test LOC | ~592 |
-| Test coverage ratio | ~4.9% by LOC |
-| Store slices | 7 (game, player, enemies, weapons, viewport, xpOrbs, projectiles) |
-| Weapon types | 10 (5 base + 5 evolutions) |
-| Weapon hook variants | 6 (projectile, nearest, bounce, radial, arc, orbit) |
-| Config files | 15 (5 raw + 5 normalized + normalizeConfig + 4 other) |
-| Utility modules | 20+ |
-| Component files | 25+ |
-| Dead/unused modules | ~4 files, ~1,200 LOC |
+| Metric                      | Value                                                             |
+| --------------------------- | ----------------------------------------------------------------- |
+| Source files (`.ts`/`.tsx`) | 124                                                               |
+| Total LOC (source)          | ~12,100                                                           |
+| Test files                  | 10                                                                |
+| Test LOC                    | ~592                                                              |
+| Test coverage ratio         | ~4.9% by LOC                                                      |
+| Store slices                | 7 (game, player, enemies, weapons, viewport, xpOrbs, projectiles) |
+| Weapon types                | 10 (5 base + 5 evolutions)                                        |
+| Weapon hook variants        | 6 (projectile, nearest, bounce, radial, arc, orbit)               |
+| Config files                | 15 (5 raw + 5 normalized + normalizeConfig + 4 other)             |
+| Utility modules             | 20+                                                               |
+| Component files             | 25+                                                               |
+| Dead/unused modules         | ~4 files, ~1,200 LOC                                              |
 
 ### File Size Distribution (Top 15)
 
-| File | LOC | Concern |
-|---|---|---|
-| `data/config/passives.ts` | 627 | Repetitive level definitions |
-| `types.ts` | 503 | Monolithic type barrel |
-| `data/config/weaponsConfig.ts` | 408 | Large, could be split per weapon |
-| `store/gameStore.ts` | 390 | Store + upgrade logic mixed |
-| `utils/performance/objectPools.ts` | 335 | **Unused** |
-| `utils/performance/spatialPartitioning.ts` | 333 | **Unused** |
-| `utils/testing/stressTest.ts` | 285 | **Unused** |
-| `utils/performance/optimizedProjectilePhysics.ts` | 249 | **Unused** |
-| `utils/passives/passiveUtils.ts` | 234 | Duplicated apply logic |
-| `hooks/controls/useTouchControls.ts` | 212 | Complex, well-documented |
-| `hooks/entities/useEnemyBehavior.ts` | 211 | Movement + damage + death + animation |
-| `hooks/rendering/useInstancedSprite.ts` | 207 | Custom shader material |
-| `utils/performance/performanceMonitor.ts` | 198 | Class-based, console-only |
+| File                                              | LOC | Concern                               |
+| ------------------------------------------------- | --- | ------------------------------------- |
+| `data/config/passives.ts`                         | 627 | Repetitive level definitions          |
+| `types.ts`                                        | 503 | Monolithic type barrel                |
+| `data/config/weaponsConfig.ts`                    | 408 | Large, could be split per weapon      |
+| `store/gameStore.ts`                              | 390 | Store + upgrade logic mixed           |
+| `utils/performance/objectPools.ts`                | 335 | **Unused**                            |
+| `utils/performance/spatialPartitioning.ts`        | 333 | **Unused**                            |
+| `utils/testing/stressTest.ts`                     | 285 | **Unused**                            |
+| `utils/performance/optimizedProjectilePhysics.ts` | 249 | **Unused**                            |
+| `utils/passives/passiveUtils.ts`                  | 234 | Duplicated apply logic                |
+| `hooks/controls/useTouchControls.ts`              | 212 | Complex, well-documented              |
+| `hooks/entities/useEnemyBehavior.ts`              | 211 | Movement + damage + death + animation |
+| `hooks/rendering/useInstancedSprite.ts`           | 207 | Custom shader material                |
+| `utils/performance/performanceMonitor.ts`         | 198 | Class-based, console-only             |
 
 ---
 
@@ -117,13 +119,14 @@ This creates several problems:
 
 The codebase uses three different approaches for entity state, with no clear boundary between them:
 
-| Model | Used By | State Location | Update Mechanism |
-|---|---|---|---|
-| Rapier physics bodies | Player, Enemies, Orbit weapon, XP orbs | Rapier world | `setLinvel()`, `setNextKinematicTranslation()` |
-| Centralized mutable manager | Projectiles | `projectileManager.ts` (singleton) | `manager.tick()` in `useFrame` |
-| React state in hooks | Wave manager enemies list | `useState` in `useWaveManager` | `setEnemies()` per frame |
+| Model                       | Used By                                | State Location                     | Update Mechanism                               |
+| --------------------------- | -------------------------------------- | ---------------------------------- | ---------------------------------------------- |
+| Rapier physics bodies       | Player, Enemies, Orbit weapon, XP orbs | Rapier world                       | `setLinvel()`, `setNextKinematicTranslation()` |
+| Centralized mutable manager | Projectiles                            | `projectileManager.ts` (singleton) | `manager.tick()` in `useFrame`                 |
+| React state in hooks        | Wave manager enemies list              | `useState` in `useWaveManager`     | `setEnemies()` per frame                       |
 
 This mixed model means:
+
 - Enemies are Rapier physics bodies whose positions are also manually synced to a Zustand registry every frame.
 - Projectiles live in a ref-backed manager but are rendered by a React component that calls `setBatchKeys` (React state) inside `useFrame`.
 - The wave manager's enemy list is React state that gets filtered per frame via `setEnemies`.
@@ -153,26 +156,18 @@ The normalization layer (snake_case config → camelCase runtime) is a sound des
 
 ### Stack Overview
 
-| Technology | Version | Verdict |
-|---|---|---|
-| Vite | 5.x | Excellent fit. Fast HMR, production builds work. |
-| React | 18.2 | Appropriate. R3F requires it. |
-| TypeScript | 5.3 | Good. Strict mode enabled with strong settings. |
-| React Three Fiber | 8.16 | Right choice for React-based 3D/2D scene management. |
-| Rapier (via @react-three/rapier) | 1.4 / 0.19 | Appropriate for collision detection. Overused for projectiles. |
-| Zustand | 5.x | Good library, but misused as a frame-rate data transport layer. |
-| Linaria / wyw-in-js | 7.x / 1.0 | **Questionable.** Adds build complexity for zero-runtime CSS-in-JS. The `@ts-nocheck` in `vite.config.ts` exists solely because this plugin's types are broken. |
-| Storybook | 8.4 | Good investment for component development, but only 2 story files exist. |
-| Vitest | 4.x | Good. Fast, Vite-native test runner. |
+| Technology                       | Version    | Verdict                                                         |
+| -------------------------------- | ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Vite                             | 5.x        | Excellent fit. Fast HMR, production builds work.                |
+| React                            | 18.2       | Appropriate. R3F requires it.                                   |
+| TypeScript                       | 5.3        | Good. Strict mode enabled with strong settings.                 |
+| React Three Fiber                | 8.16       | Right choice for React-based 3D/2D scene management.            |
+| Rapier (via @react-three/rapier) | 1.4 / 0.19 | Appropriate for collision detection. Overused for projectiles.  |
+| Zustand                          | 5.x        | Good library, but misused as a frame-rate data transport layer. |
+|                                  | Storybook  | 8.4                                                             | Good investment for component development, but only 2 story files exist. |
+| Vitest                           | 4.x        | Good. Fast, Vite-native test runner.                            |
 
 ### Technology Concerns
-
-**Linaria / wyw-in-js:** This is the highest-friction dependency in the build chain. It requires:
-- `@babel/preset-react` and `@babel/preset-typescript` as explicit dependencies
-- A separate Vite plugin with a `@ts-nocheck` suppression
-- `displayName: true` configuration
-
-All Linaria-styled components in the codebase (`AppContainer`, `CanvasContainer`, HUD elements, menus) use simple static styles that could be achieved with CSS modules, vanilla CSS, or even inline styles with zero build complexity. The zero-runtime benefit of Linaria is negligible in a game where the GPU is the bottleneck, not CSS parsing.
 
 **Rapier for non-physics entities:** Rapier is used for player/enemy collision detection (sensor bodies), which is reasonable. However, the orbit weapon and XP orbs also use Rapier kinematic bodies, adding physics world overhead for entities that don't need physics simulation. The projectile migration away from Rapier is a correct direction.
 
@@ -199,6 +194,7 @@ All Linaria-styled components in the codebase (`AppContainer`, `CanvasContainer`
 #### Monolithic Types File
 
 `src/types.ts` (504 lines) contains:
+
 - All game enums (`PassiveId`, `WeaponId`, `EnemyId`, `CharacterId`, `PauseReason`, `AnimationType`, etc.)
 - All domain interfaces (`PlayerStats`, `WeaponStats`, `EnemyData`, `WaveData`, etc.)
 - All store contracts (`GameState`, `PlayerStore`, `EnemiesStore`, `WeaponsStore`, etc.)
@@ -206,6 +202,7 @@ All Linaria-styled components in the codebase (`AppContainer`, `CanvasContainer`
 - UI types (`UpgradeOption`, `ActiveWeaponRenderItem`)
 
 Every source file that needs any type imports from this single module. This is a classic barrel file anti-pattern that:
+
 - Creates import cycles risk
 - Makes refactoring expensive (every change touches the same file)
 - Reduces discoverability (readers can't tell which types belong to which domain)
@@ -214,14 +211,14 @@ Every source file that needs any type imports from this single module. This is a
 
 The 6 weapon hooks implement the same fundamental operation (fire projectiles on cooldown) with significant variation:
 
-| Hook | Uses `buildWeaponRuntime`? | Uses `shouldFire`? | Position source | Maps to `CentralizedProjectile`? |
-|---|---|---|---|---|
-| `useProjectileWeapon` | Yes | Yes | `getPlayerPositionSnapshot()` | Yes |
-| `useNearestProjectileWeapon` | Yes | Yes | `playerPosition` (selector) | Yes, duplicated in 2 paths |
-| `useRadialWeapon` | Yes | Yes | `playerPosition` (selector) | Yes, missing `shouldSpin` |
-| `useBounceWeapon` | **No** | **No** | `getPlayerPositionSnapshot()` | Yes |
-| `useArcWeapon` | Yes | Yes | `getPlayerPositionSnapshot()` | Yes |
-| `useOrbitWeapon` | **No** (custom `buildOrbitRuntime`) | **No** | `playerPosition` (selector) | N/A (Rapier bodies) |
+| Hook                         | Uses `buildWeaponRuntime`?          | Uses `shouldFire`? | Position source               | Maps to `CentralizedProjectile`? |
+| ---------------------------- | ----------------------------------- | ------------------ | ----------------------------- | -------------------------------- |
+| `useProjectileWeapon`        | Yes                                 | Yes                | `getPlayerPositionSnapshot()` | Yes                              |
+| `useNearestProjectileWeapon` | Yes                                 | Yes                | `playerPosition` (selector)   | Yes, duplicated in 2 paths       |
+| `useRadialWeapon`            | Yes                                 | Yes                | `playerPosition` (selector)   | Yes, missing `shouldSpin`        |
+| `useBounceWeapon`            | **No**                              | **No**             | `getPlayerPositionSnapshot()` | Yes                              |
+| `useArcWeapon`               | Yes                                 | Yes                | `getPlayerPositionSnapshot()` | Yes                              |
+| `useOrbitWeapon`             | **No** (custom `buildOrbitRuntime`) | **No**             | `playerPosition` (selector)   | N/A (Rapier bodies)              |
 
 `useBounceWeapon` manually computes damage, speed, duration, amount, and cooldown instead of using `buildWeaponRuntime`. It also uses `time - lastFireTime.current > cooldown` instead of the shared `shouldFire()` utility. This means if the cooldown formula changes, `useBounceWeapon` will behave differently from other weapons.
 
@@ -253,12 +250,12 @@ This block appears 8 times across 4 files (once for immediate shots and once for
 
 Four modules totaling ~1,200 lines are built but never imported by any runtime code:
 
-| File | LOC | Purpose |
-|---|---|---|
-| `utils/performance/objectPools.ts` | 335 | Object pooling for projectiles/enemies/orbs |
-| `utils/performance/spatialPartitioning.ts` | 333 | Quadtree implementation |
-| `utils/performance/optimizedProjectilePhysics.ts` | 249 | Alternative projectile physics engine |
-| `utils/testing/stressTest.ts` | 285 | Stress testing utility |
+| File                                              | LOC | Purpose                                     |
+| ------------------------------------------------- | --- | ------------------------------------------- |
+| `utils/performance/objectPools.ts`                | 335 | Object pooling for projectiles/enemies/orbs |
+| `utils/performance/spatialPartitioning.ts`        | 333 | Quadtree implementation                     |
+| `utils/performance/optimizedProjectilePhysics.ts` | 249 | Alternative projectile physics engine       |
+| `utils/testing/stressTest.ts`                     | 285 | Stress testing utility                      |
 
 These appear to be infrastructure built speculatively for future optimization. While the ideas are sound, maintaining 1,200 lines of dead code increases cognitive load and slows navigation. They should be removed and restored from git history if needed.
 
@@ -312,7 +309,12 @@ useFrame(() => {
   // ...
   setEnemies((prev) => {
     const enemyPositions = getEnemyPositionsRegistrySnapshot();
-    return filterEnemiesWithinCullDistance(prev, enemyPositions, playerPosition, cullDistance);
+    return filterEnemiesWithinCullDistance(
+      prev,
+      enemyPositions,
+      playerPosition,
+      cullDistance,
+    );
   });
   // ...
 });
@@ -329,7 +331,7 @@ useFrame(() => {
   const direction = new THREE.Vector3(
     playerPosition.x - rigidBody.current.translation().x,
     playerPosition.y - rigidBody.current.translation().y,
-    0
+    0,
   );
   // ...
 });
@@ -354,7 +356,9 @@ const addXpOrb = useGameStore((state) => state.addXpOrb);
 const addGold = useGameStore((state) => state.addGold);
 const addKill = useGameStore((state) => state.addKill);
 const registerEnemy = useGameStore((state) => state.registerEnemy);
-const registerEnemyDamageCallback = useGameStore((state) => state.registerEnemyDamageCallback);
+const registerEnemyDamageCallback = useGameStore(
+  (state) => state.registerEnemyDamageCallback,
+);
 ```
 
 Since Zustand function references are stable, only `playerPosition`, `isPaused`, and `isRunning` cause re-renders. But with 30+ enemy components each subscribing to `playerPosition`, every player movement triggers 30+ component re-renders. The actual position-based movement happens in `useFrame` (which reads from the ref anyway), so `playerPosition` could be read from `getState()` instead.
@@ -372,18 +376,18 @@ Since Zustand function references are stable, only `playerPosition`, `isPaused`,
 
 ### Current State
 
-| Test File | Tests | Focus |
-|---|---|---|
-| `gameStore.test.ts` | 4 | XP overflow, queued level-ups, evolution choices, evolution application |
-| `projectilesStore.test.ts` | 4 | Add/remove, count, array access, arc projectile storage |
-| `enemiesStore.test.ts` | 3 | Register/update/remove, damage callbacks, reset |
-| `weapons.test.ts` | 2 | Sabra level bonuses, max level cap (**1 known failure**) |
-| `weaponMath.test.ts` | 3 | Nearest enemy, reflection, radial directions |
-| `projectileRuntime.test.ts` | 2 | Linear advance, arc advance |
-| `enemyLifecycle.test.ts` | 2 | Default rewards, custom rewards |
-| `wavePlanning.test.ts` | 5 | Current wave, spawn decisions, spawn collection |
-| `waveUtils.test.ts` | 3 | Position resolution, culling, type counting |
-| `movementInput.test.ts` | 2 | Input activity check, touch/keyboard selection |
+| Test File                   | Tests | Focus                                                                   |
+| --------------------------- | ----- | ----------------------------------------------------------------------- |
+| `gameStore.test.ts`         | 4     | XP overflow, queued level-ups, evolution choices, evolution application |
+| `projectilesStore.test.ts`  | 4     | Add/remove, count, array access, arc projectile storage                 |
+| `enemiesStore.test.ts`      | 3     | Register/update/remove, damage callbacks, reset                         |
+| `weapons.test.ts`           | 2     | Sabra level bonuses, max level cap (**1 known failure**)                |
+| `weaponMath.test.ts`        | 3     | Nearest enemy, reflection, radial directions                            |
+| `projectileRuntime.test.ts` | 2     | Linear advance, arc advance                                             |
+| `enemyLifecycle.test.ts`    | 2     | Default rewards, custom rewards                                         |
+| `wavePlanning.test.ts`      | 5     | Current wave, spawn decisions, spawn collection                         |
+| `waveUtils.test.ts`         | 3     | Position resolution, culling, type counting                             |
+| `movementInput.test.ts`     | 2     | Input activity check, touch/keyboard selection                          |
 
 **Total: 30 tests, ~592 lines, 1 known failure.**
 
@@ -489,7 +493,8 @@ The manager already stores projectiles in a `Map`. This method should expose the
 ```typescript
 const isMenuVisible =
   showCharacterSelection ||
-  (!showCharacterSelection && !isGameOver &&
+  (!showCharacterSelection &&
+    !isGameOver &&
     (!isRunning || (isPaused && pauseReason === PauseReason.Manual))) ||
   isGameOver;
 ```
@@ -511,82 +516,81 @@ The store already has `startGame()` which resets all state. The game over screen
 
 **Goal:** Remove noise, fix the failing test, and establish a reliable baseline.
 
-| Task | Priority | Effort |
-|---|---|---|
-| Delete dead code: `objectPools.ts`, `spatialPartitioning.ts`, `optimizedProjectilePhysics.ts`, `stressTest.ts` | High | 30 min |
-| Fix the failing `weapons.test.ts` test (align expected values with current config) | High | 30 min |
-| Enable `react-hooks/exhaustive-deps` as `"warn"` and fix warnings | High | 2-4 hours |
-| Extract duplicate `isMenuVisible` logic in `App.tsx` | Low | 15 min |
-| Replace `window.location.reload()` in `GameOver` with `startGame()` | Low | 30 min |
+| Task                                                                                                           | Priority | Effort    |
+| -------------------------------------------------------------------------------------------------------------- | -------- | --------- |
+| Delete dead code: `objectPools.ts`, `spatialPartitioning.ts`, `optimizedProjectilePhysics.ts`, `stressTest.ts` | High     | 30 min    |
+| Fix the failing `weapons.test.ts` test (align expected values with current config)                             | High     | 30 min    |
+| Enable `react-hooks/exhaustive-deps` as `"warn"` and fix warnings                                              | High     | 2-4 hours |
+| Extract duplicate `isMenuVisible` logic in `App.tsx`                                                           | Low      | 15 min    |
+| Replace `window.location.reload()` in `GameOver` with `startGame()`                                            | Low      | 30 min    |
 
 ### Phase 1: Eliminate Per-Frame React Overhead (1-2 days)
 
 **Goal:** Stop `useFrame` callbacks from triggering React reconciliation.
 
-| Task | Priority | Effort |
-|---|---|---|
-| `BatchedProjectileRenderer`: Track batch keys in a ref; only `setState` when set membership changes | Critical | 2 hours |
-| `useWaveManager`: Throttle culling to 2-4 Hz instead of per-frame | Critical | 2 hours |
-| `useEnemyBehavior`: Read `playerPosition` from `getState()` instead of selector; reuse a module-level `Vector3` | High | 1 hour |
-| `usePlayerBehavior`: Audit all selectors; move stable functions to `getState()` reads | Medium | 1 hour |
+| Task                                                                                                            | Priority | Effort  |
+| --------------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| `BatchedProjectileRenderer`: Track batch keys in a ref; only `setState` when set membership changes             | Critical | 2 hours |
+| `useWaveManager`: Throttle culling to 2-4 Hz instead of per-frame                                               | Critical | 2 hours |
+| `useEnemyBehavior`: Read `playerPosition` from `getState()` instead of selector; reuse a module-level `Vector3` | High     | 1 hour  |
+| `usePlayerBehavior`: Audit all selectors; move stable functions to `getState()` reads                           | Medium   | 1 hour  |
 
 ### Phase 2: Unify the Weapon Runtime (2-3 days)
 
 **Goal:** Make all weapons follow one firing pattern so new weapons are cheap to add.
 
-| Task | Priority | Effort |
-|---|---|---|
-| Create a `WeaponBehaviorDescriptor` interface (targeting mode, spread, trajectory, stagger) | High | 2 hours |
-| Create a single `useWeaponFiringLoop(descriptor)` hook that handles cooldown, firing, and centralized projectile dispatch | High | 4 hours |
-| Extract a `toCentralizedProjectile()` utility to eliminate the 8× duplicated mapping | High | 1 hour |
-| Migrate all 5 projectile-based weapon hooks to use `useWeaponFiringLoop` | Medium | 4 hours |
-| Document the orbit weapon as a separate runtime model (non-projectile) with a shared interface | Low | 1 hour |
+| Task                                                                                                                      | Priority | Effort  |
+| ------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| Create a `WeaponBehaviorDescriptor` interface (targeting mode, spread, trajectory, stagger)                               | High     | 2 hours |
+| Create a single `useWeaponFiringLoop(descriptor)` hook that handles cooldown, firing, and centralized projectile dispatch | High     | 4 hours |
+| Extract a `toCentralizedProjectile()` utility to eliminate the 8× duplicated mapping                                      | High     | 1 hour  |
+| Migrate all 5 projectile-based weapon hooks to use `useWeaponFiringLoop`                                                  | Medium   | 4 hours |
+| Document the orbit weapon as a separate runtime model (non-projectile) with a shared interface                            | Low      | 1 hour  |
 
 ### Phase 3: Split the Zustand Store (2-3 days)
 
 **Goal:** Separate UI/session state from frame-rate simulation state.
 
-| Task | Priority | Effort |
-|---|---|---|
-| Extract `useGameSessionStore` (pause, level, xp, gold, upgradeChoices, runTimer) | High | 3 hours |
-| Extract `useWeaponsStore` (activeWeapons, weaponLevels, passiveLevels, stat resolution) | High | 2 hours |
-| Keep enemies/projectiles/viewport as simulation-only state (refs or dedicated managers) | High | 3 hours |
-| Remove the composite `GameStore` type; replace with individual store imports | Medium | 2 hours |
-| Add memoization to `getEffectivePlayerStats()` and `getAccumulatedPassiveEffects()` (invalidate on passive change) | Medium | 2 hours |
+| Task                                                                                                               | Priority | Effort  |
+| ------------------------------------------------------------------------------------------------------------------ | -------- | ------- |
+| Extract `useGameSessionStore` (pause, level, xp, gold, upgradeChoices, runTimer)                                   | High     | 3 hours |
+| Extract `useWeaponsStore` (activeWeapons, weaponLevels, passiveLevels, stat resolution)                            | High     | 2 hours |
+| Keep enemies/projectiles/viewport as simulation-only state (refs or dedicated managers)                            | High     | 3 hours |
+| Remove the composite `GameStore` type; replace with individual store imports                                       | Medium   | 2 hours |
+| Add memoization to `getEffectivePlayerStats()` and `getAccumulatedPassiveEffects()` (invalidate on passive change) | Medium   | 2 hours |
 
 ### Phase 4: Split Types and Reorganize (1-2 days)
 
 **Goal:** Make the codebase navigable by feature rather than by layer.
 
-| Task | Priority | Effort |
-|---|---|---|
-| Split `types.ts` into: `types/domain.ts`, `types/store.ts`, `types/rendering.ts`, `types/upgrades.ts`, `types/physics.ts` | High | 3 hours |
-| Create a generic `createNormalizedAccessor<Raw, Runtime>()` to replace the 5 identical `*Normalized.ts` files | Medium | 1 hour |
-| Consider per-weapon-family directories for volatile weapon code (config + hook + component + test) | Low | 2 hours |
+| Task                                                                                                                      | Priority | Effort  |
+| ------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| Split `types.ts` into: `types/domain.ts`, `types/store.ts`, `types/rendering.ts`, `types/upgrades.ts`, `types/physics.ts` | High     | 3 hours |
+| Create a generic `createNormalizedAccessor<Raw, Runtime>()` to replace the 5 identical `*Normalized.ts` files             | Medium   | 1 hour  |
+| Consider per-weapon-family directories for volatile weapon code (config + hook + component + test)                        | Low      | 2 hours |
 
 ### Phase 5: Expand Test Coverage (Ongoing)
 
 **Goal:** Cover the highest-risk game logic with deterministic tests.
 
-| Test Area | Priority | Estimated Tests |
-|---|---|---|
-| Weapon firing loop (cooldown, amount, spread) | High | 8-10 |
-| Passive stat accumulation and application | High | 5-8 |
-| Full upgrade flow (level-up → choose → apply → resume) | High | 4-6 |
-| Enemy lifecycle (spawn → register → damage → death → reward → remove) | Medium | 5-7 |
-| Wave manager (spawn cadence, max active, culling throttle) | Medium | 4-6 |
-| Touch controls (dead zone, normalization, priority) | Low | 3-5 |
+| Test Area                                                             | Priority | Estimated Tests |
+| --------------------------------------------------------------------- | -------- | --------------- |
+| Weapon firing loop (cooldown, amount, spread)                         | High     | 8-10            |
+| Passive stat accumulation and application                             | High     | 5-8             |
+| Full upgrade flow (level-up → choose → apply → resume)                | High     | 4-6             |
+| Enemy lifecycle (spawn → register → damage → death → reward → remove) | Medium   | 5-7             |
+| Wave manager (spawn cadence, max active, culling throttle)            | Medium   | 4-6             |
+| Touch controls (dead zone, normalization, priority)                   | Low      | 3-5             |
 
 ### Phase 6: Tooling Hardening (0.5-1 day)
 
 **Goal:** Make CI and local dev trustworthy.
 
-| Task | Priority | Effort |
-|---|---|---|
-| Remove `@ts-nocheck` from `vite.config.ts` (fix or properly type-assert the wyw-in-js import) | Medium | 30 min |
-| Evaluate replacing Linaria with CSS modules to reduce build complexity | Medium | 2-4 hours |
-| Add `--max-warnings 0` to the CI lint step (already in the checker plugin) | Low | 15 min |
-| Add a bundle size check to CI (e.g., `vite-plugin-inspect` or `bundlesize`) | Low | 30 min |
+| Task                                                                                          | Priority | Effort |
+| --------------------------------------------------------------------------------------------- | -------- | ------ |
+| Remove `@ts-nocheck` from `vite.config.ts` (fix or properly type-assert the wyw-in-js import) | Medium   | 30 min |
+| Add `--max-warnings 0` to the CI lint step (already in the checker plugin)                    | Low      | 15 min |
+| Add a bundle size check to CI (e.g., `vite-plugin-inspect` or `bundlesize`)                   | Low      | 30 min |
 
 ---
 

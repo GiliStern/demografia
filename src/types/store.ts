@@ -85,7 +85,7 @@ export interface XpOrbData {
 }
 
 export interface XpOrbsStore {
-  xpOrbs: XpOrbData[];
+  xpOrbsMap: Map<string, XpOrbData>;
   addXpOrb: (orb: XpOrbData) => void;
   removeXpOrb: (id: string) => void;
   resetXpOrbs: () => void;

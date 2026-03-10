@@ -3,7 +3,7 @@
  * These hooks extract commonly used combinations of store selectors
  */
 
-import { useGameStore } from "@/store/gameStore";
+import { useViewportStore } from "@/store/gameStore";
 import { enemyManager } from "@/simulation/enemyManager";
 import { usePlayerStore } from "@/store/playerStore";
 import { useSessionStore } from "@/store/sessionStore";
@@ -63,7 +63,7 @@ export const useEnemiesPositions = () => {
  * Used by hooks that need to check boundaries for spawning or culling
  */
 export const useViewportBounds = () => {
-  return useGameStore((state) => state.viewportBounds);
+  return useViewportStore((state) => state.viewportBounds);
 };
 
 /**

@@ -4,6 +4,7 @@ import { usePlayerStore } from "./playerStore";
 import { useSessionStore } from "./sessionStore";
 import { useWeaponsStore } from "./weaponsStore";
 import { enemyManager } from "@/simulation/enemyManager";
+import { buildEnemyDeathRewards } from "@/utils/entities/enemyLifecycle";
 import {
   CharacterId,
   ItemKind,
@@ -130,5 +131,69 @@ describe("gameStore evolution upgrades", () => {
     expect(state.activeWeapons).toEqual([WeaponId.HolyCactus]);
     expect(state.weaponLevels[WeaponId.HolyCactus]).toBe(1);
     expect(state.weaponLevels[WeaponId.Sabra]).toBeUndefined();
+  });
+});
+
+describe("gameStore upgrade flow", () => {
+  beforeEach(() => {
+    resetStore();
+  });
+
+  it("applies upgrade and consumes level-up choice", () => {
+    useSessionStore.getState().startGame(CharacterId.Srulik);
+
+    useSessionStore.getState().addXp(150);
+
+    const state = useSessionStore.getState();
+    expect(state.pauseReason).toBe(PauseReason.LevelUp);
+    expect(state.upgradeChoices.length).toBeGreaterThan(0);
+
+    const choice = state.upgradeChoices[0];
+    expect(choice).toBeDefined();
+
+    state.applyUpgrade(choice!);
+
+    const afterState = useSessionStore.getState();
+    expect(afterState.pauseReason).toBe(PauseReason.None);
+    expect(afterState.isPaused).toBe(false);
+
+    const weaponsState = useWeaponsStore.getState();
+    expect(
+      weaponsState.activeWeapons.length > 0 ||
+        weaponsState.activeItems.length > 0 ||
+        Object.keys(weaponsState.weaponLevels).length > 0 ||
+        Object.keys(weaponsState.passiveLevels).length > 0,
+    ).toBe(true);
+  });
+});
+
+describe("enemy death rewards flow", () => {
+  beforeEach(() => {
+    resetStore();
+  });
+
+  it("adds xp orb, gold, and kill to store when applying death rewards", () => {
+    useSessionStore.getState().startGame(CharacterId.Srulik);
+
+    const rewards = buildEnemyDeathRewards({
+      position: { x: 10, y: 5 },
+      xpValue: 25,
+      goldReward: 2,
+      createOrbId: () => "xp-death-test",
+    });
+
+    useGameStore.getState().addXpOrb(rewards.xpOrb);
+    useSessionStore.getState().addGold(rewards.goldReward);
+    if (rewards.killIncrement > 0) {
+      useSessionStore.getState().addKill();
+    }
+
+    const gameState = useGameStore.getState();
+    expect(gameState.xpOrbsMap.has("xp-death-test")).toBe(true);
+    expect(gameState.xpOrbsMap.get("xp-death-test")?.xpValue).toBe(25);
+
+    const sessionState = useSessionStore.getState();
+    expect(sessionState.gold).toBe(2);
+    expect(sessionState.killCount).toBe(1);
   });
 });

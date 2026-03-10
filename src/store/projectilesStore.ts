@@ -43,12 +43,6 @@ export const createProjectilesStore: StoreCreator<ProjectilesStore> = (
 
     getProjectile: (id) => manager.getProjectile(id),
 
-    getProjectiles: () => {
-      const snapshot = manager.getSnapshot();
-      return new Map(snapshot.map((p) => [p.id, p])) as ReadonlyMap<
-        string,
-        CentralizedProjectile
-      >;
-    },
+    getProjectiles: () => manager.getMap(),
   };
 };

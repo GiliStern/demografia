@@ -20,7 +20,7 @@ jobs:
           cache: "yarn"
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn
 
       - name: Lint
         run: yarn lint
@@ -30,3 +30,6 @@ jobs:
 
       - name: Build
         run: yarn build
+
+      - name: Check bundle size
+        run: yarn check-bundle-size

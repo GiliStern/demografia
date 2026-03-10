@@ -20,6 +20,11 @@ const useGameStore = create<GameStore>()((...args) => ({
 
 export { useGameStore };
 
+/** Slice-specific hooks - same store, clearer intent per consumer */
+export const useViewportStore = useGameStore;
+export const useXpOrbsStore = useGameStore;
+export const useProjectilesStore = useGameStore;
+
 const BASE_WEAPON_POOL: WeaponId[] = [
   WeaponId.Sabra,
   WeaponId.KeterChairs,

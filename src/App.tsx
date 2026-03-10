@@ -31,13 +31,12 @@ const App = () => {
   const [showCharacterSelection, setShowCharacterSelection] = useState(false);
   const isMobile = useMobileDetection();
 
-  // Disable touch controls when menus are visible
-  const isMenuVisible =
-    showCharacterSelection ||
-    (!showCharacterSelection &&
-      !isGameOver &&
-      (!isRunning || (isPaused && pauseReason === PauseReason.Manual))) ||
-    isGameOver;
+  // Derived menu visibility - single source of truth
+  const showMainMenu =
+    !showCharacterSelection &&
+    !isGameOver &&
+    (!isRunning || (isPaused && pauseReason === PauseReason.Manual));
+  const isMenuVisible = showCharacterSelection || showMainMenu || isGameOver;
 
   const movementInput = useUnifiedControls(
     !isMenuVisible && isRunning && !isPaused && !isGameOver,
@@ -96,11 +95,9 @@ const App = () => {
               onBack={handleBackToMainMenu}
             />
           )}
-          {!showCharacterSelection &&
-            !isGameOver &&
-            (!isRunning || (isPaused && pauseReason === PauseReason.Manual)) && (
-              <MainMenu onShowCharacterSelection={handleShowCharacterSelection} />
-            )}
+          {showMainMenu && (
+            <MainMenu onShowCharacterSelection={handleShowCharacterSelection} />
+          )}
           {isGameOver && <GameOver />}
           <GameCanvas $menuVisible={isMenuVisible} />
           {isRunning && !isPaused && !isGameOver && <InGameHUD />}

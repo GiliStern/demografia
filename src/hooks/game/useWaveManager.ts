@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useGameStore } from "@/store/gameStore";
+import { useViewportStore } from "@/store/gameStore";
 import { usePlayerStore } from "@/store/playerStore";
 import { useSessionStore } from "@/store/sessionStore";
 import { getEnemyPositionsRegistrySnapshot } from "@/store/gameStoreAccess";
@@ -48,7 +48,7 @@ export function useWaveManager(): UseWaveManagerReturn {
   const playerPosition = usePlayerStore((state) => state.playerPosition);
   const isPaused = useSessionStore((state) => state.isPaused);
   const isRunning = useSessionStore((state) => state.isRunning);
-  const viewportBounds = useGameStore((state) => state.viewportBounds);
+  const viewportBounds = useViewportStore((state) => state.viewportBounds);
 
   const currentWave = useMemo(() => {
     const stageWaves = getNormalizedWaves(DEFAULT_STAGE);

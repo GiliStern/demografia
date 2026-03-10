@@ -1,5 +1,26 @@
 import { passiveSprites } from "../../assets/assetPaths";
-import { PassiveId, type PassiveData } from "../../types";
+import {
+  PassiveId,
+  type PassiveData,
+  type PassiveLevel,
+  type PassiveStatDelta,
+} from "../../types";
+
+/**
+ * Generates levels for passives that scale linearly (same stat change per level).
+ * Reduces repetition when each level has identical description and statChanges.
+ */
+function linearPassiveLevels(
+  maxLevel: number,
+  description: string,
+  statChanges: PassiveStatDelta,
+): PassiveLevel[] {
+  return Array.from({ length: maxLevel }, (_, i) => ({
+    level: i + 1,
+    description,
+    statChanges,
+  }));
+}
 
 /**
  * Passive items configuration matching Vampire Survivors mechanics.
@@ -18,33 +39,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     name_he: "גת",
     description_he: "מגביר נזק בכל הנשקים.",
     maxLevel: 5,
-    levels: [
-      {
-        level: 1,
-        description: "+10% נזק",
-        statChanges: { mult: { might: 1.1 } },
-      },
-      {
-        level: 2,
-        description: "+10% נזק",
-        statChanges: { mult: { might: 1.1 } },
-      },
-      {
-        level: 3,
-        description: "+10% נזק",
-        statChanges: { mult: { might: 1.1 } },
-      },
-      {
-        level: 4,
-        description: "+10% נזק",
-        statChanges: { mult: { might: 1.1 } },
-      },
-      {
-        level: 5,
-        description: "+10% נזק",
-        statChanges: { mult: { might: 1.1 } },
-      },
-    ],
+    levels: linearPassiveLevels(5, "+10% נזק", { mult: { might: 1.1 } }),
     sprite_config: {
       textureUrl: passiveSprites[PassiveId.Gat],
       iconUrl: passiveSprites[PassiveId.Gat],
@@ -60,13 +55,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     name_he: "פרוטקשן",
     description_he: "הפחתת נזק מאויבים.",
     maxLevel: 5,
-    levels: [
-      { level: 1, description: "+1 שריון", statChanges: { add: { armor: 1 } } },
-      { level: 2, description: "+1 שריון", statChanges: { add: { armor: 1 } } },
-      { level: 3, description: "+1 שריון", statChanges: { add: { armor: 1 } } },
-      { level: 4, description: "+1 שריון", statChanges: { add: { armor: 1 } } },
-      { level: 5, description: "+1 שריון", statChanges: { add: { armor: 1 } } },
-    ],
+    levels: linearPassiveLevels(5, "+1 שריון", { add: { armor: 1 } }),
     sprite_config: {
       textureUrl: passiveSprites[PassiveId.Protection],
       iconUrl: passiveSprites[PassiveId.Protection],

@@ -6,7 +6,7 @@ import type {
 } from "@react-three/rapier";
 import * as THREE from "three";
 import { useSessionStore } from "@/store/sessionStore";
-import { useGameStore } from "@/store/gameStore";
+import { useXpOrbsStore } from "@/store/gameStore";
 import { enemyManager } from "@/simulation/enemyManager";
 import { getPlayerPositionSnapshot } from "@/store/gameStoreAccess";
 import { useSpriteAnimation } from "../rendering/useSpriteAnimation";
@@ -42,7 +42,7 @@ export function useEnemyBehavior({
   const isRunning = useSessionStore((state) => state.isRunning);
   const addGold = useSessionStore((state) => state.addGold);
   const addKill = useSessionStore((state) => state.addKill);
-  const addXpOrb = useGameStore((state) => state.addXpOrb);
+  const addXpOrb = useXpOrbsStore((state) => state.addXpOrb);
 
   // Local state
   const [isFacingLeft, setFacingLeft] = useState(false);
