@@ -112,9 +112,13 @@ export const pickWeaponData = (
 ): ResolvedWeaponData => {
   const weaponData = catalog[weaponId];
   const stats = resolveWeaponStats(weaponData, level);
+  const spriteConfig =
+    "spriteConfig" in weaponData
+      ? (weaponData as { spriteConfig: SpriteConfig }).spriteConfig
+      : weaponData.sprite_config;
   return {
     weaponData,
     stats,
-    spriteConfig: weaponData.sprite_config,
+    spriteConfig,
   };
 };

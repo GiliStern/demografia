@@ -22,7 +22,7 @@ The game was experiencing severe lag, especially with weapons at the beginning o
 ### 1. Projectile Simulation Manager (`src/simulation/projectileManager.ts`)
 - Ref-backed simulation owns advance, expiry, collision, and bounce
 - Store (`src/store/projectilesStore.ts`) handles coarse lifecycle only (add/remove/clear)
-- No per-frame Zustand writes or forced React rerenders
+- No per-frame Zustand writes: `projectileCount` removed; `getProjectileCount()` reads from manager
 
 ```typescript
 interface CentralizedProjectile {

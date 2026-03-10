@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import { Sprite } from "./Sprite";
-import { ENEMIES } from "../data/config/enemies";
+import { getEnemy } from "../data/config/enemiesNormalized";
 import type { EnemyId } from "@/types";
 import { useEnemyBehavior } from "@/hooks/entities/useEnemyBehavior";
 
@@ -21,7 +21,8 @@ const EnemyComponent = ({ id, typeId, position, onDeath }: EnemyProps) => {
     handleIntersection,
   } = useEnemyBehavior({ id, typeId, position, onDeath });
 
-  const enemy = ENEMIES[typeId];
+  const enemy = getEnemy(typeId);
+  if (!enemy) return null;
 
   return (
     <RigidBody
@@ -36,7 +37,7 @@ const EnemyComponent = ({ id, typeId, position, onDeath }: EnemyProps) => {
       <CuboidCollider args={[0.3, 0.3, 1]} sensor />
       <Sprite
         flipX={isFacingLeft}
-        {...enemy.sprite_config}
+        {...enemy.spriteConfig}
         index={frameIndex}
       />
     </RigidBody>

@@ -30,19 +30,19 @@ describe("projectilesStore registry", () => {
     resetProjectileStore();
   });
 
-  it("tracks projectile membership through projectileCount", () => {
+  it("tracks projectile membership through getProjectileCount", () => {
     const store = useGameStore.getState();
 
     store.addProjectile(createProjectile("p1"));
     store.addProjectiles([createProjectile("p2"), createProjectile("p3")]);
 
-    expect(useGameStore.getState().projectileCount).toBe(3);
+    expect(store.getProjectileCount()).toBe(3);
     expect(store.getProjectilesArray().map((projectile) => projectile.id)).toEqual(
       ["p1", "p2", "p3"],
     );
 
     store.removeProjectile("p2");
-    expect(useGameStore.getState().projectileCount).toBe(2);
+    expect(store.getProjectileCount()).toBe(2);
     expect(store.getProjectile("p2")).toBeUndefined();
   });
 

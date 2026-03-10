@@ -1,8 +1,8 @@
 import { styled } from "@linaria/react";
 import { ItemKind, type UpgradeOption } from "../../types";
 import { UI_STRINGS } from "../../data/config/ui";
-import { WEAPONS } from "@/data/config/weaponsConfig";
-import { PASSIVES } from "@/data/config/passives";
+import { getWeapon } from "@/data/config/weaponsNormalized";
+import { getPassive } from "@/data/config/passivesNormalized";
 import type { ReactNode } from "react";
 
 const UpgradeLabelContainer = styled.div`
@@ -48,8 +48,9 @@ const LevelIndicator = styled.span`
 
 export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
   if (choice.kind === ItemKind.Weapon) {
-    const weaponData = WEAPONS[choice.weaponId];
-    const iconUrl = weaponData.sprite_config.iconUrl;
+    const weaponData = getWeapon(choice.weaponId);
+    if (!weaponData) return null;
+    const iconUrl = weaponData.spriteConfig.iconUrl;
     const nextLevelData = weaponData.levels?.find(
       (lvl) => lvl.level === choice.currentLevel + 1,
     );
@@ -77,8 +78,9 @@ export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
   }
 
   // Passive item upgrade
-  const passiveData = PASSIVES[choice.passiveId];
-  const iconUrl = passiveData.sprite_config.iconUrl;
+  const passiveData = getPassive(choice.passiveId);
+  if (!passiveData) return null;
+  const iconUrl = passiveData.spriteConfig.iconUrl;
 
   // Get the next level data for description
   const nextLevel = choice.currentLevel + 1;

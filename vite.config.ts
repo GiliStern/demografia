@@ -1,4 +1,4 @@
-// @ts-nocheck - vitest/config + wyw-in-js plugin cause type recursion; config is validated at runtime
+// @ts-nocheck - wyw-in-js plugin has no call signatures in types; config validated at runtime
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import checker from "vite-plugin-checker";

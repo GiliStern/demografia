@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { WeaponStats, PlayerStats, WeaponId } from "@/types";
 import type { OrbitingOrb, OrbitWeaponInstance } from "@/types/hooks/weapons";
-import { WEAPONS } from "@/data/config/weaponsConfig";
+import { getWeapon } from "@/data/config/weaponsNormalized";
 import { useGameStore } from "@/store/gameStore";
 import { radialDirections } from "@/utils/weapons/weaponMath";
 
@@ -56,10 +56,13 @@ export const useOrbitWeapon = ({
 
   const playerStats = getEffectivePlayerStats();
 
-  const weapon = WEAPONS[weaponId];
-  const spriteConfig = weapon.sprite_config;
+  const weapon = getWeapon(weaponId);
+  const spriteConfig = weapon?.spriteConfig ?? {
+    textureUrl: "",
+    index: 0,
+    scale: 1,
+  };
   const stats = getWeaponStats(weaponId);
-
   const runtime = useMemo(
     () => buildOrbitRuntime(stats, playerStats),
     [stats, playerStats]

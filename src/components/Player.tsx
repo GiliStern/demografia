@@ -1,6 +1,6 @@
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { Sprite } from "./Sprite";
-import { CHARACTERS } from "../data/config/characters";
+import { getCharacter } from "../data/config/charactersNormalized";
 import { useGameStore } from "@/store/gameStore";
 import { usePlayerBehavior } from "../hooks/entities/usePlayerBehavior";
 
@@ -8,7 +8,7 @@ export const Player = () => {
   const selectedCharacterId = useGameStore(
     (state) => state.selectedCharacterId
   );
-  const charData = CHARACTERS[selectedCharacterId];
+  const charData = getCharacter(selectedCharacterId);
 
   const {
     rigidBody,
@@ -18,6 +18,8 @@ export const Player = () => {
     handleIntersection,
     handleIntersectionExit,
   } = usePlayerBehavior();
+
+  if (!charData) return null;
 
   return (
     <RigidBody
@@ -33,7 +35,7 @@ export const Player = () => {
     >
       <CuboidCollider args={[0.3, 0.3, 1]} sensor />
       <Sprite
-        {...charData.sprite_config}
+        {...charData.spriteConfig}
         index={frameIndex}
         flipX={isFacingLeft}
       />

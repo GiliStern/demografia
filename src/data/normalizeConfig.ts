@@ -11,6 +11,11 @@ import type {
   PassiveId,
   PlayerStats,
   EnemyId,
+  WeaponDefinition,
+  PassiveData,
+  EnemyData,
+  WeaponLevel,
+  PassiveLevel,
 } from "@/types";
 
 export interface CharacterDataRuntime {
@@ -65,5 +70,61 @@ export function normalizeWaveData(raw: WaveData): WaveDataRuntime {
       }
       return config;
     }),
+  };
+}
+
+export interface WeaponDefinitionRuntime
+  extends Omit<WeaponDefinition, "sprite_config" | "levels"> {
+  spriteConfig: SpriteConfig;
+  levels?: WeaponLevel[] | undefined;
+}
+
+export interface PassiveDataRuntime
+  extends Omit<PassiveData, "sprite_config" | "levels"> {
+  spriteConfig: SpriteConfig;
+  levels: PassiveLevel[];
+}
+
+export interface EnemyStatsRuntime {
+  hp: number;
+  damage: number;
+  speed: number;
+  knockbackResistance: number;
+  xpDrop: number;
+}
+
+export interface EnemyDataRuntime
+  extends Omit<EnemyData, "sprite_config" | "stats"> {
+  spriteConfig: SpriteConfig;
+  stats: EnemyStatsRuntime;
+}
+
+export function normalizeWeaponDefinition(
+  raw: WeaponDefinition
+): WeaponDefinitionRuntime {
+  const { sprite_config, ...rest } = raw;
+  return {
+    ...rest,
+    spriteConfig: sprite_config,
+  };
+}
+
+export function normalizePassiveData(raw: PassiveData): PassiveDataRuntime {
+  return {
+    ...raw,
+    spriteConfig: raw.sprite_config,
+    levels: raw.levels,
+  };
+}
+
+export function normalizeEnemyData(raw: EnemyData): EnemyDataRuntime {
+  const { knockback_resistance, ...restStats } = raw.stats;
+  return {
+    ...raw,
+    spriteConfig: raw.sprite_config,
+    stats: {
+      ...restStats,
+      knockbackResistance: knockback_resistance,
+    },
   };
 }

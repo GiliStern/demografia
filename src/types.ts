@@ -393,12 +393,11 @@ export interface CentralizedProjectile {
 
 // Re-export ProjectilesStore interface from projectilesStore
 export interface ProjectilesStore {
-  projectileCount: number;
   addProjectile: (projectile: CentralizedProjectile) => void;
   removeProjectile: (id: string) => void;
   addProjectiles: (projectiles: CentralizedProjectile[]) => void;
   clearProjectiles: () => void;
-  syncProjectileCount: () => void;
+  getProjectileCount: () => number;
   getProjectilesArray: () => CentralizedProjectile[];
   getProjectile: (id: string) => CentralizedProjectile | undefined;
   getProjectiles: () => ReadonlyMap<string, CentralizedProjectile>;

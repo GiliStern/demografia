@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { WeaponId, CentralizedProjectile } from "@/types";
-import { WEAPONS } from "@/data/config/weaponsConfig";
+import { getWeapon } from "@/data/config/weaponsNormalized";
 import { useGameStore } from "@/store/gameStore";
 import { getPlayerPositionSnapshot } from "@/store/gameStoreAccess";
 import {
@@ -29,11 +29,12 @@ export function useArcWeapon({ weaponId }: UseArcWeaponParams): void {
   const addProjectiles = useGameStore((state) => state.addProjectiles);
 
   const playerStats = getEffectivePlayerStats();
-  const weapon = WEAPONS[weaponId];
+  const weapon = getWeapon(weaponId);
   const stats = getWeaponStats(weaponId);
   const runtime = buildWeaponRuntime(stats, playerStats);
 
   const fire = (time: number) => {
+    if (!weapon) return;
     lastFireTime.current = time;
 
     const freshPlayerPosition = getPlayerPositionSnapshot();
@@ -50,10 +51,10 @@ export function useArcWeapon({ weaponId }: UseArcWeaponParams): void {
         },
         acceleration: { x: 0, y: -ARC_GRAVITY },
         damage: runtime.damage,
-        textureUrl: weapon.sprite_config.textureUrl,
-        spriteIndex: weapon.sprite_config.index,
-        spriteFrameSize: weapon.sprite_config.spriteFrameSize ?? 32,
-        scale: weapon.sprite_config.scale,
+        textureUrl: weapon.spriteConfig.textureUrl,
+        spriteIndex: weapon.spriteConfig.index,
+        spriteFrameSize: weapon.spriteConfig.spriteFrameSize ?? 32,
+        scale: weapon.spriteConfig.scale,
         spawnTime: time,
         duration: runtime.duration,
         weaponId,
@@ -66,7 +67,7 @@ export function useArcWeapon({ weaponId }: UseArcWeaponParams): void {
   };
 
   useFrame((state) => {
-    if (isPaused || !isRunning) return;
+    if (isPaused || !isRunning || !weapon) return;
 
     const time = state.clock.getElapsedTime();
     if (shouldFire(time, lastFireTime.current, runtime.cooldown)) {

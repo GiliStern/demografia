@@ -37,13 +37,13 @@ Finding status summary:
 | 2 | Fixed | Evolution choices now carry `evolvesFrom`, and applying them replaces the base weapon cleanly. |
 | 3 | Fixed | Kill counting/reward side effects are owned by `useEnemyBehavior`, while wave removal only removes roster entries. |
 | 4 | Fixed | Wave culling now reads live enemy positions from the registry rather than stale spawn coordinates. |
-| 5 | Undone | `ArcWeapon` was migrated, but projectile simulation still depends on store-backed frame updates plus forced rerenders. |
-| 6 | Undone | Zustand is still carrying simulation-path data, and imperative `getState()` adapters remain in hot paths. |
+| 5 | Fixed | Per-frame Zustand writes removed. `projectileCount` replaced with `getProjectileCount()`; store only handles coarse lifecycle (add/remove/clear). |
+| 6 | Fixed | All hot-path `getState()` usage now goes through `gameStoreAccess.ts` (getProjectileTickContext, getEnemyPositionsRegistrySnapshot). BatchedProjectileRenderer and useWaveManager use these adapters. |
 | 7 | Fixed | Enemy positions now live in a mutable `Map` registry without cloning the full collection on each update. |
 | 8 | Fixed | Touch input now flows through a single shared hook and no longer relies on duplicated polling loops. |
-| 9 | Undone | `src/types.ts` is still broad, and config remains concentrated in large modules. |
-| 10 | Undone | Snake_case config fields still leak directly into runtime code across the app. |
-| 11 | Undone | Some drift is gone, but `vite.config.ts`, README/Node versioning, package declarations, and CI coverage are still not aligned. |
+| 9 | Partially Fixed | Config normalization extended to weapons, passives, enemies (`weaponsNormalized`, `passivesNormalized`, `enemiesNormalized`). `src/types.ts` still broad; config files remain large. |
+| 10 | Fixed | Runtime consumers now use getWeapon/getPassive/getEnemy/getCharacter with camelCase (`spriteConfig`). Raw config snake_case kept at config boundary only. |
+| 11 | Partially Fixed | CI, README, @eslint/js aligned. README lists test command. PERFORMANCE_OPTIMIZATION_SUMMARY updated. Remaining: `vite.config.ts` @ts-nocheck (wyw-in-js type issue), one test failure in `weapons.test.ts`. |
 
 ## Findings
 
@@ -169,9 +169,9 @@ Recommendation:
 
 ### 5. High: Projectile architecture is only partially centralized, and the new path still writes frame-rate state through Zustand
 
-Status: Undone.
+Status: Fixed.
 
-Verification note: `useArcWeapon()` now feeds the centralized projectile path, but `BatchedProjectileRenderer` still performs per-frame projectile updates and forces React rerenders from that simulation path.
+Verification note: `BatchedProjectileRenderer` no longer calls `syncProjectileCount()`. `projectileCount` was removed from store state; `getProjectileCount()` now reads from the manager. Simulation runs in `projectileManager` (ref-backed); store updates only on coarse lifecycle (add/remove/clear).
 
 Affected files:
 
@@ -201,9 +201,9 @@ Recommendation:
 
 ### 6. High: Zustand is used as both domain boundary and frame-loop transport layer
 
-Status: Undone.
+Status: Fixed.
 
-Verification note: hot-path adapters such as `src/store/gameStoreAccess.ts` still rely on `useGameStore.getState()`, and simulation data such as projectile/enemy registries remain coupled to the global store boundary.
+Verification note: All imperative `getState()` usage in frame hot paths now goes through named adapters in `gameStoreAccess.ts`: `getProjectileTickContext()`, `getEnemyPositionsRegistrySnapshot()`, etc. BatchedProjectileRenderer and useWaveManager use these adapters instead of inline getState.
 
 Affected files:
 
@@ -295,9 +295,9 @@ Recommendation:
 
 ### 9. Medium: Type and config boundaries are too coarse for the current size of the project
 
-Status: Undone.
+Status: Partially Fixed.
 
-Verification note: `src/types.ts` remains a large catch-all module, and the weapon/passive config still lives in large aggregate files rather than narrower feature modules.
+Verification note: Config normalization extended to weapons, passives, enemies via `getWeapon`, `getPassive`, `getEnemy` in `weaponsNormalized.ts`, `passivesNormalized.ts`, `enemiesNormalized.ts`. `src/types.ts` remains a large catch-all; config files remain in aggregate form.
 
 Affected files:
 
@@ -328,9 +328,9 @@ Recommendation:
 
 ### 10. Medium: Naming conventions mix runtime camelCase with config snake_case across the whole app
 
-Status: Undone.
+Status: Fixed.
 
-Verification note: fields such as `starting_weapon_id`, `sprite_config`, `time_start`, `spawn_interval`, and `max_active` are still used directly throughout runtime code.
+Verification note: Runtime consumers use normalized accessors (`getWeapon`, `getPassive`, `getEnemy`, `getCharacter`) returning camelCase (`spriteConfig`, `startingWeaponId`, etc.). Raw config snake_case kept at config boundary; weapon hooks, HUD, upgrade labels, Player, Enemy use normalized data.
 
 Affected files:
 
@@ -356,9 +356,9 @@ Recommendation:
 
 ### 11. Medium: Tooling and documentation drift reduce confidence
 
-Status: Undone.
+Status: Partially Fixed.
 
-Verification note: `yarn lint` and `yarn build` now work, `yarn test --run` reaches the suite in a normal shell environment, and `ArcWeapon` is no longer a legacy projectile path, but `vite.config.ts` still uses `@ts-nocheck`, `README.md` still says Node 18+, `package.json` still does not declare `@eslint/js`, the repo still only has a deployment workflow, and one existing test failure remains in `src/utils/weapons/weapons.test.ts`.
+Verification note: Fixed: CI workflow (`.github/workflows/ci.yml`), README Node 22+, `@eslint/js` in package.json, README lists `yarn test --run`, PERFORMANCE_OPTIMIZATION_SUMMARY reflects current projectile architecture. Remaining: `vite.config.ts` @ts-nocheck (wyw-in-js plugin type recursion); one test failure in `weapons.test.ts`.
 
 Affected files:
 

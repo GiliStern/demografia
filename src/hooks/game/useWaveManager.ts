@@ -1,10 +1,10 @@
 import { useState, useRef, useMemo, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
+import { getEnemyPositionsRegistrySnapshot } from "@/store/gameStoreAccess";
 import { WaveId } from "@/data/config/waves";
 import { getNormalizedWaves } from "@/data/config/wavesNormalized";
 import type { EnemyId } from "@/types";
-import type { EnemyPositionMap } from "@/utils/game/waveUtils";
 import type {
   ActiveEnemy,
   SpawnTracker,
@@ -45,8 +45,6 @@ export function useWaveManager(): UseWaveManagerReturn {
   const isPaused = useGameStore((state) => state.isPaused);
   const isRunning = useGameStore((state) => state.isRunning);
   const viewportBounds = useGameStore((state) => state.viewportBounds);
-  const getEnemyPositionsRegistry = (): EnemyPositionMap =>
-    useGameStore.getState().enemyPositionsRegistry as unknown as EnemyPositionMap;
 
   const currentWave = useMemo(() => {
     const stageWaves = getNormalizedWaves(DEFAULT_STAGE);
@@ -88,7 +86,7 @@ export function useWaveManager(): UseWaveManagerReturn {
       );
 
       setEnemies((prev) => {
-        const enemyPositions = getEnemyPositionsRegistry();
+        const enemyPositions = getEnemyPositionsRegistrySnapshot();
         return filterEnemiesWithinCullDistance(
           prev,
           enemyPositions,

@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { ProjectileData, WeaponId } from "@/types";
-import { WEAPONS } from "@/data/config/weaponsConfig";
+import { getWeapon } from "@/data/config/weaponsNormalized";
 import { useGameStore } from "@/store/gameStore";
 import {
   getPlayerDirectionSnapshot,
@@ -47,7 +47,7 @@ export function useProjectileWeapon({
 
   const playerStats = getEffectivePlayerStats();
 
-  const weaponData = WEAPONS[weaponId];
+  const weaponData = getWeapon(weaponId);
   const stats = getWeaponStats(weaponId);
   const runtime = buildWeaponRuntime(stats, playerStats);
 
@@ -75,7 +75,7 @@ export function useProjectileWeapon({
       nextStaggerTime,
     });
 
-    if (immediateShots.length > 0) {
+    if (immediateShots.length > 0 && weaponData) {
       // Convert to centralized projectiles
       const centralizedProjectiles: CentralizedProjectile[] =
         immediateShots.map((shot) => ({
@@ -83,10 +83,10 @@ export function useProjectileWeapon({
           position: shot.position,
           velocity: shot.velocity,
           damage: shot.damage,
-          textureUrl: weaponData.sprite_config.textureUrl,
-          spriteIndex: weaponData.sprite_config.index,
-          spriteFrameSize: weaponData.sprite_config.spriteFrameSize ?? 32,
-          scale: weaponData.sprite_config.scale,
+          textureUrl: weaponData.spriteConfig.textureUrl,
+          spriteIndex: weaponData.spriteConfig.index,
+          spriteFrameSize: weaponData.spriteConfig.spriteFrameSize ?? 32,
+          scale: weaponData.spriteConfig.scale,
           spawnTime: time,
           duration: shot.duration,
           weaponId,
@@ -101,7 +101,7 @@ export function useProjectileWeapon({
   };
 
   useFrame((state) => {
-    if (isPaused || !isRunning) return;
+    if (isPaused || !isRunning || !weaponData) return;
 
     const time = state.clock.getElapsedTime();
     if (shouldFire(time, lastFireTime.current, runtime.cooldown)) {
@@ -123,10 +123,10 @@ export function useProjectileWeapon({
               position: shot.position,
               velocity: shot.velocity,
               damage: shot.damage,
-              textureUrl: weaponData.sprite_config.textureUrl,
-              spriteIndex: weaponData.sprite_config.index,
-              spriteFrameSize: weaponData.sprite_config.spriteFrameSize ?? 32,
-              scale: weaponData.sprite_config.scale,
+              textureUrl: weaponData.spriteConfig.textureUrl,
+              spriteIndex: weaponData.spriteConfig.index,
+              spriteFrameSize: weaponData.spriteConfig.spriteFrameSize ?? 32,
+              scale: weaponData.spriteConfig.scale,
               spawnTime: time,
               duration: shot.duration,
               weaponId,

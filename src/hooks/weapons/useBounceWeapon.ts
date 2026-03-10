@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import type { WeaponId } from "@/types";
 import { useGameStore } from "@/store/gameStore";
 import { getPlayerPositionSnapshot } from "@/store/gameStoreAccess";
-import { WEAPONS } from "@/data/config/weaponsConfig";
+import { getWeapon } from "@/data/config/weaponsNormalized";
 import type { CentralizedProjectile } from "@/types";
 
 interface UseBounceWeaponParams {
@@ -27,7 +27,7 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
 
   const playerStats = getEffectivePlayerStats();
 
-  const weapon = WEAPONS[weaponId];
+  const weapon = getWeapon(weaponId);
   const stats = getWeaponStats(weaponId);
   const damage = stats.damage * (playerStats.might || 1);
   const speed = stats.speed;
@@ -37,6 +37,7 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
     (stats.cooldown ?? Number.POSITIVE_INFINITY) * playerStats.cooldown;
 
   const fire = (time: number) => {
+    if (!weapon) return;
     lastFireTime.current = time;
     const freshPlayerPosition = getPlayerPositionSnapshot();
     const shots: CentralizedProjectile[] = Array.from({ length: amount }).map(
@@ -49,10 +50,10 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
           position: { x: freshPlayerPosition.x, y: freshPlayerPosition.y, z: 0 },
           velocity: { x: vx, y: vy },
           damage,
-          textureUrl: weapon.sprite_config.textureUrl,
-          spriteIndex: weapon.sprite_config.index,
-          spriteFrameSize: weapon.sprite_config.spriteFrameSize ?? 32,
-          scale: weapon.sprite_config.scale,
+          textureUrl: weapon.spriteConfig.textureUrl,
+          spriteIndex: weapon.spriteConfig.index,
+          spriteFrameSize: weapon.spriteConfig.spriteFrameSize ?? 32,
+          scale: weapon.spriteConfig.scale,
           spawnTime: time,
           duration,
           weaponId,
@@ -65,7 +66,7 @@ export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
   };
 
   useFrame((state) => {
-    if (isPaused || !isRunning) return;
+    if (isPaused || !isRunning || !weapon) return;
 
     const time = state.clock.getElapsedTime();
     if (time - lastFireTime.current > cooldown) {

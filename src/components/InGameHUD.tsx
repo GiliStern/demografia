@@ -1,7 +1,7 @@
 import { styled } from "@linaria/react";
 import { useGameStore } from "@/store/gameStore";
 import { UI_STRINGS } from "../data/config/ui";
-import { WEAPONS } from "../data/config/weaponsConfig";
+import { getWeapon } from "../data/config/weaponsNormalized";
 import { WeaponId } from "@/types";
 
 const HUDContainer = styled.div`
@@ -173,11 +173,13 @@ export const InGameHUD = () => {
       {/* Weapons List */}
       <WeaponsList>
         {activeWeapons.map((weaponId: WeaponId) => {
-          const weapon = WEAPONS[weaponId];
-          const iconUrl = weapon.sprite_config.iconUrl;
+          const weapon = getWeapon(weaponId);
+          const iconUrl = weapon?.spriteConfig.iconUrl;
           return (
             <WeaponIconContainer key={weaponId}>
-              {iconUrl && <WeaponIcon src={iconUrl} alt={weapon.name_he} />}
+              {iconUrl && weapon && (
+                <WeaponIcon src={iconUrl} alt={weapon.name_he} />
+              )}
             </WeaponIconContainer>
           );
         })}

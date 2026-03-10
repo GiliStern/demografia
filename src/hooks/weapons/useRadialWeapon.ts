@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { WeaponId } from "@/types";
 import { useGameStore } from "@/store/gameStore";
-import { WEAPONS } from "@/data/config/weaponsConfig";
+import { getWeapon } from "@/data/config/weaponsNormalized";
 import { radialDirections } from "@/utils/weapons/weaponMath";
 import {
   buildWeaponRuntime,
@@ -33,12 +33,13 @@ export function useRadialWeapon({ weaponId }: UseRadialWeaponParams): void {
 
   const playerStats = getEffectivePlayerStats();
 
-  const weapon = WEAPONS[weaponId];
+  const weapon = getWeapon(weaponId);
   const stats = getWeaponStats(weaponId);
   const runtime = buildWeaponRuntime(stats, playerStats);
 
   // Fire projectiles in radial pattern
   const fire = (time: number) => {
+    if (!weapon) return;
     lastFireTime.current = time;
     const dirs = radialDirections(runtime.amount);
     const shots = createDirectionalProjectiles({
@@ -57,10 +58,10 @@ export function useRadialWeapon({ weaponId }: UseRadialWeaponParams): void {
         position: shot.position,
         velocity: shot.velocity,
         damage: shot.damage,
-        textureUrl: weapon.sprite_config.textureUrl,
-        spriteIndex: weapon.sprite_config.index,
-        spriteFrameSize: weapon.sprite_config.spriteFrameSize ?? 32,
-        scale: weapon.sprite_config.scale,
+        textureUrl: weapon.spriteConfig.textureUrl,
+        spriteIndex: weapon.spriteConfig.index,
+        spriteFrameSize: weapon.spriteConfig.spriteFrameSize ?? 32,
+        scale: weapon.spriteConfig.scale,
         spawnTime: time,
         duration: shot.duration,
         weaponId,
@@ -74,7 +75,7 @@ export function useRadialWeapon({ weaponId }: UseRadialWeaponParams): void {
 
   // Handle firing
   useFrame((state) => {
-    if (isPaused || !isRunning) {
+    if (isPaused || !isRunning || !weapon) {
       return;
     }
 

@@ -7,7 +7,7 @@ import type {
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
 import { useSpriteAnimation } from "../rendering/useSpriteAnimation";
-import { ENEMIES } from "@/data/config/enemies";
+import { getEnemy } from "@/data/config/enemiesNormalized";
 import { buildEnemyDeathRewards } from "@/utils/entities/enemyLifecycle";
 import {
   AnimationCategory,
@@ -51,8 +51,18 @@ export function useEnemyBehavior({
   // Local state
   const [isFacingLeft, setFacingLeft] = useState(false);
 
-  // Load enemy data
-  const enemy = ENEMIES[typeId];
+  // Load enemy data (fallback for invalid typeId to satisfy hooks rules)
+  const enemyOrFallback = getEnemy(typeId);
+  const enemy = enemyOrFallback ?? {
+    stats: {
+      speed: 0,
+      hp: 1,
+      damage: 0,
+      xpDrop: 0,
+      knockbackResistance: 0,
+    },
+    spriteConfig: { textureUrl: "", index: 0, scale: 1 },
+  };
   const speed = enemy.stats.speed;
   const maxHp = enemy.stats.hp;
   const contactDamage = enemy.stats.damage;

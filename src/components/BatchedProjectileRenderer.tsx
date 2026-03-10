@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
+import { getProjectileTickContext } from "@/store/gameStoreAccess";
 import { getProjectileManager } from "@/simulation/projectileManager";
 import { InstancedSprite } from "./InstancedSprite";
 import {
@@ -44,9 +45,6 @@ export const BatchedProjectileRenderer = () => {
 
   const isPaused = useGameStore((state) => state.isPaused);
   const isRunning = useGameStore((state) => state.isRunning);
-  const syncProjectileCount = useGameStore(
-    (state) => state.syncProjectileCount
-  );
 
   const manager = getProjectileManager();
 
@@ -57,15 +55,7 @@ export const BatchedProjectileRenderer = () => {
       frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
     const currentTime = state.clock.getElapsedTime();
 
-    const store = useGameStore.getState();
-    manager.tick(delta, currentTime, {
-      getEnemyPositions: () => store.enemyPositionsRegistry,
-      getViewportBounds: () => store.viewportBounds,
-      getPlayerPosition: () => store.playerPosition,
-      damageEnemy: (id, damage) => store.damageEnemy(id, damage),
-    });
-
-    syncProjectileCount();
+    manager.tick(delta, currentTime, getProjectileTickContext());
 
     const snapshot = manager.getSnapshot();
     const batchableEntities = snapshot.map(toBatchable);
