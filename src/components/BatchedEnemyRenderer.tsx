@@ -16,7 +16,7 @@ import type { EnemyRuntimeState } from "@/simulation/enemyManager";
 
 function toBatchable(
   e: EnemyRuntimeState,
-  playerPos: { x: number; y: number }
+  playerPos: { x: number; y: number },
 ): BatchableEntity {
   const flipX = playerPos.x < e.position.x;
   return {
@@ -25,6 +25,7 @@ function toBatchable(
     scale: e.scale,
     spriteIndex: e.spriteIndex,
     flipX,
+    flash: e.flashTimer > 0 ? 1 : 0,
     textureUrl: e.textureUrl,
     spriteFrameSize: e.spriteFrameSize,
   };
@@ -92,7 +93,7 @@ export const BatchedEnemyRenderer = () => {
             spriteFrameSize={data.spriteFrameSize}
             maxInstances={Math.max(
               200,
-              (data.instancesRef.current?.length ?? 0) + 50
+              (data.instancesRef.current?.length ?? 0) + 50,
             )}
           />
         );

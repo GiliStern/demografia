@@ -128,6 +128,7 @@ export interface WeaponStats {
   area: number;
   amount: number;
   pierce: number;
+  knockback: number;
   cooldownPause?: number;
 }
 

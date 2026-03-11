@@ -33,6 +33,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 1,
       amount: 1,
       pierce: 0,
+      knockback: 1,
     },
     maxLevel: 8,
     levels: [
@@ -86,6 +87,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 1,
       amount: 1,
       pierce: 99,
+      knockback: 1,
     },
     shouldSpin: true,
     maxLevel: 8,
@@ -137,6 +139,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 1,
       amount: 1,
       pierce: 99,
+      knockback: 1,
     },
     maxLevel: 8,
     levels: [
@@ -203,6 +206,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 1,
       amount: 1,
       pierce: 0,
+      knockback: 1,
     },
     maxLevel: 8,
     levels: [
@@ -261,6 +265,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 1,
       amount: 1,
       pierce: 0,
+      knockback: 1,
     },
     maxLevel: 8,
     levels: [
@@ -315,6 +320,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 1,
       amount: 1,
       pierce: 2,
+      knockback: 1,
     },
     sprite_config: {
       textureUrl: weaponSprites.prickly,
@@ -337,6 +343,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 1.2,
       amount: 2,
       pierce: 99,
+      knockback: 1,
     },
     sprite_config: {
       textureUrl: weaponSprites.chair,
@@ -359,6 +366,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 2,
       amount: 4,
       pierce: 99,
+      knockback: 1,
     },
     sprite_config: {
       textureUrl: weaponSprites.chicken,
@@ -381,6 +389,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 1.5,
       amount: 8,
       pierce: 99,
+      knockback: 1,
     },
     sprite_config: {
       textureUrl: weaponSprites.pita,
@@ -403,6 +412,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       area: 1,
       amount: 4,
       pierce: 2,
+      knockback: 1,
     },
     sprite_config: {
       textureUrl: weaponSprites.star,

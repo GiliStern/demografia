@@ -9,6 +9,8 @@ export interface EntityInstance {
   scale: number;
   spriteIndex: number;
   flipX?: boolean | undefined;
+  /** 0-1 flash intensity for hit feedback; blend toward white when > 0 */
+  flash?: number;
 }
 
 export interface BatchableEntity extends EntityInstance {
@@ -49,6 +51,7 @@ export function batchEntitiesByTexture(
       scale: entity.scale,
       spriteIndex: entity.spriteIndex,
       flipX: entity.flipX,
+      ...(entity.flash !== undefined && { flash: entity.flash }),
     });
   }
 
@@ -93,6 +96,7 @@ export class EntityBatcherOptimized {
       scale: entity.scale,
       spriteIndex: entity.spriteIndex,
       flipX: entity.flipX,
+      ...(entity.flash !== undefined && { flash: entity.flash }),
     });
   }
 

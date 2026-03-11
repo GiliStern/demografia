@@ -17,6 +17,7 @@ function updateMeshFromInstances(
   maxInstances: number,
   spriteIndicesAttr: THREE.InstancedBufferAttribute,
   flipXValuesAttr: THREE.InstancedBufferAttribute,
+  flashValuesAttr: THREE.InstancedBufferAttribute,
 ): void {
   const count = Math.min(instances.length, maxInstances);
   const matrix = new THREE.Matrix4();
@@ -35,6 +36,7 @@ function updateMeshFromInstances(
 
     spriteIndicesAttr.setX(i, instance.spriteIndex);
     flipXValuesAttr.setX(i, instance.flipX ? 1.0 : 0.0);
+    flashValuesAttr.setX(i, instance.flash ?? 0);
   }
 
   for (let i = count; i < maxInstances; i++) {
@@ -45,6 +47,7 @@ function updateMeshFromInstances(
   mesh.instanceMatrix.needsUpdate = true;
   spriteIndicesAttr.needsUpdate = true;
   flipXValuesAttr.needsUpdate = true;
+  flashValuesAttr.needsUpdate = true;
   mesh.count = count;
   mesh.frustumCulled = false;
 }
@@ -95,6 +98,7 @@ export function useInstancedSprite({
       vertexShader: `
         attribute float spriteIndex;
         attribute float flipX;
+        attribute float flash;
         
         // instanceMatrix is automatically provided by InstancedMesh
         // but we need to declare it if we're using ShaderMaterial without chunks
@@ -105,10 +109,12 @@ export function useInstancedSprite({
         
         varying vec2 vUv;
         varying float vFlipX;
+        varying float vFlash;
         
         void main() {
           vUv = uv;
           vFlipX = flipX;
+          vFlash = flash;
           
           // Calculate UV offset based on sprite index
           float col = mod(spriteIndex, cols);
@@ -127,6 +133,7 @@ export function useInstancedSprite({
         
         varying vec2 vUv;
         varying float vFlipX;
+        varying float vFlash;
         
         void main() {
           vec2 uv = vUv;
@@ -140,6 +147,10 @@ export function useInstancedSprite({
           
           // Alpha test for transparency
           if (texColor.a < 0.05) discard;
+          
+          // Blend toward white for hit flash
+          vec3 white = vec3(1.0);
+          texColor.rgb = mix(texColor.rgb, white, clamp(vFlash, 0.0, 1.0));
           
           gl_FragColor = texColor;
           #include <colorspace_fragment>
@@ -159,6 +170,10 @@ export function useInstancedSprite({
     () => new THREE.InstancedBufferAttribute(new Float32Array(maxInstances), 1),
     [maxInstances],
   );
+  const flashValuesAttr = useMemo(
+    () => new THREE.InstancedBufferAttribute(new Float32Array(maxInstances), 1),
+    [maxInstances],
+  );
 
   // Initialize attributes on geometry once
   useEffect(() => {
@@ -166,7 +181,8 @@ export function useInstancedSprite({
     const geometry = meshRef.current.geometry;
     geometry.setAttribute("spriteIndex", spriteIndicesAttr);
     geometry.setAttribute("flipX", flipXValuesAttr);
-  }, [spriteIndicesAttr, flipXValuesAttr]);
+    geometry.setAttribute("flash", flashValuesAttr);
+  }, [spriteIndicesAttr, flipXValuesAttr, flashValuesAttr]);
 
   const syncMeshNow = useCallback(() => {
     if (!instancesRef || !meshRef.current) return;
@@ -178,8 +194,15 @@ export function useInstancedSprite({
       maxInstances,
       spriteIndicesAttr,
       flipXValuesAttr,
+      flashValuesAttr,
     );
-  }, [instancesRef, maxInstances, spriteIndicesAttr, flipXValuesAttr]);
+  }, [
+    instancesRef,
+    maxInstances,
+    spriteIndicesAttr,
+    flipXValuesAttr,
+    flashValuesAttr,
+  ]);
 
   // When instancesRef: update mesh in useFrame (no React rerenders)
   useFrame(() => {
@@ -195,6 +218,7 @@ export function useInstancedSprite({
       maxInstances,
       spriteIndicesAttr,
       flipXValuesAttr,
+      flashValuesAttr,
     );
   }, [
     instancesRef,
@@ -203,6 +227,7 @@ export function useInstancedSprite({
     textureUrl,
     spriteIndicesAttr,
     flipXValuesAttr,
+    flashValuesAttr,
   ]);
 
   return {

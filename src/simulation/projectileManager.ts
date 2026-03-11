@@ -55,11 +55,18 @@ function enemyEntries(
   return entries;
 }
 
+export interface ApplyEnemyHitParams {
+  enemyId: string;
+  damage: number;
+  knockback: number;
+  hitDir: { x: number; y: number };
+}
+
 export interface TickContext {
   getEnemyPositions: () => EnemyPositionMap;
   getViewportBounds: () => ViewportBounds | null;
   getPlayerPosition: () => { x: number; y: number };
-  damageEnemy: (id: string, damage: number) => void;
+  applyEnemyHit: (params: ApplyEnemyHitParams) => void;
 }
 
 export interface ProjectileManager {
@@ -117,7 +124,7 @@ export function createProjectileManager(): ProjectileManager {
         getEnemyPositions,
         getViewportBounds,
         getPlayerPosition,
-        damageEnemy,
+        applyEnemyHit,
       } = ctx;
       const toRemove: string[] = [];
       const currentEnemies = getEnemyPositions();
@@ -166,7 +173,29 @@ export function createProjectileManager(): ProjectileManager {
               COLLISION_RADIUS,
             )
           ) {
-            damageEnemy(enemyId, projectile.damage);
+            const vx = projectile.velocity.x;
+            const vy = projectile.velocity.y;
+            const len = Math.sqrt(vx * vx + vy * vy);
+            const hitDir =
+              len > 0.01
+                ? { x: vx / len, y: vy / len }
+                : {
+                    x: enemyPos.x - projectile.position.x,
+                    y: enemyPos.y - projectile.position.y,
+                  };
+            const hitDirLen = Math.sqrt(
+              hitDir.x * hitDir.x + hitDir.y * hitDir.y,
+            );
+            const normalizedHitDir =
+              hitDirLen > 0.01
+                ? { x: hitDir.x / hitDirLen, y: hitDir.y / hitDirLen }
+                : { x: 1, y: 0 };
+            applyEnemyHit({
+              enemyId,
+              damage: projectile.damage,
+              knockback: projectile.knockback ?? 0,
+              hitDir: normalizedHitDir,
+            });
             hitEnemy = true;
             const pierceLeft = (projectile.pierce ?? 0) - 1;
             if (pierceLeft < 0) {

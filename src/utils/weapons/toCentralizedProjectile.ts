@@ -5,6 +5,7 @@ import type { WeaponDefinitionRuntime } from "@/data/normalizeConfig";
 export interface ToCentralizedProjectileOverrides {
   acceleration?: { x: number; y: number; z?: number };
   flipX?: boolean;
+  knockback?: number;
 }
 
 /**
@@ -38,5 +39,6 @@ export function toCentralizedProjectile(
     spriteFrameCount: weapon.spriteConfig.spriteFrameCount ?? 2,
     ...(shot.pierce !== undefined && { pierce: shot.pierce }),
     ...overrides,
+    knockback: overrides?.knockback ?? weapon.stats.knockback ?? 1,
   };
 }

@@ -14,9 +14,13 @@ import { getEnemySpriteIndex } from "../utils/entities/enemyAnimation";
 import type { InstanceData } from "../types/hooks/rendering";
 import { useEffect, useState } from "react";
 
+const FLASH_ON_DURATION = 0.1;
+const FLASH_OFF_DURATION = 0.5;
+
 /**
  * Enemy sprite preview using InstancedSprite - matches game rendering exactly.
  * Uses same frame logic (baseSpriteIndex + run frames at 8fps) as BatchedEnemyRenderer.
+ * When flashing=true, cycles the hit-flash effect (white blend) to demonstrate in-game feedback.
  */
 const EnemySpritePreview = ({
   textureUrl,
@@ -25,6 +29,7 @@ const EnemySpritePreview = ({
   baseSpriteIndex = 0,
   isMoving = false,
   flipX = false,
+  flashing = false,
 }: {
   textureUrl: string;
   scale?: number;
@@ -32,6 +37,8 @@ const EnemySpritePreview = ({
   baseSpriteIndex?: number;
   isMoving?: boolean;
   flipX?: boolean;
+  /** Cycle hit-flash effect (white blend) to demonstrate in-game hit feedback */
+  flashing?: boolean;
 }) => {
   const instancesRef = useRef<InstanceData[]>([
     {
@@ -49,11 +56,18 @@ const EnemySpritePreview = ({
       baseSpriteIndex,
       isMoving,
     );
+    let flash = 0;
+    if (flashing) {
+      const cycle = FLASH_ON_DURATION + FLASH_OFF_DURATION;
+      const phase = currentTime % cycle;
+      flash = phase < FLASH_ON_DURATION ? 1 : 0;
+    }
     instancesRef.current[0] = {
       position: [0, 0, 0],
       scale,
       spriteIndex,
       flipX,
+      flash,
     };
   });
 
@@ -120,6 +134,7 @@ const SpriteWrapper = ({
   cameraDistance = 5,
   useEnemyRendering = false,
   baseSpriteIndex = 0,
+  flashing = false,
 }: {
   textureUrl: string;
   scale?: number;
@@ -134,6 +149,8 @@ const SpriteWrapper = ({
   /** Use InstancedSprite + game animation logic (matches BatchedEnemyRenderer exactly) */
   useEnemyRendering?: boolean;
   baseSpriteIndex?: number;
+  /** Cycle hit-flash effect (white blend) - demonstrates in-game hit feedback */
+  flashing?: boolean;
 }) => {
   return (
     <div style={{ width: "100%", height: "600px" }}>
@@ -152,6 +169,7 @@ const SpriteWrapper = ({
             baseSpriteIndex={baseSpriteIndex}
             isMoving={animated}
             flipX={flipX}
+            flashing={flashing}
           />
         ) : animated ? (
           <AnimatedSprite
@@ -278,6 +296,12 @@ A React Three Fiber component for rendering sprite sheets with animation support
         "Base frame index from enemy config (used with useEnemyRendering)",
       if: { arg: "useEnemyRendering", truthy: true },
     },
+    flashing: {
+      control: "boolean",
+      description:
+        "Cycle hit-flash effect (white blend) - demonstrates in-game hit feedback when enemy is struck",
+      if: { arg: "useEnemyRendering", truthy: true },
+    },
     showGrid: {
       control: "boolean",
       description: "Show grid helper",
@@ -321,6 +345,22 @@ export const CatWalking: Story = {
     animated: true,
     useEnemyRendering: true,
     baseSpriteIndex: catSpriteConfig.index,
+    showGrid: true,
+    cameraDistance: 5,
+  },
+};
+
+// Hit flash effect - demonstrates white flash when enemy is struck by projectiles
+export const EnemyHitFlash: Story = {
+  args: {
+    textureUrl: catSpriteConfig.textureUrl,
+    scale: catSpriteConfig.scale,
+    spriteFrameSize: catSpriteConfig.spriteFrameSize ?? 32,
+    flipX: false,
+    animated: true,
+    useEnemyRendering: true,
+    baseSpriteIndex: catSpriteConfig.index,
+    flashing: true,
     showGrid: true,
     cameraDistance: 5,
   },

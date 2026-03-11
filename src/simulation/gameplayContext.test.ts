@@ -41,6 +41,7 @@ describe("gameplayContext", () => {
           speed: 10,
           duration: 2,
           pierce: 0,
+          knockback: 1,
         }) as import("@/types").WeaponStats,
       getEnemyPositions: () => new Map(),
       getViewportBounds: () => null,
@@ -53,7 +54,7 @@ describe("gameplayContext", () => {
         getEnemyPositions: () => new Map(),
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 10, y: 20 }),
-        damageEnemy: vi.fn(),
+        applyEnemyHit: vi.fn(),
       }),
       getEnemyTickContext: () => ({
         getPlayerPosition: () => ({ x: 10, y: 20 }),

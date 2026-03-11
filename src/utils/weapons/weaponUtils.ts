@@ -34,7 +34,7 @@ export const buildWeaponRenderList = ({
       });
       return list;
     },
-    []
+    [],
   );
 };
 
@@ -46,6 +46,7 @@ export const DEFAULT_WEAPON_STATS: WeaponStats = {
   area: 1,
   amount: 1,
   pierce: 0,
+  knockback: 1,
 };
 
 export const resolveDirection = (x: number, y: number) => {
@@ -61,7 +62,7 @@ export interface ResolvedWeaponData {
 
 const applyStatDelta = (
   current: WeaponStats,
-  delta?: WeaponStatDelta
+  delta?: WeaponStatDelta,
 ): WeaponStats => {
   if (!delta) return current;
   const next: WeaponStats = { ...current };
@@ -89,7 +90,7 @@ const applyStatDelta = (
 
 export const resolveWeaponStats = (
   weapon: WeaponDefinition,
-  level: number
+  level: number,
 ): WeaponStats => {
   let resolved = { ...DEFAULT_WEAPON_STATS, ...weapon.stats };
   const maxLevel = weapon.maxLevel ?? 1;
@@ -108,7 +109,7 @@ export const resolveWeaponStats = (
 export const pickWeaponData = (
   weaponId: WeaponId,
   catalog: Record<WeaponId, WeaponDefinition>,
-  level = 1
+  level = 1,
 ): ResolvedWeaponData => {
   const weaponData = catalog[weaponId];
   const stats = resolveWeaponStats(weaponData, level);

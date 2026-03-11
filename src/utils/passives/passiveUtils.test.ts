@@ -31,6 +31,7 @@ const BASE_WEAPON_STATS: WeaponStats = {
   area: 1,
   amount: 3,
   pierce: 0,
+  knockback: 1,
 };
 
 describe("passiveUtils", () => {
@@ -85,7 +86,7 @@ describe("passiveUtils", () => {
       };
       const result = applyPassivesToPlayerStats(
         { ...BASE_PLAYER_STATS, maxHealth: 100 },
-        effects
+        effects,
       );
       expect(result.maxHealth).toBe(150);
     });

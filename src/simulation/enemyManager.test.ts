@@ -13,7 +13,12 @@ describe("enemyManager", () => {
     const enemyData = getEnemy(EnemyId.StreetCats);
     if (!enemyData) throw new Error("Enemy data not found");
 
-    manager.spawnEnemy("enemy-1", EnemyId.StreetCats, { x: 1, y: 2 }, enemyData);
+    manager.spawnEnemy(
+      "enemy-1",
+      EnemyId.StreetCats,
+      { x: 1, y: 2 },
+      enemyData,
+    );
     expect(manager.getEnemy("enemy-1")?.position).toEqual({ x: 1, y: 2 });
     expect(manager.hasEnemy("enemy-1")).toBe(true);
 
@@ -40,7 +45,12 @@ describe("enemyManager", () => {
     const enemyData = getEnemy(EnemyId.StreetCats);
     if (!enemyData) throw new Error("Enemy data not found");
 
-    manager.spawnEnemy("enemy-1", EnemyId.StreetCats, { x: 0, y: 0 }, enemyData);
+    manager.spawnEnemy(
+      "enemy-1",
+      EnemyId.StreetCats,
+      { x: 0, y: 0 },
+      enemyData,
+    );
     expect(manager.getEnemy("enemy-1")?.hp).toBe(5);
 
     manager.applyDamage("enemy-1", 3);
@@ -85,7 +95,12 @@ describe("enemyManager", () => {
     const enemyData = getEnemy(EnemyId.StreetCats);
     if (!enemyData) throw new Error("Enemy data not found");
 
-    manager.spawnEnemy("culled-1", EnemyId.StreetCats, { x: 100, y: 100 }, enemyData);
+    manager.spawnEnemy(
+      "culled-1",
+      EnemyId.StreetCats,
+      { x: 100, y: 100 },
+      enemyData,
+    );
     const ctx = {
       getPlayerPosition: () => ({ x: 0, y: 0 }),
       getViewportBounds: () => ({
@@ -114,5 +129,79 @@ describe("enemyManager", () => {
     manager.spawnEnemy("e1", EnemyId.StreetCats, { x: 10, y: 20 }, enemyData);
     const positions = manager.getEnemyPositions();
     expect(positions.get("e1")).toEqual({ x: 10, y: 20 });
+  });
+
+  describe("knockback", () => {
+    it("applyHit applies knockback velocity when knockback > knockbackResistance", () => {
+      const manager = getEnemyManager();
+      const enemyData = getEnemy(EnemyId.StreetCats); // knockback_resistance: 0
+      if (!enemyData) throw new Error("Enemy data not found");
+
+      manager.spawnEnemy("e1", EnemyId.StreetCats, { x: 0, y: 0 }, enemyData);
+      manager.applyHit("e1", 1, 1, { x: 1, y: 0 }); // knockback=1 > 0
+
+      const enemy = manager.getEnemy("e1");
+      expect(enemy).toBeDefined();
+      expect(enemy!.knockbackVelocity.x).toBeGreaterThan(0);
+      expect(enemy!.knockbackVelocity.y).toBe(0);
+      expect(enemy!.hp).toBe(4); // 5 - 1 damage
+      expect(enemy!.flashTimer).toBeGreaterThan(0);
+    });
+
+    it("applyHit does not apply knockback when knockback <= knockbackResistance", () => {
+      const manager = getEnemyManager();
+      const hipsterData = getEnemy(EnemyId.Hipster); // knockback_resistance: 0.1
+      if (!hipsterData) throw new Error("Hipster data not found");
+
+      manager.spawnEnemy("e1", EnemyId.Hipster, { x: 0, y: 0 }, hipsterData);
+      manager.applyHit("e1", 1, 0.1, { x: 1, y: 0 }); // knockback=0.1 <= 0.1
+
+      const enemy = manager.getEnemy("e1");
+      expect(enemy).toBeDefined();
+      expect(enemy!.knockbackVelocity.x).toBe(0);
+      expect(enemy!.knockbackVelocity.y).toBe(0);
+      expect(enemy!.hp).toBe(9); // 10 - 1 damage
+      expect(enemy!.flashTimer).toBeGreaterThan(0); // flash still applies
+    });
+
+    it("tick applies knockback velocity to position and dampens it", () => {
+      const manager = getEnemyManager();
+      const enemyData = getEnemy(EnemyId.StreetCats);
+      if (!enemyData) throw new Error("Enemy data not found");
+
+      manager.spawnEnemy("e1", EnemyId.StreetCats, { x: 0, y: 0 }, enemyData);
+      manager.applyHit("e1", 0, 1, { x: 1, y: 0 }); // no damage, full knockback
+
+      const ctx = {
+        getPlayerPosition: () => ({ x: 0, y: 0 }), // same pos = no chase movement
+        getViewportBounds: () => null,
+        getCullDistance: () => 9999,
+        reportContactDamage: vi.fn(),
+      };
+
+      const velocityBeforeTick = manager.getEnemy("e1")!.knockbackVelocity.x;
+      expect(manager.getEnemy("e1")!.position).toEqual({ x: 0, y: 0 });
+      expect(velocityBeforeTick).toBeGreaterThan(0);
+
+      manager.tick(0.1, 0, ctx);
+
+      const afterTick = manager.getEnemy("e1");
+      expect(afterTick!.position.x).toBeGreaterThan(0); // moved in hit direction
+      expect(afterTick!.position.y).toBe(0);
+      expect(afterTick!.knockbackVelocity.x).toBeLessThan(velocityBeforeTick); // dampened
+    });
+
+    it("knockback impulse strength scales with effective knockback", () => {
+      const manager = getEnemyManager();
+      const touristData = getEnemy(EnemyId.Tourist); // knockback_resistance: 0.2
+      if (!touristData) throw new Error("Tourist data not found");
+
+      manager.spawnEnemy("e1", EnemyId.Tourist, { x: 0, y: 0 }, touristData);
+      manager.applyHit("e1", 0, 1, { x: 1, y: 0 }); // effectiveKnockback = 0.8
+
+      const enemy = manager.getEnemy("e1");
+      expect(enemy!.knockbackVelocity.x).toBeGreaterThan(0);
+      expect(enemy!.knockbackVelocity.x).toBeLessThan(4); // less than full impulse (knockback=1, resistance=0)
+    });
   });
 });

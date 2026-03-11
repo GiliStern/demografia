@@ -15,6 +15,8 @@ export interface InstanceData {
   scale: number;
   spriteIndex: number;
   flipX?: boolean | undefined;
+  /** 0-1 flash intensity for hit feedback; blend toward white when > 0 */
+  flash?: number;
 }
 
 export interface UseInstancedSpriteParams {

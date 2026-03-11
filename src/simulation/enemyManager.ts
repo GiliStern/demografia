@@ -13,6 +13,9 @@ import { getEnemySpriteIndex } from "@/utils/entities/enemyAnimation";
 
 const CONTACT_RADIUS = 0.5;
 const CONTACT_DAMAGE_INTERVAL = 0.5;
+const KNOCKBACK_DAMPING = 0.85;
+const KNOCKBACK_STRENGTH = 4;
+const FLASH_DURATION = 0.1;
 
 export interface EnemyPosition {
   x: number;
@@ -28,6 +31,9 @@ export interface EnemyRuntimeState {
   speed: number;
   contactDamage: number;
   xpDrop: number;
+  knockbackResistance: number;
+  knockbackVelocity: { x: number; y: number };
+  flashTimer: number;
   textureUrl: string;
   spriteIndex: number;
   baseSpriteIndex: number;
@@ -60,6 +66,12 @@ export interface EnemyManager {
     enemyData: EnemyDataRuntime,
   ): void;
   applyDamage(id: string, damage: number): void;
+  applyHit(
+    id: string,
+    damage: number,
+    knockback: number,
+    hitDir: { x: number; y: number },
+  ): void;
   removeEnemy(id: string): void;
   clearAll(): void;
   getSnapshot(): EnemyRuntimeState[];
@@ -121,6 +133,9 @@ export function createEnemyManager(): EnemyManager {
         speed: stats.speed,
         contactDamage: stats.damage,
         xpDrop: stats.xpDrop,
+        knockbackResistance: stats.knockbackResistance ?? 0,
+        knockbackVelocity: { x: 0, y: 0 },
+        flashTimer: 0,
         textureUrl: spriteConfig.textureUrl,
         spriteIndex: baseIndex,
         baseSpriteIndex: baseIndex,
@@ -134,6 +149,26 @@ export function createEnemyManager(): EnemyManager {
       if (!enemy) return;
       const newHp = Math.max(0, enemy.hp - damage);
       enemy.hp = newHp;
+    },
+
+    applyHit(id, damage, knockback, hitDir) {
+      const enemy = roster.get(id);
+      if (!enemy) return;
+      const newHp = Math.max(0, enemy.hp - damage);
+      enemy.hp = newHp;
+      enemy.flashTimer = FLASH_DURATION;
+      const effectiveKnockback = Math.max(
+        0,
+        knockback - enemy.knockbackResistance,
+      );
+      if (effectiveKnockback > 0) {
+        const len = Math.sqrt(hitDir.x * hitDir.x + hitDir.y * hitDir.y);
+        const nx = len > 0 ? hitDir.x / len : 1;
+        const ny = len > 0 ? hitDir.y / len : 0;
+        const impulse = effectiveKnockback * KNOCKBACK_STRENGTH;
+        enemy.knockbackVelocity.x += nx * impulse;
+        enemy.knockbackVelocity.y += ny * impulse;
+      }
     },
 
     removeEnemy(id) {
@@ -209,10 +244,17 @@ export function createEnemyManager(): EnemyManager {
           enemy.position.y += ny * enemy.speed * delta;
         }
 
+        enemy.position.x += enemy.knockbackVelocity.x * delta;
+        enemy.position.y += enemy.knockbackVelocity.y * delta;
+        enemy.knockbackVelocity.x *= KNOCKBACK_DAMPING;
+        enemy.knockbackVelocity.y *= KNOCKBACK_DAMPING;
+
+        enemy.flashTimer = Math.max(0, enemy.flashTimer - delta);
+
         enemy.spriteIndex = getEnemySpriteIndex(
           currentTime,
           enemy.baseSpriteIndex,
-          isMoving
+          isMoving,
         );
 
         const distToPlayer = distance(enemy.position, playerPos);

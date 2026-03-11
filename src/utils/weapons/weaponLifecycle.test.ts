@@ -30,6 +30,7 @@ const BASE_WEAPON_STATS: WeaponStats = {
   area: 1,
   amount: 3,
   pierce: 0,
+  knockback: 1,
 };
 
 describe("weaponLifecycle", () => {
@@ -76,21 +77,13 @@ describe("weaponLifecycle", () => {
 
   describe("filterByDuration", () => {
     it("keeps items within duration", () => {
-      const items = [
-        { birth: 0 },
-        { birth: 1 },
-        { birth: 2 },
-      ];
+      const items = [{ birth: 0 }, { birth: 1 }, { birth: 2 }];
       const result = filterByDuration(items, 3, 2.5);
       expect(result).toHaveLength(3);
     });
 
     it("removes expired items", () => {
-      const items = [
-        { birth: 0 },
-        { birth: 1 },
-        { birth: 2 },
-      ];
+      const items = [{ birth: 0 }, { birth: 1 }, { birth: 2 }];
       const result = filterByDuration(items, 1.5, 3);
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({ birth: 2 });

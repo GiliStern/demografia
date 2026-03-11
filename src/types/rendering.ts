@@ -45,6 +45,8 @@ export interface CentralizedProjectile {
   behaviorType?: "normal" | "bounce" | "homing" | "arc";
   /** Number of enemies this projectile can hit before being removed; 0 = disappear on first hit. */
   pierce?: number;
+  /** Knockback strength; applied when weapon knockback > enemy knockback_resistance */
+  knockback?: number;
 }
 
 export enum AnimationType {

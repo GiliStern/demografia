@@ -41,7 +41,7 @@ export interface GameplayContext {
 
 function createDefaultGameplayContext(): GameplayContext {
   const contactReporter = createContactDamageReporter((amount) =>
-    usePlayerStore.getState().takeDamage(amount)
+    usePlayerStore.getState().takeDamage(amount),
   );
 
   return {
@@ -50,9 +50,9 @@ function createDefaultGameplayContext(): GameplayContext {
     getEffectivePlayerStats: () =>
       usePlayerStore.getState().getEffectivePlayerStats(),
     getWeaponStats: (weaponId) =>
-      useWeaponsStore.getState().getWeaponStats(
-        weaponId as import("@/types").WeaponId
-      ),
+      useWeaponsStore
+        .getState()
+        .getWeaponStats(weaponId as import("@/types").WeaponId),
     getEnemyPositions: () =>
       getEnemyManager().getEnemyPositions() as EnemyPositionMap,
     getViewportBounds: () => useGameStore.getState().viewportBounds,
@@ -78,7 +78,8 @@ function createDefaultGameplayContext(): GameplayContext {
         getEnemyManager().getEnemyPositions() as EnemyPositionMap,
       getViewportBounds: () => useGameStore.getState().viewportBounds,
       getPlayerPosition: () => usePlayerStore.getState().playerPosition,
-      damageEnemy: (id, damage) => getEnemyManager().applyDamage(id, damage),
+      applyEnemyHit: ({ enemyId, damage, knockback, hitDir }) =>
+        getEnemyManager().applyHit(enemyId, damage, knockback, hitDir),
     }),
 
     getEnemyTickContext: (): EnemyTickContext => ({

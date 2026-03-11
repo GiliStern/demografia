@@ -39,8 +39,16 @@ describe("projectileManager", () => {
         getEnemyPositions: () => new Map([["enemy-1", { x: 0.5, y: 0 }]]),
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 0, y: 0 }),
-        damageEnemy: (id: string, damage: number) => {
-          damageCalls.push({ id, damage });
+        applyEnemyHit: ({
+          enemyId,
+          damage,
+        }: {
+          enemyId: string;
+          damage: number;
+          knockback: number;
+          hitDir: { x: number; y: number };
+        }) => {
+          damageCalls.push({ id: enemyId, damage });
         },
       };
 
@@ -71,8 +79,16 @@ describe("projectileManager", () => {
         getEnemyPositions: () => enemyMap,
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 0, y: 0 }),
-        damageEnemy: (id: string, damage: number) => {
-          damageCalls.push({ id, damage });
+        applyEnemyHit: ({
+          enemyId,
+          damage,
+        }: {
+          enemyId: string;
+          damage: number;
+          knockback: number;
+          hitDir: { x: number; y: number };
+        }) => {
+          damageCalls.push({ id: enemyId, damage });
         },
       };
 
@@ -111,13 +127,97 @@ describe("projectileManager", () => {
         getEnemyPositions: () => new Map([["e1", { x: 0.5, y: 0 }]]),
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 0, y: 0 }),
-        damageEnemy: (id: string, damage: number) => damageCalls.push({ id, damage }),
+        applyEnemyHit: ({
+          enemyId,
+          damage,
+        }: {
+          enemyId: string;
+          damage: number;
+          knockback: number;
+          hitDir: { x: number; y: number };
+        }) => damageCalls.push({ id: enemyId, damage }),
       };
 
       manager.tick(0.1, 0.1, ctx);
 
       expect(manager.getCount()).toBe(0);
       expect(damageCalls).toHaveLength(1);
+    });
+  });
+
+  describe("knockback", () => {
+    it("calls applyEnemyHit with knockback and hit direction from projectile velocity", () => {
+      const manager = createProjectileManager();
+      const hits: {
+        enemyId: string;
+        damage: number;
+        knockback: number;
+        hitDir: { x: number; y: number };
+      }[] = [];
+
+      manager.addProjectile(
+        createProjectile({
+          id: "knockback-proj",
+          pierce: 0,
+          position: { x: 0, y: 0, z: 0 },
+          velocity: { x: 10, y: 0 },
+          knockback: 1,
+        }),
+      );
+
+      const ctx = {
+        getEnemyPositions: () => new Map([["enemy-1", { x: 0.5, y: 0 }]]),
+        getViewportBounds: () => null,
+        getPlayerPosition: () => ({ x: 0, y: 0 }),
+        applyEnemyHit: (params: {
+          enemyId: string;
+          damage: number;
+          knockback: number;
+          hitDir: { x: number; y: number };
+        }) => hits.push(params),
+      };
+
+      manager.tick(0.1, 0.1, ctx);
+
+      expect(hits).toHaveLength(1);
+      expect(hits[0]!.enemyId).toBe("enemy-1");
+      expect(hits[0]!.damage).toBe(5);
+      expect(hits[0]!.knockback).toBe(1);
+      expect(hits[0]!.hitDir.x).toBeCloseTo(1);
+      expect(hits[0]!.hitDir.y).toBeCloseTo(0);
+    });
+
+    it("uses projectile-to-enemy vector when velocity is near zero", () => {
+      const manager = createProjectileManager();
+      const hits: { hitDir: { x: number; y: number } }[] = [];
+
+      manager.addProjectile(
+        createProjectile({
+          id: "zero-vel",
+          pierce: 0,
+          position: { x: 0, y: 0, z: 0 },
+          velocity: { x: 0, y: 0 },
+          knockback: 1,
+        }),
+      );
+
+      // Enemy at (1, 0) - projectile at (0,0) with zero velocity stays in place;
+      // segment (0,0)-(0,0) is a point; circle at (1,0) r=0.5 doesn't contain (0,0).
+      // Put enemy at (0.3, 0) so the stationary projectile (0,0) is inside collision radius.
+      const ctx = {
+        getEnemyPositions: () => new Map([["e1", { x: 0.3, y: 0 }]]),
+        getViewportBounds: () => null,
+        getPlayerPosition: () => ({ x: 0, y: 0 }),
+        applyEnemyHit: (params: { hitDir: { x: number; y: number } }) =>
+          hits.push({ hitDir: params.hitDir }),
+      };
+
+      manager.tick(0.1, 0.1, ctx);
+
+      expect(hits).toHaveLength(1);
+      // hitDir from projectile (0,0) to enemy (0.3, 0) = (0.3, 0) normalized = (1, 0)
+      expect(hits[0]!.hitDir.x).toBeCloseTo(1);
+      expect(hits[0]!.hitDir.y).toBeCloseTo(0);
     });
   });
 });

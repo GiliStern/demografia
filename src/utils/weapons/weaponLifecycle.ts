@@ -7,11 +7,12 @@ export interface WeaponRuntime {
   amount: number;
   cooldown: number;
   pierce: number;
+  knockback: number;
 }
 
 export const buildWeaponRuntime = (
   stats: WeaponStats,
-  playerStats: PlayerStats
+  playerStats: PlayerStats,
 ): WeaponRuntime => ({
   damage: stats.damage * (playerStats.might || 1),
   speed: stats.speed,
@@ -19,20 +20,20 @@ export const buildWeaponRuntime = (
   amount: stats.amount,
   cooldown: (stats.cooldown ?? Number.POSITIVE_INFINITY) * playerStats.cooldown,
   pierce: stats.pierce ?? 0,
+  knockback: stats.knockback ?? 1,
 });
 
 export const shouldFire = (
   time: number,
   lastFireTime: number,
-  cooldown: number
+  cooldown: number,
 ): boolean => time - lastFireTime > cooldown;
 
 export const filterByDuration = <T extends { birth: number }>(
   items: T[],
   duration: number,
-  time: number
+  time: number,
 ): T[] => {
   if (duration <= 0) return items;
   return items.filter((item) => time - item.birth <= duration);
 };
-
