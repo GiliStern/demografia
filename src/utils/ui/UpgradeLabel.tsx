@@ -6,6 +6,7 @@ import { getPassive } from "@/data/config/passivesNormalized";
 import type { FC } from "react";
 
 const UpgradeLabelContainer = styled.div`
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
