@@ -1,8 +1,7 @@
-import { useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
-import { useSessionStore } from "@/store/sessionStore";
+import { useCallback } from "react";
 import { getProjectileTickContext } from "@/store/gameStoreAccess";
 import { getProjectileManager } from "@/simulation/projectileManager";
+import { useBatchedInstancing } from "@/hooks/rendering/useBatchedInstancing";
 import { InstancedSprite } from "./InstancedSprite";
 import {
   batchEntitiesByTexture,
@@ -10,7 +9,6 @@ import {
   type EntityInstance,
 } from "@/utils/performance/entityBatcher";
 import type { CentralizedProjectile } from "@/types";
-import type { InstancedSpriteHandle } from "./InstancedSprite";
 import { getSpinningSpriteIndex } from "@/utils/entities/enemyAnimation";
 
 function toBatchable(
@@ -42,88 +40,22 @@ function toBatchable(
  * Zustand writes or forced React rerenders.
  */
 export const BatchedProjectileRenderer = () => {
-  const batchKeysRef = useRef<Set<string>>(new Set());
-  const [batchKeys, setBatchKeys] = useState<string[]>([]);
-  const spriteSyncRefs = useRef<Map<string, InstancedSpriteHandle>>(new Map());
-  const batchDataRef = useRef<
-    Map<
-      string,
-      {
-        textureUrl: string;
-        spriteFrameSize: number;
-        instancesRef: { current: EntityInstance[] };
-      }
-    >
-  >(new Map());
-
-  const isPaused = useSessionStore((state) => state.isPaused);
-  const isRunning = useSessionStore((state) => state.isRunning);
-
   const manager = getProjectileManager();
 
-  useFrame((state, frameDelta) => {
-    if (isPaused || !isRunning) return;
+  const getBatches = useCallback(
+    ({ delta, currentTime }: { delta: number; currentTime: number }) => {
+      manager.tick(delta, currentTime, getProjectileTickContext());
+      const snapshot = manager.getSnapshot();
+      const batchableEntities = snapshot.map((p) =>
+        toBatchable(p, currentTime),
+      );
+      return batchEntitiesByTexture(batchableEntities);
+    },
+    [manager],
+  );
 
-    const delta = frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
-    const currentTime = state.clock.getElapsedTime();
-
-    manager.tick(delta, currentTime, getProjectileTickContext());
-
-    const snapshot = manager.getSnapshot();
-    const batchableEntities = snapshot.map((p) =>
-      toBatchable(p, currentTime)
-    );
-    const batches = batchEntitiesByTexture(batchableEntities);
-
-    const keys = batches.map(
-      (b) => `${b.textureUrl}::${b.spriteFrameSize ?? 32}`,
-    );
-    const keysSet = new Set(keys);
-
-    let changed = false;
-    for (const key of keys) {
-      if (!batchKeysRef.current.has(key)) {
-        batchKeysRef.current.add(key);
-        changed = true;
-      }
-    }
-    for (const key of [...batchKeysRef.current]) {
-      if (!keysSet.has(key)) {
-        batchKeysRef.current.delete(key);
-        batchDataRef.current.delete(key);
-        spriteSyncRefs.current.delete(key);
-        changed = true;
-      }
-    }
-    if (changed) {
-      setBatchKeys([...batchKeysRef.current]);
-    }
-
-    const batchByKey = new Map(
-      batches.map((b) => [`${b.textureUrl}::${b.spriteFrameSize ?? 32}`, b]),
-    );
-    for (const batch of batches) {
-      const key = `${batch.textureUrl}::${batch.spriteFrameSize ?? 32}`;
-      let data = batchDataRef.current.get(key);
-      if (!data) {
-        data = {
-          textureUrl: batch.textureUrl,
-          spriteFrameSize: batch.spriteFrameSize ?? 32,
-          instancesRef: { current: [] },
-        };
-        batchDataRef.current.set(key, data);
-      }
-      data.instancesRef.current = batch.instances;
-    }
-    // Must call syncMesh() for each batch so the instanced mesh updates in the same frame.
-    // Otherwise removed projectiles stay visible for one or more frames (regression fix).
-    for (const key of batchKeysRef.current) {
-      const data = batchDataRef.current.get(key);
-      if (!data) continue;
-      if (!batchByKey.has(key)) data.instancesRef.current = [];
-      spriteSyncRefs.current.get(key)?.syncMesh();
-    }
-  });
+  const { batchKeys, batchDataRef, spriteSyncRefs } =
+    useBatchedInstancing(getBatches);
 
   return (
     <>

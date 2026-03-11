@@ -3,7 +3,7 @@ import { ItemKind, type UpgradeOption } from "../../types";
 import { UI_STRINGS } from "../../data/config/ui";
 import { getWeapon } from "@/data/config/weaponsNormalized";
 import { getPassive } from "@/data/config/passivesNormalized";
-import type { ReactNode } from "react";
+import type { FC } from "react";
 
 const UpgradeLabelContainer = styled.div`
   display: flex;
@@ -46,7 +46,11 @@ const LevelIndicator = styled.span`
   opacity: 0.8;
 `;
 
-export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
+interface UpgradeLabelProps {
+  choice: UpgradeOption;
+}
+
+export const UpgradeLabel: FC<UpgradeLabelProps> = ({ choice }) => {
   if (choice.kind === ItemKind.Weapon) {
     const weaponData = getWeapon(choice.weaponId);
     if (!weaponData) return null;
@@ -57,9 +61,9 @@ export const renderUpgradeLabel = (choice: UpgradeOption): ReactNode => {
     const upgradeText = choice.evolvesFrom
       ? UI_STRINGS.level_up.weapon_evolve_prefix
       : choice.isNew
-      ? UI_STRINGS.level_up.weapon_new_prefix
-      : (nextLevelData?.description ??
-        UI_STRINGS.level_up.weapon_upgrade_prefix);
+        ? UI_STRINGS.level_up.weapon_new_prefix
+        : (nextLevelData?.description ??
+          UI_STRINGS.level_up.weapon_upgrade_prefix);
 
     return (
       <UpgradeLabelContainer>
