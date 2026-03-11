@@ -121,9 +121,20 @@ const HealthBarContainer = styled.div`
   left: 50%;
   transform: translateX(-50%);
   width: 400px;
+  max-width: calc(100% - 40px);
   height: 20px;
   background: #444;
   border: 2px solid white;
+
+  @media (max-width: 768px) {
+    width: 280px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  @media (max-width: 480px) {
+    width: 240px;
+    bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  }
 `;
 
 const HealthBarFill = styled.div<{ percent: number }>`

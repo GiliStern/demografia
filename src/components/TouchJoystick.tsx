@@ -26,6 +26,16 @@ const JoystickBase = styled.div<JoystickBaseProps>`
   position: absolute;
   bottom: 30px;
   left: 30px;
+
+  @media (max-width: 768px) {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    left: calc(20px + env(safe-area-inset-left, 0px));
+  }
+
+  @media (max-width: 480px) {
+    bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+    left: calc(16px + env(safe-area-inset-left, 0px));
+  }
   width: ${({ baseSize }) => `${baseSize}px`};
   height: ${({ baseSize }) => `${baseSize}px`};
   border-radius: 50%;
