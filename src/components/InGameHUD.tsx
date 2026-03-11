@@ -56,13 +56,6 @@ const Timer = styled.div`
   font-family: monospace;
 `;
 
-const GoldSection = styled.div`
-  width: 30%;
-  text-align: left;
-  font-size: 24px;
-  color: gold;
-`;
-
 const HealthBarContainer = styled.div`
   position: absolute;
   bottom: 20px;
@@ -117,13 +110,12 @@ const WeaponIcon = styled.img`
 export const InGameHUD = () => {
   const currentHealth = usePlayerStore((state) => state.currentHealth);
   const level = useSessionStore((state) => state.level);
-  const gold = useSessionStore((state) => state.gold);
   const xp = useSessionStore((state) => state.xp);
   const nextLevelXp = useSessionStore((state) => state.nextLevelXp);
   const runTimer = useSessionStore((state) => state.runTimer);
   const activeWeapons = useWeaponsStore((state) => state.activeWeapons);
   const getEffectivePlayerStats = usePlayerStore(
-    (state) => state.getEffectivePlayerStats
+    (state) => state.getEffectivePlayerStats,
   );
 
   const effectiveStats = getEffectivePlayerStats();
@@ -157,11 +149,6 @@ export const InGameHUD = () => {
         <Timer>
           {minutes}:{seconds}
         </Timer>
-
-        {/* Gold */}
-        <GoldSection>
-          {UI_STRINGS.common.gold}: {gold}
-        </GoldSection>
       </TopBar>
 
       {/* Health Bar */}
