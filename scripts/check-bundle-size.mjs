@@ -15,6 +15,12 @@ const MAX_JS_BYTES = 3.5 * 1024 * 1024; // 3.5 MB
 try {
   const files = readdirSync(DIST);
   const jsFiles = files.filter((f) => f.endsWith(".js") && f.startsWith("index-"));
+  if (jsFiles.length === 0) {
+    console.error(
+      "[check-bundle-size] FAIL: No main JS chunk found (expected index-*.js). Vite output naming may have changed.",
+    );
+    process.exit(1);
+  }
   let totalBytes = 0;
   for (const f of jsFiles) {
     totalBytes += statSync(join(DIST, f)).size;
