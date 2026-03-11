@@ -26,6 +26,9 @@ export const StyledButton = styled("button")`
   pointer-events: auto;
   position: relative;
   z-index: 101;
+  display: flex;
+  gap: 16px;
+  align-items: center;
 
   @media (max-width: 768px) {
     font-size: 24px;

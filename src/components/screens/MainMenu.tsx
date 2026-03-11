@@ -2,10 +2,12 @@ import { useRef } from "react";
 import { styled } from "@linaria/react";
 
 import { useSessionStore } from "@/store/sessionStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { AppButton } from "../ui/AppButton";
 import { banners } from "@/assets/assetPaths";
 import { useMenuNavigation } from "@/hooks/controls/useMenuNavigation";
+import { Music, VolumeOff } from "lucide-react";
 
 interface MainMenuProps {
   onShowCharacterSelection: () => void;
@@ -113,6 +115,12 @@ export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
   const isRunning = useSessionStore((state) => state.isRunning);
   const canResume = isRunning && isPaused;
   const buttonColumnRef = useRef<HTMLDivElement>(null);
+  const musicMuted = useSettingsStore((state) => state.musicMuted);
+  const setMusicMuted = useSettingsStore((state) => state.setMusicMuted);
+
+  const handleToggleMusic = () => {
+    setMusicMuted(!musicMuted);
+  };
 
   useMenuNavigation({
     containerRef: buttonColumnRef,
@@ -130,7 +138,17 @@ export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
 
       <ButtonColumn ref={buttonColumnRef}>
         {canResume && (
-          <AppButton onClick={resumeGame}>{UI_STRINGS.common.resume}</AppButton>
+          <>
+            <AppButton onClick={resumeGame}>
+              {UI_STRINGS.common.resume}
+            </AppButton>
+            <AppButton onClick={handleToggleMusic} variant="compact">
+              {musicMuted
+                ? UI_STRINGS.common.unmute_music
+                : UI_STRINGS.common.mute_music}
+              {musicMuted ? <Music /> : <VolumeOff />}
+            </AppButton>
+          </>
         )}
 
         {!canResume && (

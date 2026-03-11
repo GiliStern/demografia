@@ -5,6 +5,14 @@ interface AudioHandle {
 
 const sfxCache = new Map<string, AudioHandle>();
 let musicHandle: AudioHandle | null = null;
+const DEFAULT_MUSIC_VOLUME = 0.1;
+
+/** Applies mute state to currently playing music. Called by settings store. */
+export function applyMusicMuted(muted: boolean): void {
+  if (musicHandle) {
+    musicHandle.audio.volume = muted ? 0 : DEFAULT_MUSIC_VOLUME;
+  }
+}
 
 export function playSfx(path: string, volume = 1) {
   const cached = sfxCache.get(path);
@@ -20,12 +28,12 @@ export function playSfx(path: string, volume = 1) {
   }
 }
 
-export function playMusic(path: string, volume = 0.5, loop = true) {
+export function playMusic(path: string, loop = true, muted = false) {
   if (musicHandle?.id === path) return;
   stopMusic();
   const audio = new Audio(path);
   audio.loop = loop;
-  audio.volume = volume;
+  audio.volume = muted ? 0 : DEFAULT_MUSIC_VOLUME;
   audio.play().catch(() => {
     console.error(`Failed to play music: ${path}`);
   });

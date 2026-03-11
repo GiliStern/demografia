@@ -9,8 +9,7 @@ import pitaIcon from "./icons/pita_icon.png";
 import srulikIcon from "./icons/srulik_icon.png";
 import starOfDavidIcon from "./icons/star_of_david_icon.png";
 import kingOfPitasIcon from "./icons/king_of_pitas_icon.png";
-import jerusalemTheme from "./music/jerusalem_theme.wav";
-import telAvivTheme from "./music/tel_aviv_theme.wav";
+import tlvBg from "./music/tlv_bg.mpeg";
 
 import chestOpenSfx from "./sfx/chest_open.wav";
 import hitSfx from "./sfx/hit.wav";
@@ -69,8 +68,7 @@ export const icons = {
 };
 
 export const music = {
-  jerusalemTheme,
-  telAvivTheme,
+  tlvBg,
 };
 
 export const sfx = {

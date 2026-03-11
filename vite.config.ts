@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => ({
       "@": "/src",
     },
   },
+  assetsInclude: ["**/*.mpeg"],
   optimizeDeps: {
     exclude: ["@react-three/rapier"],
   },

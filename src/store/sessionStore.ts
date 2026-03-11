@@ -11,12 +11,12 @@ import {
 import { useGameStore } from "./gameStore";
 import { usePlayerStore } from "./playerStore";
 import { useWeaponsStore } from "./weaponsStore";
-import {
-  resolveLevelProgression,
-  buildUpgradeChoices,
-} from "./gameStore";
+import { resolveLevelProgression, buildUpgradeChoices } from "./gameStore";
 import { resetEnemyManager } from "../simulation/enemyManager";
 import { resetGameplayContext } from "../simulation/gameplayContext";
+import { playMusic, stopMusic } from "../utils/assets/audioManager";
+import { music } from "../assets/assetPaths";
+import { useSettingsStore } from "./settingsStore";
 
 export interface SessionState {
   isRunning: boolean;
@@ -84,6 +84,9 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
     gameStore.resetXpOrbs();
     gameStore.clearProjectiles();
 
+    const musicMuted = useSettingsStore.getState().musicMuted;
+    playMusic(music.tlvBg, true, musicMuted);
+
     set({
       ...INITIAL_SESSION_STATE,
       isRunning: true,
@@ -93,6 +96,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
   },
 
   resetToMainMenu: () => {
+    stopMusic();
     const gameStore = useGameStore.getState();
     resetEnemyManager();
     resetGameplayContext();
@@ -113,14 +117,14 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
     set((state) =>
       state.isRunning
         ? { isPaused: true, pauseReason: PauseReason.Manual }
-        : state
+        : state,
     ),
 
   resumeGame: () =>
     set((state) =>
       state.isRunning
         ? { isPaused: false, pauseReason: PauseReason.None }
-        : state
+        : state,
     ),
 
   togglePause: () =>
@@ -133,13 +137,15 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
       };
     }),
 
-  endGame: () =>
+  endGame: () => {
+    stopMusic();
     set({
       isRunning: false,
       isGameOver: true,
       isPaused: false,
       pauseReason: PauseReason.None,
-    }),
+    });
+  },
 
   updateTimer: (delta) => {
     const { isRunning, isPaused, runTimer } = get();
