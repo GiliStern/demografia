@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useViewportStore } from "@/store/gameStore";
 import { usePlayerStore } from "@/store/playerStore";
@@ -29,6 +29,7 @@ function generateId(): string {
  */
 export function useWaveManager(): void {
   const spawnTrackerRef = useRef<SpawnTracker>({});
+  const prevRunningRef = useRef(false);
 
   const runTimer = useSessionStore((state) => state.runTimer);
   const playerPosition = usePlayerStore((state) => state.playerPosition);
@@ -37,6 +38,13 @@ export function useWaveManager(): void {
   const viewportBounds = useViewportStore((state) => state.viewportBounds);
 
   const enemyManager = getEnemyManager();
+
+  useEffect(() => {
+    if (isRunning && !prevRunningRef.current) {
+      spawnTrackerRef.current = {};
+    }
+    prevRunningRef.current = isRunning;
+  }, [isRunning]);
 
   useFrame(() => {
     if (isPaused || !isRunning || !viewportBounds) return;

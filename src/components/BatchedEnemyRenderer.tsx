@@ -90,11 +90,20 @@ export const BatchedEnemyRenderer = () => {
     const keys = batches.map(
       (b) => `${b.textureUrl}::${b.spriteFrameSize ?? 32}`
     );
+    const keysSet = new Set(keys);
 
     let changed = false;
     for (const key of keys) {
       if (!batchKeysRef.current.has(key)) {
         batchKeysRef.current.add(key);
+        changed = true;
+      }
+    }
+    for (const key of [...batchKeysRef.current]) {
+      if (!keysSet.has(key)) {
+        batchKeysRef.current.delete(key);
+        batchDataRef.current.delete(key);
+        spriteSyncRefs.current.delete(key);
         changed = true;
       }
     }
@@ -136,6 +145,7 @@ export const BatchedEnemyRenderer = () => {
             key={key}
             ref={(r) => {
               if (r) spriteSyncRefs.current.set(key, r);
+              else spriteSyncRefs.current.delete(key);
             }}
             textureUrl={data.textureUrl}
             instancesRef={
