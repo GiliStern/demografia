@@ -41,8 +41,9 @@ class PerformanceMonitor {
   // Draw call tracking
   private drawCalls = 0;
 
-  // Memory tracking
+  // Memory tracking (Chrome-only: performance.memory)
   private memoryUsage = 0;
+  private hasMemorySupport = false;
 
   updateFrame(delta: number) {
     this.frameCount++;
@@ -124,6 +125,7 @@ class PerformanceMonitor {
       const memory = (performance as { memory?: { usedJSHeapSize: number } })
         .memory;
       if (memory) {
+        this.hasMemorySupport = true;
         this.memoryUsage = Math.round(memory.usedJSHeapSize / 1024 / 1024); // Convert to MB
       }
     }
@@ -166,6 +168,7 @@ class PerformanceMonitor {
       entities: this.entityCounts,
       drawCalls: this.drawCalls,
       memoryMB: this.memoryUsage,
+      hasMemorySupport: this.hasMemorySupport,
       pools: this.poolStats,
     };
   }
@@ -178,8 +181,11 @@ class PerformanceMonitor {
     console.log(
       `[Entities] Total: ${stats.entities.total} (Enemies: ${stats.entities.enemies}, Projectiles: ${stats.entities.projectiles}, XP Orbs: ${stats.entities.xpOrbs})`
     );
+    const memoryStr = stats.hasMemorySupport
+      ? `${stats.memoryMB}MB`
+      : "N/A (Chrome only)";
     console.log(
-      `[Rendering] Draw Calls: ${stats.drawCalls} | Memory: ${stats.memoryMB}MB`
+      `[Rendering] Draw Calls: ${stats.drawCalls} | Memory: ${memoryStr}`
     );
     console.log(
       `[Pools] Projectiles: ${stats.pools.projectiles.active}/${stats.pools.projectiles.total} | Enemies: ${stats.pools.enemies.active}/${stats.pools.enemies.total} | XP Orbs: ${stats.pools.xpOrbs.active}/${stats.pools.xpOrbs.total}`
@@ -191,7 +197,10 @@ class PerformanceMonitor {
    */
   getCompactStats(): string {
     const stats = this.getStats();
-    return `FPS: ${stats.fps} | Entities: ${stats.entities.total} | Draw Calls: ${stats.drawCalls} | Memory: ${stats.memoryMB}MB`;
+    const memoryStr = stats.hasMemorySupport
+      ? `${stats.memoryMB}MB`
+      : "N/A";
+    return `FPS: ${stats.fps} | Entities: ${stats.entities.total} | Draw Calls: ${stats.drawCalls} | Memory: ${memoryStr}`;
   }
 }
 
