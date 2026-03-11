@@ -6,6 +6,7 @@ import { getWeapon } from "@/data/config/weaponsNormalized";
 import { getGameplayContext } from "@/simulation/gameplayContext";
 import { resolveDirection } from "@/utils/weapons/weaponUtils";
 import { nearestEnemyDirection } from "@/utils/weapons/weaponMath";
+import type { WeaponRuntime } from "@/utils/weapons/weaponLifecycle";
 import {
   buildWeaponRuntime,
   shouldFire,
@@ -57,12 +58,9 @@ export function useWeaponFiringLoop(
   const nextStaggerTime = useRef<number | null>(null);
 
   const ctx = getGameplayContext();
-  const playerStats = ctx.getEffectivePlayerStats();
   const weaponData = getWeapon(weaponId);
-  const stats = ctx.getWeaponStats(weaponId);
-  const runtime = buildWeaponRuntime(stats, playerStats);
 
-  const produceShots = (time: number): ProjectileData[] => {
+  const produceShots = (time: number, runtime: WeaponRuntime): ProjectileData[] => {
     const pos = ctx.getPlayerPosition();
     const position = { x: pos.x, y: pos.y, z: 0 };
 
@@ -160,10 +158,10 @@ export function useWeaponFiringLoop(
     return undefined;
   };
 
-  const fire = (time: number) => {
+  const fire = (time: number, runtime: WeaponRuntime) => {
     if (!weaponData) return;
 
-    const shots = produceShots(time);
+    const shots = produceShots(time, runtime);
     const overrides = getOverrides();
 
     if (useStagger) {
@@ -207,10 +205,14 @@ export function useWeaponFiringLoop(
     const { isPaused, isRunning } = ctx.getSessionState();
     if (isPaused || !isRunning || !weaponData) return;
 
+    const playerStats = ctx.getEffectivePlayerStats();
+    const stats = ctx.getWeaponStats(weaponId);
+    const runtime = buildWeaponRuntime(stats, playerStats);
+
     const time = state.clock.getElapsedTime();
 
     if (shouldFire(time, lastFireTime.current, runtime.cooldown)) {
-      fire(time);
+      fire(time, runtime);
     }
 
     if (useStagger) {
