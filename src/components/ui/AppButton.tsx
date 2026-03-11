@@ -1,5 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 import { styled } from "@linaria/react";
+import { playSfx } from "@/utils/assets/audioManager";
+import { sfx } from "@/assets/assetPaths";
 
 type ButtonVariant = "primary" | "disabled" | "outline" | "success" | "compact";
 
@@ -91,10 +93,22 @@ export const AppButton = ({
   children,
   variant = "primary",
   disabled,
+  onClick,
   ...rest
 }: AppButtonProps) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!disabled) {
+      playSfx(sfx.menuClick);
+    }
+    onClick?.(e);
+  };
   return (
-    <StyledButton data-variant={variant} disabled={disabled} {...rest}>
+    <StyledButton
+      data-variant={variant}
+      disabled={disabled}
+      onClick={handleClick}
+      {...rest}
+    >
       {children}
     </StyledButton>
   );

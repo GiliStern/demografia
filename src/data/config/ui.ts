@@ -19,6 +19,8 @@ export const UI_STRINGS = {
     pause: "השהיה",
     mute_music: "השתק מוזיקה",
     unmute_music: "הפעל מוזיקה",
+    mute_sfx: "השתק אפקטים",
+    unmute_sfx: "הפעל אפקטים",
   },
   menu: {
     title: "דמוגרפיה",

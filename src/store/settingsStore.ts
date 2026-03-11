@@ -8,11 +8,13 @@ import { applyMusicMuted } from "../utils/assets/audioManager";
  */
 export interface SettingsState {
   musicMuted: boolean;
+  sfxMuted: boolean;
   // Future: sfxVolume, musicVolume, language, fullscreen, etc.
 }
 
 export interface SettingsActions {
   setMusicMuted: (muted: boolean) => void;
+  setSfxMuted: (muted: boolean) => void;
 }
 
 export type SettingsStore = SettingsState & SettingsActions;
@@ -22,6 +24,7 @@ const STORAGE_VERSION = 1;
 
 const defaultState: SettingsState = {
   musicMuted: false,
+  sfxMuted: false,
 };
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -32,6 +35,9 @@ export const useSettingsStore = create<SettingsStore>()(
       setMusicMuted: (muted) => {
         set({ musicMuted: muted });
         applyMusicMuted(muted);
+      },
+      setSfxMuted: (muted) => {
+        set({ sfxMuted: muted });
       },
     }),
     {

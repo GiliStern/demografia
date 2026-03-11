@@ -17,6 +17,8 @@ import { getEnemyManager } from "./enemyManager";
 import { createContactDamageReporter } from "./enemyManager";
 import { getCullDistance } from "@/utils/rendering/viewportBounds";
 import { VIEWPORT_CONFIG } from "@/data/config/viewportConfig";
+import { playSfx } from "@/utils/assets/audioManager";
+import { sfx } from "@/assets/assetPaths";
 
 export interface GameplayContext {
   /** Read APIs */
@@ -86,6 +88,7 @@ function createDefaultGameplayContext(): GameplayContext {
             .getState()
             .addFloatingDamage(position.x, position.y, damage);
         }
+        playSfx(sfx.hit);
       },
     }),
 

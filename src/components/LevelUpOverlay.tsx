@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { styled } from "@linaria/react";
 import { useSessionStore } from "@/store/sessionStore";
 import { ItemKind, PauseReason, type UpgradeOption } from "../types";
@@ -6,6 +6,8 @@ import { UI_STRINGS } from "../data/config/ui";
 import { UpgradeLabel } from "../utils/ui/UpgradeLabel";
 import { AppButton } from "./ui/AppButton";
 import { useMenuNavigation } from "@/hooks/controls/useMenuNavigation";
+import { playSfx } from "@/utils/assets/audioManager";
+import { sfx } from "@/assets/assetPaths";
 
 const OverlayContainer = styled.div`
   position: absolute;
@@ -89,6 +91,12 @@ export const LevelUpOverlay = () => {
     isActive: isLevelUpMenu,
     focusKey: upgradeChoices.length,
   });
+
+  useEffect(() => {
+    if (isLevelUpMenu) {
+      playSfx(sfx.levelUp);
+    }
+  }, [isLevelUpMenu]);
 
   if (!isLevelUpMenu) return null;
 

@@ -7,7 +7,7 @@ import { UI_STRINGS } from "../../data/config/ui";
 import { AppButton } from "../ui/AppButton";
 import { banners } from "@/assets/assetPaths";
 import { useMenuNavigation } from "@/hooks/controls/useMenuNavigation";
-import { Music, VolumeOff } from "lucide-react";
+import { Music, Volume2, VolumeOff, VolumeX } from "lucide-react";
 
 interface MainMenuProps {
   onShowCharacterSelection: () => void;
@@ -117,9 +117,15 @@ export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
   const buttonColumnRef = useRef<HTMLDivElement>(null);
   const musicMuted = useSettingsStore((state) => state.musicMuted);
   const setMusicMuted = useSettingsStore((state) => state.setMusicMuted);
+  const sfxMuted = useSettingsStore((state) => state.sfxMuted);
+  const setSfxMuted = useSettingsStore((state) => state.setSfxMuted);
 
   const handleToggleMusic = () => {
     setMusicMuted(!musicMuted);
+  };
+
+  const handleToggleSfx = () => {
+    setSfxMuted(!sfxMuted);
   };
 
   useMenuNavigation({
@@ -147,6 +153,12 @@ export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
                 ? UI_STRINGS.common.unmute_music
                 : UI_STRINGS.common.mute_music}
               {musicMuted ? <Music /> : <VolumeOff />}
+            </AppButton>
+            <AppButton onClick={handleToggleSfx} variant="compact">
+              {sfxMuted
+                ? UI_STRINGS.common.unmute_sfx
+                : UI_STRINGS.common.mute_sfx}
+              {sfxMuted ? <Volume2 /> : <VolumeX />}
             </AppButton>
           </>
         )}

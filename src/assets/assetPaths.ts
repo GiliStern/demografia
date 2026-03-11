@@ -11,11 +11,10 @@ import starOfDavidIcon from "./icons/star_of_david_icon.png";
 import kingOfPitasIcon from "./icons/king_of_pitas_icon.png";
 import tlvBg from "./music/tlv_bg.mpeg";
 
-import chestOpenSfx from "./sfx/chest_open.wav";
 import hitSfx from "./sfx/hit.wav";
 import levelUpSfx from "./sfx/levelup.wav";
 import menuClickSfx from "./sfx/menu_click.wav";
-import pickupSfx from "./sfx/pickup.wav";
+import applauseSfx from "./sfx/applause.wav";
 
 import catSprite from "./sprites/cat.png";
 import chairSprite from "./sprites/chair.png";
@@ -72,11 +71,11 @@ export const music = {
 };
 
 export const sfx = {
-  chestOpen: chestOpenSfx,
   hit: hitSfx,
   levelUp: levelUpSfx,
   menuClick: menuClickSfx,
-  pickup: pickupSfx,
+  // game over sfx
+  applause: applauseSfx,
 };
 
 export const sprites = {

@@ -1,3 +1,5 @@
+import { useSettingsStore } from "@/store/settingsStore";
+
 interface AudioHandle {
   id: string;
   audio: HTMLAudioElement;
@@ -6,6 +8,7 @@ interface AudioHandle {
 const sfxCache = new Map<string, AudioHandle>();
 let musicHandle: AudioHandle | null = null;
 const DEFAULT_MUSIC_VOLUME = 0.1;
+const DEFAULT_SFX_VOLUME = 0.1;
 
 /** Applies mute state to currently playing music. Called by settings store. */
 export function applyMusicMuted(muted: boolean): void {
@@ -14,7 +17,8 @@ export function applyMusicMuted(muted: boolean): void {
   }
 }
 
-export function playSfx(path: string, volume = 1) {
+export function playSfx(path: string, volume = DEFAULT_SFX_VOLUME) {
+  if (useSettingsStore.getState().sfxMuted) return;
   const cached = sfxCache.get(path);
   const audio = cached?.audio ?? new Audio(path);
   audio.volume = volume;

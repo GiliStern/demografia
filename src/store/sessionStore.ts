@@ -14,8 +14,8 @@ import { useWeaponsStore } from "./weaponsStore";
 import { resolveLevelProgression, buildUpgradeChoices } from "./gameStore";
 import { resetEnemyManager } from "../simulation/enemyManager";
 import { resetGameplayContext } from "../simulation/gameplayContext";
-import { playMusic, stopMusic } from "../utils/assets/audioManager";
-import { music } from "../assets/assetPaths";
+import { playMusic, playSfx, stopMusic } from "../utils/assets/audioManager";
+import { music, sfx } from "../assets/assetPaths";
 import { useSettingsStore } from "./settingsStore";
 
 export interface SessionState {
@@ -141,6 +141,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
 
   endGame: () => {
     stopMusic();
+    playSfx(sfx.applause);
     useGameStore.getState().clearFloatingDamage();
     set({
       isRunning: false,
