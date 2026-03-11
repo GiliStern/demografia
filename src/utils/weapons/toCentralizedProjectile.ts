@@ -34,7 +34,8 @@ export function toCentralizedProjectile(
     duration: shot.duration,
     weaponId,
     behaviorType,
-    shouldSpin: weapon.shouldSpin,
+    shouldSpin: Boolean(weapon.shouldSpin),
+    spriteFrameCount: weapon.spriteConfig.spriteFrameCount ?? 2,
     ...(shot.pierce !== undefined && { pierce: shot.pierce }),
     ...overrides,
   };

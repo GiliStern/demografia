@@ -7,7 +7,7 @@ import type {
 } from "@react-three/rapier";
 import { useGameStore } from "@/store/gameStore";
 import { usePlayerStore } from "@/store/playerStore";
-import { enemyManager } from "@/simulation/enemyManager";
+import { getEnemyManager } from "@/simulation/enemyManager";
 import { useSessionStore } from "@/store/sessionStore";
 import { useMovementInput } from "../controls/useMovementInput";
 import { useSpriteAnimation } from "../rendering/useSpriteAnimation";
@@ -18,7 +18,11 @@ import {
 } from "@/utils/player/playerControls";
 import { getViewportBounds } from "@/utils/rendering/viewportBounds";
 import { VIEWPORT_CONFIG } from "@/data/config/viewportConfig";
-import { AnimationCategory, AnimationVariant, type PlayerUserData } from "@/types";
+import {
+  AnimationCategory,
+  AnimationVariant,
+  type PlayerUserData,
+} from "@/types";
 import type { UsePlayerBehaviorReturn } from "@/types/hooks/entities";
 
 /**
@@ -30,7 +34,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
 
   // Zustand selectors - only subscribe to values that affect render
   const selectedCharacterId = useSessionStore(
-    (state) => state.selectedCharacterId
+    (state) => state.selectedCharacterId,
   );
   const isRunning = useSessionStore((state) => state.isRunning);
   const isPaused = useSessionStore((state) => state.isPaused);
@@ -70,14 +74,14 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
 
     const contacts = activeEnemyContacts.current;
     contacts.forEach((_, id) => {
-      if (!enemyManager.hasEnemy(id)) {
+      if (!getEnemyManager().hasEnemy(id)) {
         contacts.delete(id);
       }
     });
 
     const viewportBounds = getViewportBounds(
       state.camera,
-      VIEWPORT_CONFIG.CAMERA_ZOOM
+      VIEWPORT_CONFIG.CAMERA_ZOOM,
     );
     gameStore.updateViewportBounds(viewportBounds);
   });
@@ -103,7 +107,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
       if (!isEnemyUserData(userData)) return;
       activeEnemyContacts.current.set(userData.id, userData.damage);
     },
-    []
+    [],
   );
 
   // Collision exit handler - remove enemy from contacts
@@ -114,7 +118,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
       if (!isEnemyUserData(userData)) return;
       activeEnemyContacts.current.delete(userData.id);
     },
-    []
+    [],
   );
 
   // User data for collision detection
@@ -123,7 +127,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
       type: "player",
       characterId: selectedCharacterId,
     }),
-    [selectedCharacterId]
+    [selectedCharacterId],
   );
 
   return {

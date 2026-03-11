@@ -8,6 +8,8 @@ export interface SpriteConfig {
   index: number;
   scale: number;
   spriteFrameSize?: number;
+  /** Number of frames in sprite sheet; when 2+ and weapon has shouldSpin, animate */
+  spriteFrameCount?: number;
 }
 
 export enum PassiveId {

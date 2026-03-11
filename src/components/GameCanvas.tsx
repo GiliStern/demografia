@@ -7,6 +7,7 @@ import { styled } from "@linaria/react";
 import { Player } from "./Player";
 import { ActiveWeapons } from "./weapons/ActiveWeapons";
 import { WaveManager } from "./WaveManager";
+import { BatchedEnemyRenderer } from "./BatchedEnemyRenderer";
 import { InfiniteBackground } from "./InfiniteBackground";
 import { LevelUpOverlay } from "./LevelUpOverlay";
 import { GameLoop } from "./GameLoop";
@@ -59,8 +60,9 @@ export const GameCanvas = ({ $menuVisible = false }: GameCanvasProps) => {
             <WaveManager />
             <XpOrbsManager />
           </Physics>
-          {/* Batched projectile rendering outside physics for performance */}
+          {/* Batched rendering outside physics - run projectiles first (damage), then enemies (movement + death) */}
           <BatchedProjectileRenderer />
+          <BatchedEnemyRenderer />
         </Suspense>
       </Canvas>
       <LevelUpOverlay />

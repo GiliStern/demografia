@@ -17,8 +17,6 @@ export type SpawnTracker = Record<
   }
 >;
 
-export interface UseWaveManagerReturn {
-  enemies: ActiveEnemy[];
-  removeEnemy: (id: string) => void;
-}
+/** useWaveManager runs spawn logic only; returns nothing. */
+export type UseWaveManagerReturn = void;
 

@@ -142,6 +142,7 @@ export function useInstancedSprite({
           if (texColor.a < 0.05) discard;
           
           gl_FragColor = texColor;
+          #include <colorspace_fragment>
         }
       `,
       transparent: true,

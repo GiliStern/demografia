@@ -40,7 +40,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     id: EnemyId.Tourist,
     name_he: "תייר",
     stats: {
-      hp: 15,
+      hp: 12,
       damage: 5,
       speed: 2,
       knockback_resistance: 0.2,
@@ -57,7 +57,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     id: EnemyId.ScooterSwarm,
     name_he: "נחיל קורקינטים",
     stats: {
-      hp: 20,
+      hp: 14,
       damage: 3,
       speed: 3,
       knockback_resistance: 0,
@@ -74,7 +74,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     id: EnemyId.TiktokStar,
     name_he: "טיקטוקיסט",
     stats: {
-      hp: 25,
+      hp: 16,
       damage: 6,
       speed: 8,
       knockback_resistance: 0.3,

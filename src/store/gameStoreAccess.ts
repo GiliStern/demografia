@@ -1,39 +1,30 @@
 import type { CentralizedProjectile, ViewportBounds } from "@/types";
 import type { EnemyPositionMap } from "@/utils/game/waveUtils";
 import type { TickContext } from "@/simulation/projectileManager";
+import { getGameplayContext } from "@/simulation/gameplayContext";
 import { useGameStore } from "./gameStore";
-import { usePlayerStore } from "./playerStore";
-import { enemyManager } from "../simulation/enemyManager";
 
 /**
  * Frame-system adapters: isolate imperative store access for simulation hot paths.
- * All getState() usage for frame-driven systems goes through these named helpers.
+ * All getState() usage for frame-driven systems goes through GameplayContext.
+ * These helpers delegate to getGameplayContext() for consistency.
  */
 
 export const getPlayerPositionSnapshot = (): { x: number; y: number } =>
-  usePlayerStore.getState().playerPosition;
+  getGameplayContext().getPlayerPosition();
 
 export const getPlayerDirectionSnapshot = (): { x: number; y: number } =>
-  usePlayerStore.getState().playerDirection;
+  getGameplayContext().getPlayerDirection();
 
 export const getViewportBoundsSnapshot = (): ViewportBounds | null =>
-  useGameStore.getState().viewportBounds;
+  getGameplayContext().getViewportBounds();
 
 export const getEnemyPositionsRegistrySnapshot = (): EnemyPositionMap =>
-  enemyManager.getEnemyPositions() as EnemyPositionMap;
+  getGameplayContext().getEnemyPositions();
 
 export const getProjectilesSnapshot = (): CentralizedProjectile[] =>
   useGameStore.getState().getProjectilesArray();
 
-/** Builds tick context for projectile manager; single getState() per frame. */
-export const getProjectileTickContext = (): TickContext => {
-  const gameStore = useGameStore.getState();
-  const playerStore = usePlayerStore.getState();
-  return {
-    getEnemyPositions: () =>
-      enemyManager.getEnemyPositions() as EnemyPositionMap,
-    getViewportBounds: () => gameStore.viewportBounds,
-    getPlayerPosition: () => playerStore.playerPosition,
-    damageEnemy: (id, damage) => enemyManager.damageEnemy(id, damage),
-  };
-};
+/** Builds tick context for projectile manager; delegates to GameplayContext. */
+export const getProjectileTickContext = (): TickContext =>
+  getGameplayContext().getProjectileTickContext();

@@ -1,47 +1,42 @@
 import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useSessionStore } from "@/store/sessionStore";
-import { getProjectileTickContext } from "@/store/gameStoreAccess";
-import { getProjectileManager } from "@/simulation/projectileManager";
+import { useXpOrbsStore } from "@/store/gameStore";
+import { getPlayerPositionSnapshot } from "@/store/gameStoreAccess";
+import { getEnemyManager } from "@/simulation/enemyManager";
+import { getGameplayContext } from "@/simulation/gameplayContext";
+import { buildEnemyDeathRewards } from "@/utils/entities/enemyLifecycle";
 import { InstancedSprite } from "./InstancedSprite";
 import {
   batchEntitiesByTexture,
   type BatchableEntity,
   type EntityInstance,
 } from "@/utils/performance/entityBatcher";
-import type { CentralizedProjectile } from "@/types";
+import type { EnemyRuntimeState } from "@/simulation/enemyManager";
 import type { InstancedSpriteHandle } from "./InstancedSprite";
-import { getSpinningSpriteIndex } from "@/utils/entities/enemyAnimation";
 
 function toBatchable(
-  p: CentralizedProjectile,
-  currentTime: number
+  e: EnemyRuntimeState,
+  playerPos: { x: number; y: number }
 ): BatchableEntity {
-  const shouldAnimate =
-    p.shouldSpin && (p.spriteFrameCount ?? 0) >= 2;
-  const spriteIndex = shouldAnimate
-    ? getSpinningSpriteIndex(currentTime)
-    : p.spriteIndex;
-
+  const flipX = playerPos.x < e.position.x;
   return {
-    id: p.id,
-    position: [p.position.x, p.position.y, p.position.z],
-    scale: p.scale,
-    spriteIndex,
-    flipX: p.flipX,
-    textureUrl: p.textureUrl,
-    spriteFrameSize: p.spriteFrameSize,
+    id: e.id,
+    position: [e.position.x, e.position.y, 0],
+    scale: e.scale,
+    spriteIndex: e.spriteIndex,
+    flipX,
+    textureUrl: e.textureUrl,
+    spriteFrameSize: e.spriteFrameSize,
   };
 }
 
 /**
- * BatchedProjectileRenderer - Centralized high-performance projectile rendering
- *
- * Simulation runs in the projectile manager (ref-backed). This component only
- * runs the manager tick and renders snapshots via GPU instancing. No per-frame
- * Zustand writes or forced React rerenders.
+ * BatchedEnemyRenderer - Centralized enemy simulation and rendering.
+ * Runs enemy tick (movement, death, contact damage) and renders via GPU instancing.
+ * Processes death events for rewards (XP, gold, kills).
  */
-export const BatchedProjectileRenderer = () => {
+export const BatchedEnemyRenderer = () => {
   const batchKeysRef = useRef<Set<string>>(new Set());
   const [batchKeys, setBatchKeys] = useState<string[]>([]);
   const spriteSyncRefs = useRef<Map<string, InstancedSpriteHandle>>(new Map());
@@ -58,25 +53,41 @@ export const BatchedProjectileRenderer = () => {
 
   const isPaused = useSessionStore((state) => state.isPaused);
   const isRunning = useSessionStore((state) => state.isRunning);
+  const addXpOrb = useXpOrbsStore((state) => state.addXpOrb);
+  const addGold = useSessionStore((state) => state.addGold);
+  const addKill = useSessionStore((state) => state.addKill);
 
-  const manager = getProjectileManager();
+  const enemyManager = getEnemyManager();
+  const tickContext = getGameplayContext().getEnemyTickContext();
 
   useFrame((state, frameDelta) => {
     if (isPaused || !isRunning) return;
 
-    const delta = frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
+    const delta =
+      frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
     const currentTime = state.clock.getElapsedTime();
 
-    manager.tick(delta, currentTime, getProjectileTickContext());
+    const deathEvents = enemyManager.tick(delta, currentTime, tickContext);
 
-    const snapshot = manager.getSnapshot();
-    const batchableEntities = snapshot.map((p) =>
-      toBatchable(p, currentTime)
-    );
+    for (const ev of deathEvents) {
+      const rewards = buildEnemyDeathRewards({
+        position: ev.position,
+        xpValue: ev.xpDrop,
+      });
+      addXpOrb(rewards.xpOrb);
+      addGold(rewards.goldReward);
+      if (rewards.killIncrement > 0) {
+        addKill();
+      }
+    }
+
+    const snapshot = enemyManager.getSnapshot();
+    const playerPos = getPlayerPositionSnapshot();
+    const batchableEntities = snapshot.map((e) => toBatchable(e, playerPos));
     const batches = batchEntitiesByTexture(batchableEntities);
 
     const keys = batches.map(
-      (b) => `${b.textureUrl}::${b.spriteFrameSize ?? 32}`,
+      (b) => `${b.textureUrl}::${b.spriteFrameSize ?? 32}`
     );
 
     let changed = false;
@@ -106,8 +117,6 @@ export const BatchedProjectileRenderer = () => {
       }
       data.instancesRef.current = batch.instances;
     }
-    // Must call syncMesh() for each batch so the instanced mesh updates in the same frame.
-    // Otherwise removed projectiles stay visible for one or more frames (regression fix).
     for (const key of batchKeysRef.current) {
       const data = batchDataRef.current.get(key);
       if (!data) continue;
@@ -136,7 +145,7 @@ export const BatchedProjectileRenderer = () => {
             spriteFrameSize={data.spriteFrameSize}
             maxInstances={Math.max(
               200,
-              (data.instancesRef.current?.length ?? 0) + 50,
+              (data.instancesRef.current?.length ?? 0) + 50
             )}
           />
         );

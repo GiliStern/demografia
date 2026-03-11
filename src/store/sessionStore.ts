@@ -15,7 +15,7 @@ import {
   resolveLevelProgression,
   buildUpgradeChoices,
 } from "./gameStore";
-import { enemyManager } from "../simulation/enemyManager";
+import { resetEnemyManager } from "../simulation/enemyManager";
 
 export interface SessionState {
   isRunning: boolean;
@@ -78,7 +78,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
     usePlayerStore.getState().resetPlayer(characterId);
     const gameStore = useGameStore.getState();
     useWeaponsStore.getState().resetWeapons([character.startingWeaponId]);
-    enemyManager.reset();
+    resetEnemyManager();
     gameStore.resetXpOrbs();
     gameStore.clearProjectiles();
 
@@ -92,7 +92,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
 
   resetToMainMenu: () => {
     const gameStore = useGameStore.getState();
-    enemyManager.reset();
+    resetEnemyManager();
     gameStore.resetXpOrbs();
     gameStore.clearProjectiles();
     set({

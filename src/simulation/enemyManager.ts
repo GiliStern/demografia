@@ -1,71 +1,258 @@
 /**
  * Enemy Manager
  *
- * Module-level manager for enemy positions and damage callbacks.
- * Similar to projectileManager - keeps mutable state outside Zustand.
- * killCount lives in useSessionStore.
+ * Centralized enemy simulation - owns positions, HP, movement, and death.
+ * Analogous to ProjectileManager. Keeps mutable state outside Zustand.
+ * Rendering uses getSnapshot(); projectile collision uses getEnemyPositions.
  */
+
+import type { EnemyId } from "@/types";
+import type { EnemyDataRuntime } from "@/data/normalizeConfig";
+import type { ViewportBounds } from "@/types";
+import { getEnemySpriteIndex } from "@/utils/entities/enemyAnimation";
+
+const CONTACT_RADIUS = 0.5;
+const CONTACT_DAMAGE_INTERVAL = 0.5;
 
 export interface EnemyPosition {
   x: number;
   y: number;
 }
 
-const enemyPositions = new Map<string, EnemyPosition>();
-const enemyDamageCallbacks = new Map<string, (damage: number) => void>();
-
-export interface EnemyManager {
-  registerEnemy(id: string, position: EnemyPosition): void;
-  updateEnemyPosition(id: string, position: EnemyPosition): void;
-  removeEnemy(id: string): void;
-  registerEnemyDamageCallback(id: string, callback: (damage: number) => void): void;
-  damageEnemy(id: string, damage: number): void;
-  getEnemyPosition(id: string): EnemyPosition | undefined;
-  getEnemyPositions(): ReadonlyMap<string, EnemyPosition>;
-  hasEnemy(id: string): boolean;
-  reset(): void;
+export interface EnemyRuntimeState {
+  id: string;
+  typeId: EnemyId;
+  position: EnemyPosition;
+  hp: number;
+  maxHp: number;
+  speed: number;
+  contactDamage: number;
+  xpDrop: number;
+  textureUrl: string;
+  spriteIndex: number;
+  baseSpriteIndex: number;
+  spriteFrameSize: number;
+  scale: number;
 }
 
-export const enemyManager: EnemyManager = {
-  registerEnemy(id, position) {
-    enemyPositions.set(id, position);
-  },
+export interface EnemyDeathEvent {
+  id: string;
+  typeId: EnemyId;
+  position: EnemyPosition;
+  xpDrop: number;
+}
 
-  updateEnemyPosition(id, position) {
-    if (!enemyPositions.has(id)) return;
-    enemyPositions.set(id, position);
-  },
+export interface EnemyTickContext {
+  getPlayerPosition: () => { x: number; y: number };
+  getViewportBounds: () => ViewportBounds | null;
+  getCullDistance: () => number;
+  /** Throttled internally; call every frame for enemies in contact range */
+  reportContactDamage: (amount: number) => void;
+}
 
-  removeEnemy(id) {
-    enemyPositions.delete(id);
-    enemyDamageCallbacks.delete(id);
-  },
+export interface EnemyManager {
+  spawnEnemy(
+    id: string,
+    typeId: EnemyId,
+    position: EnemyPosition,
+    enemyData: EnemyDataRuntime,
+  ): void;
+  applyDamage(id: string, damage: number): void;
+  removeEnemy(id: string): void;
+  clearAll(): void;
+  getSnapshot(): EnemyRuntimeState[];
+  getEnemyPositions(): ReadonlyMap<string, EnemyPosition>;
+  getEnemy(id: string): EnemyRuntimeState | undefined;
+  getCount(): number;
+  hasEnemy(id: string): boolean;
+  /**
+   * Runs movement, removes dead enemies, applies contact damage.
+   * Returns death events for the caller to process (rewards, XP, etc.).
+   */
+  tick(
+    delta: number,
+    currentTime: number,
+    ctx: EnemyTickContext,
+  ): EnemyDeathEvent[];
+}
 
-  registerEnemyDamageCallback(id, callback) {
-    enemyDamageCallbacks.set(id, callback);
-  },
-
-  damageEnemy(id, damage) {
-    const callback = enemyDamageCallbacks.get(id);
-    if (callback) {
-      callback(damage);
+function createThrottledContactDamage(
+  takeDamage: (amount: number) => number | void,
+): (amount: number) => void {
+  let lastTime = 0;
+  let accumulated = 0;
+  return (amount: number) => {
+    accumulated += amount;
+    const now = performance.now() / 1000;
+    if (now - lastTime >= CONTACT_DAMAGE_INTERVAL) {
+      if (accumulated > 0) {
+        takeDamage(accumulated);
+        accumulated = 0;
+      }
+      lastTime = now;
     }
-  },
+  };
+}
 
-  getEnemyPosition(id) {
-    return enemyPositions.get(id);
-  },
+function distance(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+): number {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
 
-  getEnemyPositions() {
-    return enemyPositions;
-  },
+export function createEnemyManager(): EnemyManager {
+  const roster = new Map<string, EnemyRuntimeState>();
 
-  hasEnemy(id) {
-    return enemyPositions.has(id);
-  },
+  return {
+    spawnEnemy(id, typeId, position, enemyData) {
+      const { stats, spriteConfig } = enemyData;
+      const baseIndex = spriteConfig.index ?? 0;
+      roster.set(id, {
+        id,
+        typeId,
+        position: { ...position },
+        hp: stats.hp,
+        maxHp: stats.hp,
+        speed: stats.speed,
+        contactDamage: stats.damage,
+        xpDrop: stats.xpDrop,
+        textureUrl: spriteConfig.textureUrl,
+        spriteIndex: baseIndex,
+        baseSpriteIndex: baseIndex,
+        spriteFrameSize: spriteConfig.spriteFrameSize ?? 32,
+        scale: spriteConfig.scale,
+      });
+    },
 
-  reset() {
-    enemyPositions.clear();
-    enemyDamageCallbacks.clear();
-  },
-};
+    applyDamage(id, damage) {
+      const enemy = roster.get(id);
+      if (!enemy) return;
+      const newHp = Math.max(0, enemy.hp - damage);
+      enemy.hp = newHp;
+    },
+
+    removeEnemy(id) {
+      roster.delete(id);
+    },
+
+    clearAll() {
+      roster.clear();
+    },
+
+    getSnapshot() {
+      return Array.from(roster.values()).map((e) => ({
+        ...e,
+        position: { ...e.position },
+      }));
+    },
+
+    getEnemyPositions() {
+      const map = new Map<string, EnemyPosition>();
+      for (const [id, e] of roster) {
+        map.set(id, { ...e.position });
+      }
+      return map as ReadonlyMap<string, EnemyPosition>;
+    },
+
+    getEnemy(id) {
+      return roster.get(id);
+    },
+
+    getCount() {
+      return roster.size;
+    },
+
+    hasEnemy(id) {
+      return roster.has(id);
+    },
+
+    tick(delta, currentTime, ctx) {
+      const {
+        getPlayerPosition,
+        getViewportBounds,
+        getCullDistance,
+        reportContactDamage,
+      } = ctx;
+      const playerPos = getPlayerPosition();
+      const viewportBounds = getViewportBounds();
+      const cullDistance = getCullDistance();
+
+      const deathEvents: EnemyDeathEvent[] = [];
+      const toRemove: string[] = [];
+
+      for (const enemy of roster.values()) {
+        if (enemy.hp <= 0) {
+          deathEvents.push({
+            id: enemy.id,
+            typeId: enemy.typeId,
+            position: { ...enemy.position },
+            xpDrop: enemy.xpDrop,
+          });
+          toRemove.push(enemy.id);
+          continue;
+        }
+
+        const dx = playerPos.x - enemy.position.x;
+        const dy = playerPos.y - enemy.position.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+
+        const isMoving = len > 0.1;
+        if (isMoving) {
+          const nx = dx / len;
+          const ny = dy / len;
+          enemy.position.x += nx * enemy.speed * delta;
+          enemy.position.y += ny * enemy.speed * delta;
+        }
+
+        enemy.spriteIndex = getEnemySpriteIndex(
+          currentTime,
+          enemy.baseSpriteIndex,
+          isMoving
+        );
+
+        const distToPlayer = distance(enemy.position, playerPos);
+        if (distToPlayer < CONTACT_RADIUS) {
+          reportContactDamage(enemy.contactDamage);
+        }
+
+        if (viewportBounds) {
+          const distFromPlayer = distance(enemy.position, playerPos);
+          if (distFromPlayer > cullDistance) {
+            toRemove.push(enemy.id);
+          }
+        }
+      }
+
+      for (const id of toRemove) {
+        roster.delete(id);
+      }
+
+      return deathEvents;
+    },
+  };
+}
+
+let globalManager: EnemyManager | null = null;
+
+export function getEnemyManager(): EnemyManager {
+  return (globalManager ??= createEnemyManager());
+}
+
+export function resetEnemyManager(): void {
+  if (globalManager) {
+    globalManager.clearAll();
+  }
+}
+
+/**
+ * Creates a throttled contact damage reporter for use in EnemyTickContext.
+ * Pass the result to tick context's reportContactDamage.
+ */
+export function createContactDamageReporter(
+  takeDamage: (amount: number) => number | void,
+): (amount: number) => void {
+  return createThrottledContactDamage(takeDamage);
+}

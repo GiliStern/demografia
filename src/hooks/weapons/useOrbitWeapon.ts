@@ -61,7 +61,7 @@ export const useOrbitWeapon = ({
   const isRunning = useSessionStore((state) => state.isRunning);
   const getWeaponStats = useWeaponsStore((state) => state.getWeaponStats);
   const getEffectivePlayerStats = usePlayerStore(
-    (state) => state.getEffectivePlayerStats
+    (state) => state.getEffectivePlayerStats,
   );
 
   const playerStats = getEffectivePlayerStats();
@@ -75,7 +75,7 @@ export const useOrbitWeapon = ({
   const stats = getWeaponStats(weaponId);
   const runtime = useMemo(
     () => buildOrbitRuntime(stats, playerStats),
-    [stats, playerStats]
+    [stats, playerStats],
   );
 
   const syncOrbiters = useCallback((next: OrbitingOrb[]) => {
@@ -89,20 +89,20 @@ export const useOrbitWeapon = ({
       lastSpawnRef.current = time;
       syncOrbiters(batch);
     },
-    [runtime.amount, syncOrbiters]
+    [runtime.amount, syncOrbiters],
   );
 
   const expireOrbiters = useCallback(
     (time: number) => {
       if (runtime.waveDuration <= 0) return;
       const active = orbitersRef.current.filter(
-        (orb) => time - orb.spawnedAt <= runtime.waveDuration
+        (orb) => time - orb.spawnedAt <= runtime.waveDuration,
       );
       if (active.length !== orbitersRef.current.length) {
         syncOrbiters(active);
       }
     },
-    [runtime.waveDuration, syncOrbiters]
+    [runtime.waveDuration, syncOrbiters],
   );
 
   useEffect(() => {
@@ -130,6 +130,7 @@ export const useOrbitWeapon = ({
   return {
     orbiters,
     spriteConfig,
+    shouldSpin: Boolean(weapon?.shouldSpin),
     damage: runtime.damage,
     radius: runtime.radius,
     baseAngleRef,

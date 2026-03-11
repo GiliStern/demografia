@@ -39,6 +39,8 @@ export interface CentralizedProjectile {
   duration: number;
   flipX?: boolean;
   shouldSpin?: boolean;
+  /** Number of frames in sprite; when 2+ and shouldSpin, animate */
+  spriteFrameCount?: number;
   weaponId: WeaponId;
   behaviorType?: "normal" | "bounce" | "homing" | "arc";
   /** Number of enemies this projectile can hit before being removed; 0 = disappear on first hit. */

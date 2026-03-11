@@ -3,15 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import type { ProjectileData, WeaponId } from "@/types";
 import type { CentralizedProjectile } from "@/types";
 import { getWeapon } from "@/data/config/weaponsNormalized";
-import { useProjectilesStore } from "@/store/gameStore";
-import { getEnemyPositionsRegistrySnapshot } from "@/store/gameStoreAccess";
-import { usePlayerStore } from "@/store/playerStore";
-import { useSessionStore } from "@/store/sessionStore";
-import { useWeaponsStore } from "@/store/weaponsStore";
-import {
-  getPlayerPositionSnapshot,
-  getPlayerDirectionSnapshot,
-} from "@/store/gameStoreAccess";
+import { getGameplayContext } from "@/simulation/gameplayContext";
 import { resolveDirection } from "@/utils/weapons/weaponUtils";
 import { nearestEnemyDirection } from "@/utils/weapons/weaponMath";
 import {
@@ -64,28 +56,19 @@ export function useWeaponFiringLoop(
   const pendingShots = useRef<ProjectileData[]>([]);
   const nextStaggerTime = useRef<number | null>(null);
 
-  const isPaused = useSessionStore((state) => state.isPaused);
-  const isRunning = useSessionStore((state) => state.isRunning);
-  const getWeaponStats = useWeaponsStore((state) => state.getWeaponStats);
-  const getEffectivePlayerStats = usePlayerStore(
-    (state) => state.getEffectivePlayerStats
-  );
-  const addProjectiles = useProjectilesStore((state) => state.addProjectiles);
-  const playerPosition = usePlayerStore((state) => state.playerPosition);
-  const playerDirection = usePlayerStore((state) => state.playerDirection);
-
-  const playerStats = getEffectivePlayerStats();
+  const ctx = getGameplayContext();
+  const playerStats = ctx.getEffectivePlayerStats();
   const weaponData = getWeapon(weaponId);
-  const stats = getWeaponStats(weaponId);
+  const stats = ctx.getWeaponStats(weaponId);
   const runtime = buildWeaponRuntime(stats, playerStats);
 
   const produceShots = (time: number): ProjectileData[] => {
-    const pos = getPlayerPositionSnapshot();
+    const pos = ctx.getPlayerPosition();
     const position = { x: pos.x, y: pos.y, z: 0 };
 
     switch (targeting) {
       case "playerDirection": {
-        const dir = getPlayerDirectionSnapshot();
+        const dir = ctx.getPlayerDirection();
         const direction = resolveDirection(dir.x, dir.y);
         const baseVelocity = buildVelocity(direction, runtime.speed);
         return createSpreadProjectiles({
@@ -100,9 +83,11 @@ export function useWeaponFiringLoop(
         });
       }
       case "nearestEnemy": {
+        const playerPos = ctx.getPlayerPosition();
+        const playerDir = ctx.getPlayerDirection();
         const targetDir =
-          nearestEnemyDirection(playerPosition, getEnemyPositionsRegistrySnapshot()) ??
-          resolveDirection(playerDirection.x, playerDirection.y);
+          nearestEnemyDirection(playerPos, ctx.getEnemyPositions()) ??
+          resolveDirection(playerDir.x, playerDir.y);
         const baseVelocity = buildVelocity(targetDir, runtime.speed);
         return createSpreadProjectiles({
           amount: runtime.amount || 1,
@@ -199,7 +184,7 @@ export function useWeaponFiringLoop(
             overrides
           )
         );
-        addProjectiles(centralized);
+        ctx.addProjectiles(centralized);
       }
     } else {
       const centralized = shots.map((shot) =>
@@ -212,13 +197,14 @@ export function useWeaponFiringLoop(
           overrides
         )
       );
-      addProjectiles(centralized);
+      ctx.addProjectiles(centralized);
     }
 
     lastFireTime.current = time;
   };
 
   useFrame((state) => {
+    const { isPaused, isRunning } = ctx.getSessionState();
     if (isPaused || !isRunning || !weaponData) return;
 
     const time = state.clock.getElapsedTime();
@@ -247,7 +233,7 @@ export function useWeaponFiringLoop(
                 overrides
               )
             );
-            addProjectiles(centralized);
+            ctx.addProjectiles(centralized);
           }
         },
       });

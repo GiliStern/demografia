@@ -1,17 +1,13 @@
-import { Enemy } from "./Enemy";
 import { useWaveManager } from "../hooks/game/useWaveManager";
 
 // Re-export for backward compatibility
-export type { ActiveEnemy } from "../hooks/game/useWaveManager";
+export type { ActiveEnemy } from "../types/hooks/game";
 
+/**
+ * WaveManager - Runs wave spawn logic only.
+ * Enemy rendering is handled by BatchedEnemyRenderer.
+ */
 export const WaveManager = () => {
-  const { enemies, removeEnemy } = useWaveManager();
-
-  return (
-    <>
-      {enemies.map((e) => (
-        <Enemy key={e.id} {...e} onDeath={() => removeEnemy(e.id)} />
-      ))}
-    </>
-  );
+  useWaveManager();
+  return null;
 };
