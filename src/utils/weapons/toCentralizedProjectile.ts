@@ -1,8 +1,4 @@
-import type {
-  CentralizedProjectile,
-  ProjectileData,
-  WeaponId,
-} from "@/types";
+import type { CentralizedProjectile, ProjectileData, WeaponId } from "@/types";
 import type { WeaponDefinitionRuntime } from "@/data/normalizeConfig";
 
 /** Overrides for weapon-specific fields (e.g. arc acceleration). */
@@ -21,7 +17,7 @@ export function toCentralizedProjectile(
   weaponId: WeaponId,
   spawnTime: number,
   behaviorType: CentralizedProjectile["behaviorType"] = "normal",
-  overrides?: ToCentralizedProjectileOverrides
+  overrides?: ToCentralizedProjectileOverrides,
 ): CentralizedProjectile {
   const pos = shot.position;
   const vel = shot.velocity;
@@ -39,6 +35,7 @@ export function toCentralizedProjectile(
     weaponId,
     behaviorType,
     shouldSpin: weapon.shouldSpin,
+    ...(shot.pierce !== undefined && { pierce: shot.pierce }),
     ...overrides,
   };
 }

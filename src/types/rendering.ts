@@ -21,6 +21,8 @@ export interface ProjectileData {
   velocity: Velocity;
   duration: number;
   damage: number;
+  /** Number of enemies this projectile can hit before being removed; 0 = disappear on first hit. */
+  pierce?: number;
 }
 
 export interface CentralizedProjectile {
@@ -39,6 +41,8 @@ export interface CentralizedProjectile {
   shouldSpin?: boolean;
   weaponId: WeaponId;
   behaviorType?: "normal" | "bounce" | "homing" | "arc";
+  /** Number of enemies this projectile can hit before being removed; 0 = disappear on first hit. */
+  pierce?: number;
 }
 
 export enum AnimationType {

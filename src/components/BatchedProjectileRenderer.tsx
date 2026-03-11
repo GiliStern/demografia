@@ -10,6 +10,7 @@ import {
   type EntityInstance,
 } from "@/utils/performance/entityBatcher";
 import type { CentralizedProjectile } from "@/types";
+import type { InstancedSpriteHandle } from "./InstancedSprite";
 
 function toBatchable(p: CentralizedProjectile): BatchableEntity {
   return {
@@ -33,6 +34,7 @@ function toBatchable(p: CentralizedProjectile): BatchableEntity {
 export const BatchedProjectileRenderer = () => {
   const batchKeysRef = useRef<Set<string>>(new Set());
   const [batchKeys, setBatchKeys] = useState<string[]>([]);
+  const spriteSyncRefs = useRef<Map<string, InstancedSpriteHandle>>(new Map());
   const batchDataRef = useRef<
     Map<
       string,
@@ -50,47 +52,58 @@ export const BatchedProjectileRenderer = () => {
   const manager = getProjectileManager();
 
   useFrame((state, frameDelta) => {
-    if (isPaused || !isRunning) return;
+      if (isPaused || !isRunning) return;
 
-    const delta =
-      frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
-    const currentTime = state.clock.getElapsedTime();
+      const delta =
+        frameDelta > 0 && frameDelta < 0.5 ? frameDelta : 0.016;
+      const currentTime = state.clock.getElapsedTime();
 
-    manager.tick(delta, currentTime, getProjectileTickContext());
+      manager.tick(delta, currentTime, getProjectileTickContext());
 
-    const snapshot = manager.getSnapshot();
-    const batchableEntities = snapshot.map(toBatchable);
-    const batches = batchEntitiesByTexture(batchableEntities);
+      const snapshot = manager.getSnapshot();
+      const batchableEntities = snapshot.map(toBatchable);
+      const batches = batchEntitiesByTexture(batchableEntities);
 
-    const keys = batches.map(
-      (b) => `${b.textureUrl}::${b.spriteFrameSize ?? 32}`
-    );
+      const keys = batches.map(
+        (b) => `${b.textureUrl}::${b.spriteFrameSize ?? 32}`
+      );
 
-    let changed = false;
-    for (const key of keys) {
-      if (!batchKeysRef.current.has(key)) {
-        batchKeysRef.current.add(key);
-        changed = true;
+      let changed = false;
+      for (const key of keys) {
+        if (!batchKeysRef.current.has(key)) {
+          batchKeysRef.current.add(key);
+          changed = true;
+        }
       }
-    }
-    if (changed) {
-      setBatchKeys([...batchKeysRef.current]);
-    }
-
-    for (const batch of batches) {
-      const key = `${batch.textureUrl}::${batch.spriteFrameSize ?? 32}`;
-      let data = batchDataRef.current.get(key);
-      if (!data) {
-        data = {
-          textureUrl: batch.textureUrl,
-          spriteFrameSize: batch.spriteFrameSize ?? 32,
-          instancesRef: { current: [] },
-        };
-        batchDataRef.current.set(key, data);
+      if (changed) {
+        setBatchKeys([...batchKeysRef.current]);
       }
-      data.instancesRef.current = batch.instances;
-    }
-  });
+
+      const batchByKey = new Map(
+        batches.map((b) => [`${b.textureUrl}::${b.spriteFrameSize ?? 32}`, b]),
+      );
+      for (const batch of batches) {
+        const key = `${batch.textureUrl}::${batch.spriteFrameSize ?? 32}`;
+        let data = batchDataRef.current.get(key);
+        if (!data) {
+          data = {
+            textureUrl: batch.textureUrl,
+            spriteFrameSize: batch.spriteFrameSize ?? 32,
+            instancesRef: { current: [] },
+          };
+          batchDataRef.current.set(key, data);
+        }
+        data.instancesRef.current = batch.instances;
+      }
+      // Must call syncMesh() for each batch so the instanced mesh updates in the same frame.
+      // Otherwise removed projectiles stay visible for one or more frames (regression fix).
+      for (const key of batchKeysRef.current) {
+        const data = batchDataRef.current.get(key);
+        if (!data) continue;
+        if (!batchByKey.has(key)) data.instancesRef.current = [];
+        spriteSyncRefs.current.get(key)?.syncMesh();
+      }
+    });
 
   return (
     <>
@@ -100,6 +113,9 @@ export const BatchedProjectileRenderer = () => {
         return (
           <InstancedSprite
             key={key}
+            ref={(r) => {
+              if (r) spriteSyncRefs.current.set(key, r);
+            }}
             textureUrl={data.textureUrl}
             instancesRef={
               data.instancesRef as React.MutableRefObject<

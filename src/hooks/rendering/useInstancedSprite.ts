@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo } from "react";
+import { useRef, useEffect, useMemo, useCallback } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
@@ -16,7 +16,7 @@ function updateMeshFromInstances(
   instances: InstanceData[],
   maxInstances: number,
   spriteIndicesAttr: THREE.InstancedBufferAttribute,
-  flipXValuesAttr: THREE.InstancedBufferAttribute
+  flipXValuesAttr: THREE.InstancedBufferAttribute,
 ): void {
   const count = Math.min(instances.length, maxInstances);
   const matrix = new THREE.Matrix4();
@@ -28,7 +28,7 @@ function updateMeshFromInstances(
     matrix.makeTranslation(
       instance.position[0],
       instance.position[1],
-      instance.position[2]
+      instance.position[2],
     );
     matrix.scale(new THREE.Vector3(instance.scale, instance.scale, 1));
     mesh.setMatrixAt(i, matrix);
@@ -152,11 +152,11 @@ export function useInstancedSprite({
   // Persistent attributes to avoid re-creating them every frame
   const spriteIndicesAttr = useMemo(
     () => new THREE.InstancedBufferAttribute(new Float32Array(maxInstances), 1),
-    [maxInstances]
+    [maxInstances],
   );
   const flipXValuesAttr = useMemo(
     () => new THREE.InstancedBufferAttribute(new Float32Array(maxInstances), 1),
-    [maxInstances]
+    [maxInstances],
   );
 
   // Initialize attributes on geometry once
@@ -167,8 +167,7 @@ export function useInstancedSprite({
     geometry.setAttribute("flipX", flipXValuesAttr);
   }, [spriteIndicesAttr, flipXValuesAttr]);
 
-  // When instancesRef: update mesh in useFrame (no React rerenders)
-  useFrame(() => {
+  const syncMeshNow = useCallback(() => {
     if (!instancesRef || !meshRef.current) return;
     const inst = instancesRef.current;
     if (!inst) return;
@@ -177,8 +176,13 @@ export function useInstancedSprite({
       inst,
       maxInstances,
       spriteIndicesAttr,
-      flipXValuesAttr
+      flipXValuesAttr,
     );
+  }, [instancesRef, maxInstances, spriteIndicesAttr, flipXValuesAttr]);
+
+  // When instancesRef: update mesh in useFrame (no React rerenders)
+  useFrame(() => {
+    syncMeshNow();
   });
 
   // When instances (no instancesRef): update mesh in useEffect
@@ -189,7 +193,7 @@ export function useInstancedSprite({
       instances,
       maxInstances,
       spriteIndicesAttr,
-      flipXValuesAttr
+      flipXValuesAttr,
     );
   }, [
     instancesRef,
@@ -203,5 +207,6 @@ export function useInstancedSprite({
   return {
     meshRef,
     material,
+    syncMeshNow,
   };
 }

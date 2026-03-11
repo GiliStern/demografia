@@ -14,11 +14,37 @@ import type { EnemyPositionMap } from "@/utils/game/waveUtils";
 
 const COLLISION_RADIUS = 0.5;
 
+/** Returns true if the segment from (x0,y0) to (x1,y1) intersects the circle at (cx,cy) with radius r. */
+function segmentIntersectsCircle(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  cx: number,
+  cy: number,
+  r: number,
+): boolean {
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) {
+    const dSq = (cx - x0) ** 2 + (cy - y0) ** 2;
+    return dSq <= r * r;
+  }
+  const t = Math.max(0, Math.min(1, ((cx - x0) * dx + (cy - y0) * dy) / lenSq));
+  const nx = x0 + t * dx;
+  const ny = y0 + t * dy;
+  const distSq = (cx - nx) ** 2 + (cy - ny) ** 2;
+  return distSq <= r * r;
+}
+
 function enemyEntries(
-  enemies: EnemyPositionMap
+  enemies: EnemyPositionMap,
 ): [string, { x: number; y: number }][] {
   if (enemies instanceof Map) {
-    return Array.from((enemies as ReadonlyMap<string, { x: number; y: number }>).entries());
+    return Array.from(
+      (enemies as ReadonlyMap<string, { x: number; y: number }>).entries(),
+    );
   }
   const entries: [string, { x: number; y: number }][] = [];
   const record = enemies as Record<string, { x: number; y: number }>;
@@ -87,7 +113,12 @@ export function createProjectileManager(): ProjectileManager {
     },
 
     tick(delta, currentTime, ctx) {
-      const { getEnemyPositions, getViewportBounds, getPlayerPosition, damageEnemy } = ctx;
+      const {
+        getEnemyPositions,
+        getViewportBounds,
+        getPlayerPosition,
+        damageEnemy,
+      } = ctx;
       const toRemove: string[] = [];
       const currentEnemies = getEnemyPositions();
       const viewportBounds = getViewportBounds();
@@ -102,16 +133,13 @@ export function createProjectileManager(): ProjectileManager {
         }
 
         let velocity = projectile.velocity;
-        if (
-          projectile.behaviorType === "bounce" &&
-          viewportBounds
-        ) {
+        if (projectile.behaviorType === "bounce" && viewportBounds) {
           velocity = reflectInBounds(
             { x: projectile.position.x, y: projectile.position.y },
             projectile.velocity,
             playerPosition,
             viewportBounds.halfWidth,
-            viewportBounds.halfHeight
+            viewportBounds.halfHeight,
           );
         }
 
@@ -119,21 +147,48 @@ export function createProjectileManager(): ProjectileManager {
         const nextState = advanceProjectile(projectileWithVel, delta);
         const newPosition = nextState.position;
 
-        let hitEnemy = false;
-        for (const [enemyId, enemyPos] of enemyEntries(currentEnemies)) {
-          const dx = newPosition.x - enemyPos.x;
-          const dy = newPosition.y - enemyPos.y;
-          const distSq = dx * dx + dy * dy;
+        const x0 = projectile.position.x;
+        const y0 = projectile.position.y;
+        const x1 = newPosition.x;
+        const y1 = newPosition.y;
 
-          if (distSq < COLLISION_RADIUS * COLLISION_RADIUS) {
+        let hitEnemy = false;
+        let shouldRemoveOnHit = false;
+        for (const [enemyId, enemyPos] of enemyEntries(currentEnemies)) {
+          if (
+            segmentIntersectsCircle(
+              x0,
+              y0,
+              x1,
+              y1,
+              enemyPos.x,
+              enemyPos.y,
+              COLLISION_RADIUS,
+            )
+          ) {
             damageEnemy(enemyId, projectile.damage);
-            toRemove.push(projectile.id);
             hitEnemy = true;
+            const pierceLeft = (projectile.pierce ?? 0) - 1;
+            if (pierceLeft < 0) {
+              shouldRemoveOnHit = true;
+            }
             break;
           }
         }
 
-        if (!hitEnemy) {
+        if (shouldRemoveOnHit) {
+          toRemove.push(projectile.id);
+        } else if (hitEnemy) {
+          const existing = projectiles.get(projectile.id);
+          if (existing) {
+            projectiles.set(projectile.id, {
+              ...existing,
+              position: newPosition,
+              velocity: nextState.velocity,
+              pierce: (existing.pierce ?? 0) - 1,
+            });
+          }
+        } else {
           const existing = projectiles.get(projectile.id);
           if (existing) {
             projectiles.set(projectile.id, {

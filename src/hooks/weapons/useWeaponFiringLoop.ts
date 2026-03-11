@@ -95,6 +95,7 @@ export function useWeaponFiringLoop(
           position,
           duration: runtime.duration,
           damage: runtime.damage,
+          pierce: runtime.pierce,
           idFactory: (idx) => `${weaponId}-${time}-${idx}`,
         });
       }
@@ -110,6 +111,7 @@ export function useWeaponFiringLoop(
           position,
           duration: runtime.duration,
           damage: runtime.damage,
+          pierce: runtime.pierce,
           idFactory: (idx) => `${weaponId}-${time}-${idx}`,
         });
       }
@@ -121,6 +123,7 @@ export function useWeaponFiringLoop(
           position,
           damage: runtime.damage,
           duration: runtime.duration,
+          pierce: runtime.pierce,
           idFactory: (idx) => `${weaponId}-${time}-${idx}`,
         });
       }
@@ -135,6 +138,7 @@ export function useWeaponFiringLoop(
             velocity: { x: vx, y: vy },
             duration: runtime.duration,
             damage: runtime.damage,
+            pierce: runtime.pierce,
           };
         });
       }
@@ -155,6 +159,7 @@ export function useWeaponFiringLoop(
             },
             duration: runtime.duration,
             damage: runtime.damage,
+            pierce: runtime.pierce,
           };
         });
       }
