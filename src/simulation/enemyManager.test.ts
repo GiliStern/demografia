@@ -80,6 +80,32 @@ describe("enemyManager", () => {
     expect(manager.getEnemyPositions().size).toBe(0);
   });
 
+  it("emits death event when enemy is culled beyond cullDistance", () => {
+    const manager = getEnemyManager();
+    const enemyData = getEnemy(EnemyId.StreetCats);
+    if (!enemyData) throw new Error("Enemy data not found");
+
+    manager.spawnEnemy("culled-1", EnemyId.StreetCats, { x: 100, y: 100 }, enemyData);
+    const ctx = {
+      getPlayerPosition: () => ({ x: 0, y: 0 }),
+      getViewportBounds: () => ({
+        width: 100,
+        height: 100,
+        halfWidth: 50,
+        halfHeight: 50,
+      }),
+      getCullDistance: () => 50,
+      reportContactDamage: vi.fn(),
+    };
+
+    const deathEvents = manager.tick(0.016, 0, ctx);
+
+    expect(deathEvents).toHaveLength(1);
+    expect(deathEvents[0]!.id).toBe("culled-1");
+    expect(deathEvents[0]!.wasCulled).toBe(true);
+    expect(manager.hasEnemy("culled-1")).toBe(false);
+  });
+
   it("getEnemyPositions returns positions for projectile collision", () => {
     const manager = getEnemyManager();
     const enemyData = getEnemy(EnemyId.StreetCats);

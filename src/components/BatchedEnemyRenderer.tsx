@@ -70,6 +70,7 @@ export const BatchedEnemyRenderer = () => {
     const deathEvents = enemyManager.tick(delta, currentTime, tickContext);
 
     for (const ev of deathEvents) {
+      if (ev.wasCulled) continue;
       const rewards = buildEnemyDeathRewards({
         position: ev.position,
         xpValue: ev.xpDrop,

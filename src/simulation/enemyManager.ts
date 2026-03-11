@@ -40,6 +40,8 @@ export interface EnemyDeathEvent {
   typeId: EnemyId;
   position: EnemyPosition;
   xpDrop: number;
+  /** True when removed for being beyond cull distance (no rewards) */
+  wasCulled?: boolean;
 }
 
 export interface EnemyTickContext {
@@ -221,6 +223,13 @@ export function createEnemyManager(): EnemyManager {
         if (viewportBounds) {
           const distFromPlayer = distance(enemy.position, playerPos);
           if (distFromPlayer > cullDistance) {
+            deathEvents.push({
+              id: enemy.id,
+              typeId: enemy.typeId,
+              position: { ...enemy.position },
+              xpDrop: enemy.xpDrop,
+              wasCulled: true,
+            });
             toRemove.push(enemy.id);
           }
         }
