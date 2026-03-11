@@ -6,6 +6,7 @@ export const OrbitWeapon = ({ weaponId }: WeaponComponentProps) => {
   const {
     orbiters,
     spriteConfig,
+    shouldSpin,
     damage,
     radius,
     baseAngleRef,
@@ -23,6 +24,7 @@ export const OrbitWeapon = ({ weaponId }: WeaponComponentProps) => {
           playerPosition={playerPosition}
           damage={damage}
           spriteConfig={spriteConfig}
+          shouldSpin={Boolean(shouldSpin)}
         />
       ))}
     </>

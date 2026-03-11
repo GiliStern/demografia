@@ -26,7 +26,7 @@ export interface EntityBatch {
  * Groups entities by their texture URL and sprite frame size for batched rendering
  */
 export function batchEntitiesByTexture(
-  entities: BatchableEntity[]
+  entities: BatchableEntity[],
 ): EntityBatch[] {
   const batchMap = new Map<string, EntityBatch>();
 
@@ -101,7 +101,7 @@ export class EntityBatcherOptimized {
    */
   getBatches(): EntityBatch[] {
     return Array.from(this.batchMap.values()).filter(
-      (batch) => batch.instances.length > 0
+      (batch) => batch.instances.length > 0,
     );
   }
 

@@ -1,31 +1,54 @@
-import { useInstancedSprite, type InstanceData } from "@/hooks/rendering/useInstancedSprite";
+import { forwardRef, useImperativeHandle } from "react";
+import {
+  useInstancedSprite,
+  type InstanceData,
+} from "@/hooks/rendering/useInstancedSprite";
 
 // Re-export InstanceData for convenience
 export type { InstanceData };
 
 interface InstancedSpriteProps {
   textureUrl: string;
-  instances: InstanceData[];
+  instances?: InstanceData[];
+  instancesRef?: React.MutableRefObject<InstanceData[] | undefined>;
   spriteFrameSize?: number;
   maxInstances?: number;
 }
 
+export interface InstancedSpriteHandle {
+  syncMesh: () => void;
+}
+
 /**
- * InstancedSprite - High-performance sprite rendering using GPU instancing
- * Renders multiple sprites in a single draw call, eliminating texture cloning overhead
+ * InstancedSprite - High-performance sprite rendering using GPU instancing.
+ * Use instancesRef for frame-rate updates without React rerenders.
+ * When used with a ref, exposes syncMesh() so the parent can update the mesh in the same frame after setting instancesRef.current.
  */
-export const InstancedSprite = ({
-  textureUrl,
-  instances,
-  spriteFrameSize = 32,
-  maxInstances = 200,
-}: InstancedSpriteProps) => {
-  const { meshRef, material } = useInstancedSprite({
+export const InstancedSprite = forwardRef<
+  InstancedSpriteHandle,
+  InstancedSpriteProps
+>(function InstancedSprite(
+  {
+    textureUrl,
+    instances,
+    instancesRef,
+    spriteFrameSize = 32,
+    maxInstances = 200,
+  },
+  ref,
+) {
+  const { meshRef, material, syncMeshNow } = useInstancedSprite({
     textureUrl,
     spriteFrameSize,
-    instances,
+    ...(instancesRef
+      ? { instancesRef }
+      : instances !== undefined
+        ? { instances }
+        : {}),
     maxInstances,
   });
+
+  useImperativeHandle(ref, () => ({ syncMesh: syncMeshNow }), [syncMeshNow]);
 
   return (
     <instancedMesh
@@ -36,4 +59,4 @@ export const InstancedSprite = ({
       <planeGeometry args={[1, 1]} />
     </instancedMesh>
   );
-};
+});

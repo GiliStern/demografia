@@ -14,6 +14,8 @@ interface CommonProjectileParams {
   duration: number;
   /** Optional custom id generator; receives the projectile index. */
   idFactory?: (index: number) => string;
+  /** Number of enemies each projectile can hit before being removed; 0 = disappear on first hit. */
+  pierce?: number;
 }
 
 interface SpreadParams extends CommonProjectileParams {
@@ -52,6 +54,7 @@ export const createSpreadProjectiles = ({
   damage,
   duration,
   idFactory = defaultIdFactory,
+  pierce,
 }: SpreadParams): ProjectileData[] =>
   Array.from({ length: amount }).map((_, index) => {
     const offset = spreadStep * (index - (amount - 1) / 2);
@@ -61,6 +64,7 @@ export const createSpreadProjectiles = ({
       velocity: { x: baseVelocity.x + offset, y: baseVelocity.y + offset },
       duration,
       damage,
+      ...(pierce !== undefined && { pierce }),
     };
   });
 
@@ -71,6 +75,7 @@ export const createDirectionalProjectiles = ({
   damage,
   duration,
   idFactory = defaultIdFactory,
+  pierce,
 }: DirectionParams): ProjectileData[] =>
   directions.map((dir, index) => {
     const velocity = buildVelocity(dir, speed);
@@ -80,5 +85,6 @@ export const createDirectionalProjectiles = ({
       velocity,
       duration,
       damage,
+      ...(pierce !== undefined && { pierce }),
     };
   });

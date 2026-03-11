@@ -11,6 +11,7 @@ const weaponSprites = {
 };
 
 const weaponIcons = {
+  prickly: icons.prickly,
   chair: icons.chair,
   chicken: icons.chicken,
   pita: icons.pita,
@@ -23,7 +24,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     name_he: "צבר",
     description_he: "יורה פירות צבר קוצניים אל האויב הקרוב.",
     type: "projectile_closest",
-    shouldSpin: false,
+    shouldSpin: true,
     stats: {
       damage: 5,
       speed: 10,
@@ -65,10 +66,11 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     },
     sprite_config: {
       textureUrl: weaponSprites.prickly,
-      iconUrl: weaponSprites.prickly,
+      iconUrl: weaponIcons.prickly,
       index: 0,
       spriteFrameSize: 256,
       scale: 1,
+      spriteFrameCount: 2,
     },
   },
   [WeaponId.KeterChairs]: {
@@ -118,6 +120,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       index: 0,
       spriteFrameSize: 170,
       scale: 2,
+      spriteFrameCount: 2,
     },
   },
   [WeaponId.Kaparot]: {
@@ -183,6 +186,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       index: 0,
       spriteFrameSize: 170,
       scale: 1,
+      spriteFrameCount: 2,
     },
   },
   [WeaponId.Pitas]: {
@@ -240,6 +244,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       index: 0,
       spriteFrameSize: 256,
       scale: 1,
+      spriteFrameCount: 2,
     },
   },
   [WeaponId.StarOfDavid]: {
@@ -293,6 +298,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       index: 0,
       spriteFrameSize: 256,
       scale: 1,
+      spriteFrameCount: 2,
     },
   },
   [WeaponId.HolyCactus]: {

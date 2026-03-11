@@ -1,7 +1,7 @@
 import { styled } from "@linaria/react";
-import { CharacterId } from "@/types";
+import { CharacterId, WeaponId } from "@/types";
 import { CHARACTERS } from "@/data/config/characters";
-import { WEAPONS } from "@/data/config/weaponsConfig";
+import { getWeapon } from "@/data/config/weaponsNormalized";
 import { UI_STRINGS } from "@/data/config/ui";
 import { StyledButton } from "../ui/AppButton";
 import { CharacterCard, type CharacterCardData } from "../ui/CharacterCard";
@@ -33,8 +33,9 @@ const MOCK_LOCKED_CHARACTERS: CharacterCardData[] = [
     },
     weaponName: "כסאות כתר",
     weaponIconUrl:
-      WEAPONS.keter_chairs.sprite_config.iconUrl ??
-      WEAPONS.keter_chairs.sprite_config.textureUrl,
+      getWeapon(WeaponId.KeterChairs)?.spriteConfig.iconUrl ??
+      getWeapon(WeaponId.KeterChairs)?.spriteConfig.textureUrl ??
+      "",
   },
 ];
 
@@ -169,13 +170,13 @@ export const CharacterSelection = ({
   // Build unlocked character cards
   const unlockedCards: CharacterCardData[] = Object.values(CHARACTERS).map(
     (character) => {
-      const weapon = WEAPONS[character.starting_weapon_id];
+      const weapon = getWeapon(character.starting_weapon_id);
       return {
         variant: "unlocked" as const,
         character,
-        weaponName: weapon.name_he,
+        weaponName: weapon?.name_he ?? "",
         weaponIconUrl:
-          weapon.sprite_config.iconUrl ?? weapon.sprite_config.textureUrl,
+          weapon?.spriteConfig.iconUrl ?? weapon?.spriteConfig.textureUrl ?? "",
       };
     },
   );

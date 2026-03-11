@@ -1,9 +1,9 @@
 import { useRef } from "react";
 import { styled } from "@linaria/react";
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 import { ItemKind, PauseReason, type UpgradeOption } from "../types";
 import { UI_STRINGS } from "../data/config/ui";
-import { renderUpgradeLabel } from "../utils/ui/upgradeLabels";
+import { UpgradeLabel } from "../utils/ui/UpgradeLabel";
 import { AppButton } from "./ui/AppButton";
 import { useMenuNavigation } from "@/hooks/controls/useMenuNavigation";
 
@@ -78,7 +78,9 @@ const ButtonList = styled.div`
 `;
 
 export const LevelUpOverlay = () => {
-  const { pauseReason, upgradeChoices, applyUpgrade } = useGameStore();
+  const pauseReason = useSessionStore((state) => state.pauseReason);
+  const upgradeChoices = useSessionStore((state) => state.upgradeChoices);
+  const applyUpgrade = useSessionStore((state) => state.applyUpgrade);
   const isLevelUpMenu = pauseReason === PauseReason.LevelUp;
   const buttonListRef = useRef<HTMLDivElement>(null);
 
@@ -109,7 +111,7 @@ export const LevelUpOverlay = () => {
                 key={`${choiceId}-${choice.isNew ? "new" : "upgrade"}`}
                 onClick={() => applyUpgrade(choice)}
               >
-                {renderUpgradeLabel(choice)}
+                <UpgradeLabel choice={choice} />
               </AppButton>
             );
           })}

@@ -2,6 +2,7 @@ import telAvivLoopBg from "./bg/tel_aviv_loop2.png";
 
 import mainBanner from "./main_banner.png";
 
+import pricklyIcon from "./icons/prickly_icon.png";
 import chairIcon from "./icons/chair_icon.png";
 import chickenCircleIcon from "./icons/chicken_circle.png";
 import pitaIcon from "./icons/pita_icon.png";
@@ -58,6 +59,7 @@ export const banners = {
 };
 
 export const icons = {
+  prickly: pricklyIcon,
   chair: chairIcon,
   chicken: chickenCircleIcon,
   pita: pitaIcon,

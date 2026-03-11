@@ -1,5 +1,5 @@
+import { create } from "zustand";
 import type {
-  StoreCreator,
   WeaponsStore,
   PassiveId,
   WeaponId,
@@ -13,14 +13,18 @@ import {
   applyPassivesToWeaponStats,
 } from "../utils/passives/passiveUtils";
 
-export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
+let weaponStatsCache: Partial<Record<WeaponId, WeaponStats>> = {};
+let weaponStatsCacheValid = false;
+
+export const useWeaponsStore = create<WeaponsStore>()((set, get) => ({
   activeWeapons: [],
   activeItems: [],
   weaponLevels: {},
   passiveLevels: {},
 
-  resetWeapons: (weaponIds: WeaponId[]) =>
-    set({
+  resetWeapons: (weaponIds: WeaponId[]) => {
+    weaponStatsCacheValid = false;
+    return set({
       activeWeapons: [...weaponIds],
       activeItems: [],
       weaponLevels: weaponIds.reduce<Partial<Record<WeaponId, number>>>(
@@ -28,57 +32,85 @@ export const createWeaponsStore: StoreCreator<WeaponsStore> = (set, get) => ({
         {}
       ),
       passiveLevels: {},
-    }),
+    });
+  },
 
-  addWeapon: (weaponId: WeaponId) =>
-    set((state: WeaponsStore) =>
+  addWeapon: (weaponId: WeaponId) => {
+    weaponStatsCacheValid = false;
+    return set((state: WeaponsStore) =>
       state.activeWeapons.includes(weaponId)
         ? state
         : {
             activeWeapons: [...state.activeWeapons, weaponId],
             weaponLevels: { ...state.weaponLevels, [weaponId]: 1 },
           }
-    ),
+    );
+  },
 
-  levelUpWeapon: (weaponId: WeaponId): void =>
-    set((state: WeaponsStore) => {
+  levelUpWeapon: (weaponId: WeaponId): void => {
+    weaponStatsCacheValid = false;
+    return set((state: WeaponsStore) => {
       const current = state.weaponLevels[weaponId] ?? 1;
       return {
         weaponLevels: { ...state.weaponLevels, [weaponId]: current + 1 },
       };
-    }),
+    });
+  },
 
-  addPassive: (passiveId: PassiveId): void =>
-    set((state: WeaponsStore) =>
+  evolveWeapon: (evolvesFrom: WeaponId, weaponId: WeaponId): void => {
+    weaponStatsCacheValid = false;
+    return set((state: WeaponsStore) => {
+      const nextWeapons = [
+        ...state.activeWeapons.filter((id) => id !== evolvesFrom),
+        weaponId,
+      ];
+      const nextWeaponLevels = { ...state.weaponLevels, [weaponId]: 1 };
+      delete nextWeaponLevels[evolvesFrom];
+      return { activeWeapons: nextWeapons, weaponLevels: nextWeaponLevels };
+    });
+  },
+
+  addPassive: (passiveId: PassiveId): void => {
+    weaponStatsCacheValid = false;
+    return set((state: WeaponsStore) =>
       state.activeItems.includes(passiveId)
         ? state
         : {
             activeItems: [...state.activeItems, passiveId],
             passiveLevels: { ...state.passiveLevels, [passiveId]: 1 },
           }
-    ),
+    );
+  },
 
-  levelUpPassive: (passiveId: PassiveId): void =>
-    set((state: WeaponsStore) => {
+  levelUpPassive: (passiveId: PassiveId): void => {
+    weaponStatsCacheValid = false;
+    return set((state: WeaponsStore) => {
       const current = state.passiveLevels[passiveId] ?? 1;
       return {
         passiveLevels: { ...state.passiveLevels, [passiveId]: current + 1 },
       };
-    }),
+    });
+  },
 
   getWeaponStats: (weaponId): WeaponStats => {
+    if (!weaponStatsCacheValid) {
+      weaponStatsCache = {};
+      weaponStatsCacheValid = true;
+    }
+    const cached = weaponStatsCache[weaponId];
+    if (cached) return cached;
+
     const weaponDef = WEAPONS[weaponId];
     const level = get().weaponLevels[weaponId] ?? 1;
     const baseStats = resolveWeaponStats(weaponDef, level);
-
-    // Apply passive effects to weapon stats
     const passiveEffects = get().getAccumulatedPassiveEffects();
-    return applyPassivesToWeaponStats(baseStats, passiveEffects);
+    const stats = applyPassivesToWeaponStats(baseStats, passiveEffects);
+    weaponStatsCache[weaponId] = stats;
+    return stats;
   },
 
   getAccumulatedPassiveEffects: (): PassiveStatDelta => {
     const { activeItems, passiveLevels } = get();
-    const result = accumulatePassiveEffects({ activeItems, passiveLevels });
-    return result;
+    return accumulatePassiveEffects({ activeItems, passiveLevels });
   },
-});
+}));

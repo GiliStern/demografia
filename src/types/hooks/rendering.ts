@@ -1,6 +1,10 @@
-import type { RefObject } from "react";
+import type { MutableRefObject, RefObject } from "react";
 import type * as THREE from "three";
-import type { AnimationCategory, AnimationType, AnimationVariant } from "../../types";
+import type {
+  AnimationCategory,
+  AnimationType,
+  AnimationVariant,
+} from "../../types";
 
 // ===========================
 // Instanced Sprite Hook Types
@@ -16,13 +20,16 @@ export interface InstanceData {
 export interface UseInstancedSpriteParams {
   textureUrl: string;
   spriteFrameSize: number;
-  instances: InstanceData[];
+  instances?: InstanceData[];
+  instancesRef?: MutableRefObject<InstanceData[] | undefined>;
   maxInstances: number;
 }
 
 export interface UseInstancedSpriteReturn {
   meshRef: RefObject<THREE.InstancedMesh>;
   material: THREE.ShaderMaterial;
+  /** Call after updating instancesRef.current to sync the instanced mesh in the same frame. */
+  syncMeshNow: () => void;
 }
 
 // ===========================
@@ -34,4 +41,3 @@ export interface UseSpriteAnimationProps {
   variant: AnimationVariant;
   currentAnimation: AnimationType;
 }
-

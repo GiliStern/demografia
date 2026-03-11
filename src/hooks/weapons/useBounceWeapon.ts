@@ -1,112 +1,18 @@
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
 import type { WeaponId } from "@/types";
-import { useGameStore } from "@/store/gameStore";
-import { WEAPONS } from "@/data/config/weaponsConfig";
-import { reflectInBounds } from "@/utils/weapons/weaponMath";
-import type { CentralizedProjectile } from "@/types";
-
-interface UseBounceWeaponParams {
-  weaponId: WeaponId;
-}
+import { useWeaponFiringLoop } from "./useWeaponFiringLoop";
 
 /**
- * Custom hook for bounce weapon behavior - fires projectiles that bounce at screen edges
- * Now uses centralized projectile store for batched rendering
+ * Bounce weapon - fires projectiles in random directions that bounce at screen edges.
+ * Bounce simulation is handled by the projectile manager.
  */
-export function useBounceWeapon({ weaponId }: UseBounceWeaponParams): void {
-  const lastFireTime = useRef(0);
-
-  // Zustand selectors
-  const {
-    isPaused,
-    isRunning,
-    getWeaponStats,
-    getEffectivePlayerStats,
-    addProjectiles,
-    updateProjectile,
-  } = useGameStore();
-  
-  const playerStats = getEffectivePlayerStats();
-  const projectilesMap = useGameStore((state) => state.projectiles);
-
-  const weapon = WEAPONS[weaponId];
-  const stats = getWeaponStats(weaponId);
-  const damage = stats.damage * (playerStats.might || 1);
-  const speed = stats.speed;
-  const duration = stats.duration;
-  const amount = stats.amount;
-  const cooldown =
-    (stats.cooldown ?? Number.POSITIVE_INFINITY) * playerStats.cooldown;
-
-  // Fire projectiles in random directions
-  const fire = (time: number) => {
-    lastFireTime.current = time;
-    // Read fresh player position from store inside fire
-    const freshPlayerPosition = useGameStore.getState().playerPosition;
-    const shots: CentralizedProjectile[] = Array.from({ length: amount }).map(
-      (_, idx) => {
-        const angle = Math.random() * Math.PI * 2;
-        const vx = Math.cos(angle) * speed;
-        const vy = Math.sin(angle) * speed;
-        return {
-          id: `${weaponId}-${time}-${idx}`,
-          position: { x: freshPlayerPosition.x, y: freshPlayerPosition.y, z: 0 },
-          velocity: { x: vx, y: vy },
-          damage,
-          textureUrl: weapon.sprite_config.textureUrl,
-          spriteIndex: weapon.sprite_config.index,
-          spriteFrameSize: weapon.sprite_config.spriteFrameSize ?? 32,
-          scale: weapon.sprite_config.scale,
-          spawnTime: time,
-          duration,
-          weaponId,
-          behaviorType: "bounce" as const,
-          shouldSpin: weapon.shouldSpin,
-        };
-      }
-    );
-    addProjectiles(shots);
-  };
-
-  // Handle firing and bouncing logic
-  useFrame((state) => {
-    if (isPaused || !isRunning) return;
-
-    const time = state.clock.getElapsedTime();
-
-    // Fire new projectiles
-    if (time - lastFireTime.current > cooldown) {
-      fire(time);
-    }
-
-    // Get viewport bounds for bouncing at screen edges
-    const viewportBounds = useGameStore.getState().viewportBounds;
-    if (!viewportBounds) return;
-
-    // Update bounce projectiles - only handle velocity changes, not removal
-    const bounceProjectiles = Array.from(projectilesMap.values()).filter(
-      (p: CentralizedProjectile) =>
-        p.weaponId === weaponId && p.behaviorType === "bounce"
-    );
-
-    // Get fresh player position for bounce calculations
-    const freshPlayerPosition = useGameStore.getState().playerPosition;
-    
-    for (const p of bounceProjectiles) {
-      // Check and apply bounce
-      const nextVel = reflectInBounds(
-        { x: p.position.x, y: p.position.y },
-        p.velocity,
-        freshPlayerPosition,
-        viewportBounds.halfWidth,
-        viewportBounds.halfHeight
-      );
-
-      // Update velocity if changed
-      if (nextVel.x !== p.velocity.x || nextVel.y !== p.velocity.y) {
-        updateProjectile(p.id, { velocity: nextVel });
-      }
-    }
+export function useBounceWeapon({
+  weaponId,
+}: {
+  weaponId: WeaponId;
+}): void {
+  useWeaponFiringLoop({
+    weaponId,
+    targeting: "randomDirection",
+    behaviorType: "bounce",
   });
 }

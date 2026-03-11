@@ -1,5 +1,5 @@
 import { useFrame, type RootState } from "@react-three/fiber";
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 
 /**
  * A wrapper around useFrame that only executes the callback when the game is running and not paused.
@@ -12,7 +12,8 @@ export const usePauseAwareFrame = (
   callback: (state: RootState, delta: number) => void,
   priority?: number
 ) => {
-  const { isPaused, isRunning } = useGameStore();
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
 
   useFrame((state, delta) => {
     if (isPaused || !isRunning) return;

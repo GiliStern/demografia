@@ -6,9 +6,10 @@ import { MainMenu } from "./components/screens/MainMenu";
 import { GameOver } from "./components/screens/GameOver";
 import { CharacterSelection } from "./components/screens/CharacterSelection";
 import { TouchJoystick } from "./components/TouchJoystick";
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 import { useMobileDetection } from "./hooks/utils/useMobileDetection";
-import { useTouchControls } from "./hooks/controls/useTouchControls";
+import { useUnifiedControls } from "./hooks/controls/useUnifiedControls";
+import { MovementInputProvider } from "./hooks/controls/MovementInputContext";
 import { PauseReason, CharacterId } from "./types";
 import "./styles/GlobalStyles";
 
@@ -19,40 +20,27 @@ const AppContainer = styled.div`
 `;
 
 const App = () => {
-  const {
-    isRunning,
-    isGameOver,
-    isPaused,
-    pauseGame,
-    resumeGame,
-    pauseReason,
-    startGame,
-  } = useGameStore();
+  const isRunning = useSessionStore((state) => state.isRunning);
+  const isGameOver = useSessionStore((state) => state.isGameOver);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const pauseGame = useSessionStore((state) => state.pauseGame);
+  const resumeGame = useSessionStore((state) => state.resumeGame);
+  const pauseReason = useSessionStore((state) => state.pauseReason);
+  const startGame = useSessionStore((state) => state.startGame);
 
   const [showCharacterSelection, setShowCharacterSelection] = useState(false);
   const isMobile = useMobileDetection();
 
-  // Disable touch controls when menus are visible
-  const isMenuVisible =
-    showCharacterSelection ||
-    (!showCharacterSelection &&
-      !isGameOver &&
-      (!isRunning || (isPaused && pauseReason === PauseReason.Manual))) ||
-    isGameOver;
+  // Derived menu visibility - single source of truth
+  const showMainMenu =
+    !showCharacterSelection &&
+    !isGameOver &&
+    (!isRunning || (isPaused && pauseReason === PauseReason.Manual));
+  const isMenuVisible = showCharacterSelection || showMainMenu || isGameOver;
 
-  const touchControls = useTouchControls(
+  const movementInput = useUnifiedControls(
     !isMenuVisible && isRunning && !isPaused && !isGameOver,
   );
-  const [touchInput, setTouchInput] = useState({ x: 0, y: 0 });
-
-  // Update touch input state for TouchJoystick component
-  useEffect(() => {
-    const updateTouchInput = () => {
-      setTouchInput(touchControls.current);
-    };
-    const interval = setInterval(updateTouchInput, 16); // 60fps
-    return () => clearInterval(interval);
-  }, [touchControls]);
 
   const handleShowCharacterSelection = () => {
     setShowCharacterSelection(true);
@@ -99,34 +87,25 @@ const App = () => {
 
   return (
     <>
-      <AppContainer>
-        {showCharacterSelection && (
-          <CharacterSelection
-            onSelectCharacter={handleSelectCharacter}
-            onBack={handleBackToMainMenu}
-          />
-        )}
-        {!showCharacterSelection &&
-          !isGameOver &&
-          (!isRunning || (isPaused && pauseReason === PauseReason.Manual)) && (
+      <MovementInputProvider inputRef={movementInput.inputRef}>
+        <AppContainer>
+          {showCharacterSelection && (
+            <CharacterSelection
+              onSelectCharacter={handleSelectCharacter}
+              onBack={handleBackToMainMenu}
+            />
+          )}
+          {showMainMenu && (
             <MainMenu onShowCharacterSelection={handleShowCharacterSelection} />
           )}
-        {isGameOver && <GameOver />}
-        <GameCanvas
-          $menuVisible={
-            showCharacterSelection ||
-            (!showCharacterSelection &&
-              !isGameOver &&
-              (!isRunning ||
-                (isPaused && pauseReason === PauseReason.Manual))) ||
-            isGameOver
-          }
-        />
-        {isRunning && !isPaused && !isGameOver && <InGameHUD />}
-        {isRunning && !isPaused && !isGameOver && isMobile && (
-          <TouchJoystick isVisible={true} touchInput={touchInput} />
-        )}
-      </AppContainer>
+          {isGameOver && <GameOver />}
+          <GameCanvas $menuVisible={isMenuVisible} />
+          {isRunning && !isPaused && !isGameOver && <InGameHUD />}
+          {isRunning && !isPaused && !isGameOver && isMobile && (
+            <TouchJoystick isVisible={true} touchInput={movementInput.touchInput} />
+          )}
+        </AppContainer>
+      </MovementInputProvider>
     </>
   );
 };

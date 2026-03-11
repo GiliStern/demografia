@@ -8,7 +8,7 @@ Play now: [https://gilistern.github.io/demografia/](https://gilistern.github.io/
 
 ## Prerequisites
 
-- Node.js 18+ (Vite 5 requires Node 18 or newer)
+- Node.js 22+ (see `.nvmrc`; run `nvm use` if using nvm)
 - Yarn (classic) or npm; Yarn is preferred because a `yarn.lock` is checked in
 
 ## Setup
@@ -29,6 +29,7 @@ Play now: [https://gilistern.github.io/demografia/](https://gilistern.github.io/
 - `yarn build` – type-check then create a production build
 - `yarn preview` – serve the production build locally
 - `yarn lint` – run ESLint for TypeScript/React files
+- `yarn test --run` – run tests once (CI uses this)
 
 ## Project structure (high level)
 

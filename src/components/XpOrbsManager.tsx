@@ -1,9 +1,14 @@
-import { useGameStore } from "@/store/gameStore";
+import { useMemo } from "react";
+import { useXpOrbsStore } from "@/store/gameStore";
 import { XpOrb } from "./XpOrb";
 import type { XpOrbData } from "@/types";
 
 export const XpOrbsManager = () => {
-  const xpOrbs = useGameStore((state) => state.xpOrbs);
+  const xpOrbsMap = useXpOrbsStore((state) => state.xpOrbsMap);
+  const xpOrbs = useMemo(
+    () => Array.from(xpOrbsMap.values()),
+    [xpOrbsMap],
+  );
 
   return (
     <>

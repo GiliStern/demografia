@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { styled } from "@linaria/react";
 
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { AppButton } from "../ui/AppButton";
 import { banners } from "@/assets/assetPaths";
@@ -108,7 +108,9 @@ const VersionText = styled.div`
 `;
 
 export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
-  const { resumeGame, isPaused, isRunning } = useGameStore();
+  const resumeGame = useSessionStore((state) => state.resumeGame);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
   const canResume = isRunning && isPaused;
   const buttonColumnRef = useRef<HTMLDivElement>(null);
 

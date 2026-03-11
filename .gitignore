@@ -2,3 +2,6 @@ old/node_modules
 node_modules
 .history
 dist
+
+# TypeScript incremental build cache
+*.tsbuildinfo

@@ -1,9 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import type { MoveInput } from "@/types/hooks/controls";
 
-interface TouchPosition {
-  x: number;
-  y: number;
-}
+type TouchPosition = MoveInput;
 
 /**
  * Hook to handle touch input and convert to joystick position
@@ -17,7 +15,10 @@ interface TouchPosition {
  * @param enabled - Whether touch controls should be active (default: true)
  * @returns MutableRefObject<{ x: number, y: number }> - Normalized input values
  */
-export const useTouchControls = (enabled = true) => {
+export const useTouchControls = (
+  enabled = true,
+  onChange?: (input: TouchPosition) => void,
+) => {
   const inputRef = useRef<TouchPosition>({ x: 0, y: 0 });
 
   // Track initial touch position and active touch ID
@@ -30,6 +31,14 @@ export const useTouchControls = (enabled = true) => {
   const DEAD_ZONE_PERCENT = 0.08; // 8% dead zone
   const DEAD_ZONE_RADIUS = MAX_RADIUS * DEAD_ZONE_PERCENT;
 
+  const setInput = useCallback(
+    (nextInput: TouchPosition) => {
+      inputRef.current = nextInput;
+      onChange?.(nextInput);
+    },
+    [onChange]
+  );
+
   useEffect(() => {
     // If touch controls are disabled, don't set up event listeners
     if (!enabled) {
@@ -37,7 +46,7 @@ export const useTouchControls = (enabled = true) => {
       activeTouchIdRef.current = null;
       initialTouchRef.current = null;
       joystickCenterRef.current = null;
-      inputRef.current = { x: 0, y: 0 };
+      setInput({ x: 0, y: 0 });
       return;
     }
 
@@ -112,7 +121,7 @@ export const useTouchControls = (enabled = true) => {
           joystickCenterRef.current = { x: initialX, y: initialY };
 
           // Initialize input (will be updated on touchmove)
-          inputRef.current = { x: 0, y: 0 };
+          setInput({ x: 0, y: 0 });
         }
       }
     };
@@ -147,7 +156,7 @@ export const useTouchControls = (enabled = true) => {
         initialTouchRef.current.y
       );
 
-      inputRef.current = normalized;
+      setInput(normalized);
     };
 
     const handleTouchEnd = (event: TouchEvent) => {
@@ -170,7 +179,7 @@ export const useTouchControls = (enabled = true) => {
         activeTouchIdRef.current = null;
         initialTouchRef.current = null;
         joystickCenterRef.current = null;
-        inputRef.current = { x: 0, y: 0 };
+        setInput({ x: 0, y: 0 });
       }
     };
 
@@ -198,9 +207,9 @@ export const useTouchControls = (enabled = true) => {
       activeTouchIdRef.current = null;
       initialTouchRef.current = null;
       joystickCenterRef.current = null;
-      inputRef.current = { x: 0, y: 0 };
+      setInput({ x: 0, y: 0 });
     };
-  }, [enabled]);
+  }, [enabled, onChange, DEAD_ZONE_RADIUS, setInput]);
 
   return inputRef;
 };

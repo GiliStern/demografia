@@ -1,7 +1,9 @@
 import { styled } from "@linaria/react";
-import { useGameStore } from "@/store/gameStore";
+import { usePlayerStore } from "@/store/playerStore";
+import { useSessionStore } from "@/store/sessionStore";
+import { useWeaponsStore } from "@/store/weaponsStore";
 import { UI_STRINGS } from "../data/config/ui";
-import { WEAPONS } from "../data/config/weaponsConfig";
+import { getWeapon } from "../data/config/weaponsNormalized";
 import { WeaponId } from "@/types";
 
 const HUDContainer = styled.div`
@@ -113,16 +115,16 @@ const WeaponIcon = styled.img`
 `;
 
 export const InGameHUD = () => {
-  const {
-    currentHealth,
-    level,
-    gold,
-    xp,
-    nextLevelXp,
-    runTimer,
-    activeWeapons,
-    getEffectivePlayerStats,
-  } = useGameStore();
+  const currentHealth = usePlayerStore((state) => state.currentHealth);
+  const level = useSessionStore((state) => state.level);
+  const gold = useSessionStore((state) => state.gold);
+  const xp = useSessionStore((state) => state.xp);
+  const nextLevelXp = useSessionStore((state) => state.nextLevelXp);
+  const runTimer = useSessionStore((state) => state.runTimer);
+  const activeWeapons = useWeaponsStore((state) => state.activeWeapons);
+  const getEffectivePlayerStats = usePlayerStore(
+    (state) => state.getEffectivePlayerStats
+  );
 
   const effectiveStats = getEffectivePlayerStats();
 
@@ -173,11 +175,13 @@ export const InGameHUD = () => {
       {/* Weapons List */}
       <WeaponsList>
         {activeWeapons.map((weaponId: WeaponId) => {
-          const weapon = WEAPONS[weaponId];
-          const iconUrl = weapon.sprite_config.iconUrl;
+          const weapon = getWeapon(weaponId);
+          const iconUrl = weapon?.spriteConfig.iconUrl;
           return (
             <WeaponIconContainer key={weaponId}>
-              {iconUrl && <WeaponIcon src={iconUrl} alt={weapon.name_he} />}
+              {iconUrl && weapon && (
+                <WeaponIcon src={iconUrl} alt={weapon.name_he} />
+              )}
             </WeaponIconContainer>
           );
         })}

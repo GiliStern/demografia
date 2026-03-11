@@ -37,6 +37,7 @@ export interface OrbitingOrb {
 export interface OrbitWeaponInstance {
   orbiters: OrbitingOrb[];
   spriteConfig: SpriteConfig;
+  shouldSpin?: boolean;
   damage: number;
   radius: number;
   baseAngleRef: MutableRefObject<number>;

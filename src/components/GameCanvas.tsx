@@ -7,13 +7,14 @@ import { styled } from "@linaria/react";
 import { Player } from "./Player";
 import { ActiveWeapons } from "./weapons/ActiveWeapons";
 import { WaveManager } from "./WaveManager";
+import { BatchedEnemyRenderer } from "./BatchedEnemyRenderer";
 import { InfiniteBackground } from "./InfiniteBackground";
 import { LevelUpOverlay } from "./LevelUpOverlay";
 import { GameLoop } from "./GameLoop";
 import { XpOrbsManager } from "./XpOrbsManager";
 import { BatchedProjectileRenderer } from "./BatchedProjectileRenderer";
 import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
-import { useGameStore } from "@/store/gameStore";
+import { useSessionStore } from "@/store/sessionStore";
 
 const CanvasContainer = styled.div<{ $menuVisible?: boolean }>`
   width: 100vw;
@@ -27,7 +28,8 @@ interface GameCanvasProps {
 }
 
 export const GameCanvas = ({ $menuVisible = false }: GameCanvasProps) => {
-  const { isPaused, isRunning } = useGameStore();
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
   const physicsPaused = !isRunning || isPaused;
 
   return (
@@ -58,8 +60,9 @@ export const GameCanvas = ({ $menuVisible = false }: GameCanvasProps) => {
             <WaveManager />
             <XpOrbsManager />
           </Physics>
-          {/* Batched projectile rendering outside physics for performance */}
+          {/* Batched rendering outside physics - run projectiles first (damage), then enemies (movement + death) */}
           <BatchedProjectileRenderer />
+          <BatchedEnemyRenderer />
         </Suspense>
       </Canvas>
       <LevelUpOverlay />

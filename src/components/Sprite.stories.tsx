@@ -1,15 +1,73 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import { Sprite } from "./Sprite";
+import { InstancedSprite } from "./InstancedSprite";
 import { sprites } from "../assets/assetPaths";
 import { CHARACTERS } from "../data/config/characters";
 import { ENEMIES } from "../data/config/enemies";
 import { WEAPONS } from "../data/config/weaponsConfig";
 import { CharacterId, EnemyId, WeaponId } from "../types";
+import { getEnemySpriteIndex } from "../utils/entities/enemyAnimation";
+import type { InstanceData } from "../types/hooks/rendering";
 import { useEffect, useState } from "react";
 
-// Wrapper component for animation
+/**
+ * Enemy sprite preview using InstancedSprite - matches game rendering exactly.
+ * Uses same frame logic (baseSpriteIndex + run frames at 8fps) as BatchedEnemyRenderer.
+ */
+const EnemySpritePreview = ({
+  textureUrl,
+  scale = 2,
+  spriteFrameSize = 32,
+  baseSpriteIndex = 0,
+  isMoving = false,
+  flipX = false,
+}: {
+  textureUrl: string;
+  scale?: number;
+  spriteFrameSize?: number;
+  baseSpriteIndex?: number;
+  isMoving?: boolean;
+  flipX?: boolean;
+}) => {
+  const instancesRef = useRef<InstanceData[]>([
+    {
+      position: [0, 0, 0],
+      scale,
+      spriteIndex: baseSpriteIndex,
+      flipX,
+    },
+  ]);
+
+  useFrame((state) => {
+    const currentTime = state.clock.getElapsedTime();
+    const spriteIndex = getEnemySpriteIndex(
+      currentTime,
+      baseSpriteIndex,
+      isMoving,
+    );
+    instancesRef.current[0] = {
+      position: [0, 0, 0],
+      scale,
+      spriteIndex,
+      flipX,
+    };
+  });
+
+  return (
+    <InstancedSprite
+      textureUrl={textureUrl}
+      instancesRef={instancesRef}
+      spriteFrameSize={spriteFrameSize}
+      maxInstances={1}
+    />
+  );
+};
+
+// Wrapper component for animation (used for characters/weapons - not enemies)
 const AnimatedSprite = ({
   textureUrl,
   scale = 2,
@@ -29,7 +87,7 @@ const AnimatedSprite = ({
 
   useEffect(() => {
     if (frames.length === 0) return;
-    
+
     const interval = setInterval(() => {
       setCurrentFrameIndex((prev) => (prev + 1) % frames.length);
     }, animationSpeed);
@@ -60,6 +118,8 @@ const SpriteWrapper = ({
   staticFrame = 0,
   showGrid = true,
   cameraDistance = 5,
+  useEnemyRendering = false,
+  baseSpriteIndex = 0,
 }: {
   textureUrl: string;
   scale?: number;
@@ -71,6 +131,9 @@ const SpriteWrapper = ({
   staticFrame?: number;
   showGrid?: boolean;
   cameraDistance?: number;
+  /** Use InstancedSprite + game animation logic (matches BatchedEnemyRenderer exactly) */
+  useEnemyRendering?: boolean;
+  baseSpriteIndex?: number;
 }) => {
   return (
     <div style={{ width: "100%", height: "600px" }}>
@@ -80,8 +143,17 @@ const SpriteWrapper = ({
       >
         <color attach="background" args={["#1a1a1a"]} />
         <ambientLight intensity={1} />
-        
-        {animated ? (
+
+        {useEnemyRendering ? (
+          <EnemySpritePreview
+            textureUrl={textureUrl}
+            scale={scale}
+            spriteFrameSize={spriteFrameSize}
+            baseSpriteIndex={baseSpriteIndex}
+            isMoving={animated}
+            flipX={flipX}
+          />
+        ) : animated ? (
           <AnimatedSprite
             textureUrl={textureUrl}
             scale={scale}
@@ -99,7 +171,7 @@ const SpriteWrapper = ({
             flipX={flipX}
           />
         )}
-        
+
         {showGrid && <gridHelper args={[10, 10]} />}
         <OrbitControls />
       </Canvas>
@@ -186,13 +258,25 @@ A React Three Fiber component for rendering sprite sheets with animation support
     },
     frames: {
       control: "object",
-      description: "Array of frame indexes to animate through (e.g., [0, 1, 2, 3] or [3, 4] for walking up)",
+      description:
+        "Array of frame indexes to animate through (e.g., [0, 1, 2, 3] or [3, 4] for walking up)",
       if: { arg: "animated", truthy: true },
     },
     staticFrame: {
       control: { type: "number", min: 0, max: 10, step: 1 },
       description: "Frame index to display when not animated",
       if: { arg: "animated", truthy: false },
+    },
+    useEnemyRendering: {
+      control: "boolean",
+      description:
+        "Use game-accurate InstancedSprite rendering (same as BatchedEnemyRenderer)",
+    },
+    baseSpriteIndex: {
+      control: { type: "number", min: 0, max: 10, step: 1 },
+      description:
+        "Base frame index from enemy config (used with useEnemyRendering)",
+      if: { arg: "useEnemyRendering", truthy: true },
     },
     showGrid: {
       control: "boolean",
@@ -208,7 +292,6 @@ A React Three Fiber component for rendering sprite sheets with animation support
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-
 const catSpriteConfig = ENEMIES[EnemyId.StreetCats].sprite_config;
 // Default story
 export const Default: Story = {
@@ -221,13 +304,14 @@ export const Default: Story = {
     staticFrame: 0,
     animationSpeed: 200,
     frames: [0, 1],
+    useEnemyRendering: true,
+    baseSpriteIndex: catSpriteConfig.index,
     showGrid: true,
     cameraDistance: 5,
   },
 };
 
-
-// Cat Walking
+// Cat Walking (game-accurate: InstancedSprite + baseSpriteIndex + run frames at 8fps)
 export const CatWalking: Story = {
   args: {
     textureUrl: catSpriteConfig.textureUrl,
@@ -235,8 +319,8 @@ export const CatWalking: Story = {
     spriteFrameSize: catSpriteConfig.spriteFrameSize ?? 32,
     flipX: false,
     animated: true,
-    animationSpeed: 200,
-    frames: [0, 1],
+    useEnemyRendering: true,
+    baseSpriteIndex: catSpriteConfig.index,
     showGrid: true,
     cameraDistance: 5,
   },
@@ -258,7 +342,6 @@ export const SrulikCharacter: Story = {
     cameraDistance: 5,
   },
 };
-
 
 // Srulik Walking
 export const SrulikWalking: Story = {
@@ -291,7 +374,7 @@ export const SrulikWalkingUp: Story = {
 };
 
 const hipsterSpriteConfig = ENEMIES[EnemyId.Hipster].sprite_config;
-// Hipster
+// Hipster (game-accurate: InstancedSprite, baseSpriteIndex=1)
 export const Hipster: Story = {
   args: {
     textureUrl: hipsterSpriteConfig.textureUrl,
@@ -299,15 +382,14 @@ export const Hipster: Story = {
     spriteFrameSize: hipsterSpriteConfig.spriteFrameSize ?? 32,
     flipX: false,
     animated: false,
-    staticFrame: 0,
-    animationSpeed: 200,
-    frames: [0, 1],
+    useEnemyRendering: true,
+    baseSpriteIndex: hipsterSpriteConfig.index,
     showGrid: true,
     cameraDistance: 5,
   },
 };
 
-// Hipster Walking
+// Hipster Walking (game-accurate: frames 1,2 at 8fps - same as in-game)
 export const HipsterWalking: Story = {
   args: {
     textureUrl: hipsterSpriteConfig.textureUrl,
@@ -315,15 +397,15 @@ export const HipsterWalking: Story = {
     spriteFrameSize: hipsterSpriteConfig.spriteFrameSize ?? 32,
     flipX: false,
     animated: true,
-    animationSpeed: 250,
-    frames: [0, 1],
+    useEnemyRendering: true,
+    baseSpriteIndex: hipsterSpriteConfig.index,
     showGrid: true,
     cameraDistance: 5,
   },
 };
 
 const touristSpriteConfig = ENEMIES[EnemyId.Tourist].sprite_config;
-// Tourist
+// Tourist (game-accurate)
 export const Tourist: Story = {
   args: {
     textureUrl: touristSpriteConfig.textureUrl,
@@ -331,15 +413,14 @@ export const Tourist: Story = {
     spriteFrameSize: touristSpriteConfig.spriteFrameSize ?? 32,
     flipX: false,
     animated: false,
-    staticFrame: 0,
-    animationSpeed: 200,
-    frames: [0, 1],
+    useEnemyRendering: true,
+    baseSpriteIndex: touristSpriteConfig.index,
     showGrid: true,
     cameraDistance: 5,
   },
 };
 
-// Tourist Walking
+// Tourist Walking (game-accurate)
 export const TouristWalking: Story = {
   args: {
     textureUrl: touristSpriteConfig.textureUrl,
@@ -347,15 +428,15 @@ export const TouristWalking: Story = {
     spriteFrameSize: touristSpriteConfig.spriteFrameSize ?? 32,
     flipX: false,
     animated: true,
-    animationSpeed: 300,
-    frames: [0, 1],
+    useEnemyRendering: true,
+    baseSpriteIndex: touristSpriteConfig.index,
     showGrid: true,
     cameraDistance: 6,
   },
 };
 
 const scooterSwarmSpriteConfig = ENEMIES[EnemyId.ScooterSwarm].sprite_config;
-// Scooter Swarm
+// Scooter Swarm (game-accurate)
 export const ScooterSwarm: Story = {
   args: {
     textureUrl: scooterSwarmSpriteConfig.textureUrl,
@@ -363,15 +444,15 @@ export const ScooterSwarm: Story = {
     spriteFrameSize: scooterSwarmSpriteConfig.spriteFrameSize ?? 32,
     flipX: false,
     animated: true,
-    animationSpeed: 100,
-    frames: [0, 1],
+    useEnemyRendering: true,
+    baseSpriteIndex: scooterSwarmSpriteConfig.index,
     showGrid: true,
     cameraDistance: 6,
   },
 };
 
 const tiktokStarSpriteConfig = ENEMIES[EnemyId.TiktokStar].sprite_config;
-// TikTok Star
+// TikTok Star (game-accurate)
 export const TiktokStar: Story = {
   args: {
     textureUrl: tiktokStarSpriteConfig.textureUrl,
@@ -379,8 +460,8 @@ export const TiktokStar: Story = {
     spriteFrameSize: tiktokStarSpriteConfig.spriteFrameSize ?? 32,
     flipX: false,
     animated: true,
-    animationSpeed: 150,
-    frames: [0, 1],
+    useEnemyRendering: true,
+    baseSpriteIndex: tiktokStarSpriteConfig.index,
     showGrid: true,
     cameraDistance: 6,
   },
@@ -445,7 +526,7 @@ export const Prickly: Story = {
     flipX: false,
     animated: true,
     animationSpeed: 200,
-    frames: [0],
+    frames: [0, 1],
     showGrid: true,
     cameraDistance: 5,
   },
@@ -467,7 +548,7 @@ export const StarOfDavid: Story = {
   },
 };
 
-// Flipped sprite example
+// Flipped sprite example (game-accurate enemy rendering)
 export const FlippedSprite: Story = {
   args: {
     textureUrl: catSpriteConfig.textureUrl,
@@ -475,8 +556,8 @@ export const FlippedSprite: Story = {
     spriteFrameSize: catSpriteConfig.spriteFrameSize ?? 32,
     flipX: true,
     animated: true,
-    animationSpeed: 200,
-    frames: [0, 1],
+    useEnemyRendering: true,
+    baseSpriteIndex: catSpriteConfig.index,
     showGrid: true,
     cameraDistance: 5,
   },

@@ -7,7 +7,7 @@ describe("resolveWeaponStats", () => {
   it("applies Sabra level bonuses", () => {
     const base = resolveWeaponStats(WEAPONS[WeaponId.Sabra], 1);
     const lvl5 = resolveWeaponStats(WEAPONS[WeaponId.Sabra], 5);
-    expect(base.damage).toBe(10);
+    expect(base.damage).toBe(5);
     expect(lvl5.damage).toBeGreaterThan(base.damage);
     expect(lvl5.amount).toBeGreaterThan(base.amount);
   });

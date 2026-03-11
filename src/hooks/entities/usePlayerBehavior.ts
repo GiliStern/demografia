@@ -1,12 +1,15 @@
-import { useRef, useState, useEffect, useCallback, useMemo } from "react";
+import { useRef, useState, useCallback, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import type {
   RapierRigidBody,
   IntersectionEnterPayload,
   IntersectionExitPayload,
 } from "@react-three/rapier";
-import { useUnifiedControls } from "../controls/useUnifiedControls";
 import { useGameStore } from "@/store/gameStore";
+import { usePlayerStore } from "@/store/playerStore";
+import { getEnemyManager } from "@/simulation/enemyManager";
+import { useSessionStore } from "@/store/sessionStore";
+import { useMovementInput } from "../controls/useMovementInput";
 import { useSpriteAnimation } from "../rendering/useSpriteAnimation";
 import { isEnemyUserData } from "@/utils/validation/userDataGuards";
 import {
@@ -15,7 +18,11 @@ import {
 } from "@/utils/player/playerControls";
 import { getViewportBounds } from "@/utils/rendering/viewportBounds";
 import { VIEWPORT_CONFIG } from "@/data/config/viewportConfig";
-import { AnimationCategory, AnimationVariant, type PlayerUserData } from "@/types";
+import {
+  AnimationCategory,
+  AnimationVariant,
+  type PlayerUserData,
+} from "@/types";
 import type { UsePlayerBehaviorReturn } from "@/types/hooks/entities";
 
 /**
@@ -23,19 +30,14 @@ import type { UsePlayerBehaviorReturn } from "@/types/hooks/entities";
  */
 export function usePlayerBehavior(): UsePlayerBehaviorReturn {
   const rigidBody = useRef<RapierRigidBody>(null);
-  const controls = useUnifiedControls();
+  const controls = useMovementInput();
 
-  // Zustand selectors - selective to prevent unnecessary re-renders
-  const getEffectivePlayerStats = useGameStore((state) => state.getEffectivePlayerStats);
-  const setPlayerPosition = useGameStore((state) => state.setPlayerPosition);
-  const setPlayerDirection = useGameStore((state) => state.setPlayerDirection);
-  const takeDamage = useGameStore((state) => state.takeDamage);
-  const selectedCharacterId = useGameStore(
-    (state) => state.selectedCharacterId
+  // Zustand selectors - only subscribe to values that affect render
+  const selectedCharacterId = useSessionStore(
+    (state) => state.selectedCharacterId,
   );
-  const isRunning = useGameStore((state) => state.isRunning);
-  const isPaused = useGameStore((state) => state.isPaused);
-  const enemiesPositions = useGameStore((state) => state.enemiesPositions);
+  const isRunning = useSessionStore((state) => state.isRunning);
+  const isPaused = useSessionStore((state) => state.isPaused);
 
   // Local state
   const [isFacingLeft, setFacingLeft] = useState(false);
@@ -48,9 +50,10 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
 
   // Movement and viewport update
   useFrame((state) => {
-    // Get effective player stats with passive bonuses applied
-    const effectivePlayerStats = getEffectivePlayerStats();
-    
+    const playerStore = usePlayerStore.getState();
+    const gameStore = useGameStore.getState();
+    const effectivePlayerStats = playerStore.getEffectivePlayerStats();
+
     updatePlayerFrame({
       rigidBody: rigidBody.current,
       controls,
@@ -61,20 +64,26 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
       setFacingLeft,
       setIsMoving,
       setIsLookingUp,
-      setPlayerDirection,
-      setPlayerPosition,
+      setPlayerDirection: playerStore.setPlayerDirection,
+      setPlayerPosition: playerStore.setPlayerPosition,
       camera: state.camera,
       activeEnemyContacts: activeEnemyContacts.current,
       lastDamageTime,
-      takeDamage,
+      takeDamage: playerStore.takeDamage,
     });
 
-    // Calculate and update viewport bounds for viewport-relative game systems
+    const contacts = activeEnemyContacts.current;
+    contacts.forEach((_, id) => {
+      if (!getEnemyManager().hasEnemy(id)) {
+        contacts.delete(id);
+      }
+    });
+
     const viewportBounds = getViewportBounds(
       state.camera,
-      VIEWPORT_CONFIG.CAMERA_ZOOM
+      VIEWPORT_CONFIG.CAMERA_ZOOM,
     );
-    useGameStore.getState().updateViewportBounds(viewportBounds);
+    gameStore.updateViewportBounds(viewportBounds);
   });
 
   // Determine current animation state
@@ -98,7 +107,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
       if (!isEnemyUserData(userData)) return;
       activeEnemyContacts.current.set(userData.id, userData.damage);
     },
-    []
+    [],
   );
 
   // Collision exit handler - remove enemy from contacts
@@ -109,18 +118,8 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
       if (!isEnemyUserData(userData)) return;
       activeEnemyContacts.current.delete(userData.id);
     },
-    []
+    [],
   );
-
-  // Clean up contacts for enemies that no longer exist
-  useEffect(() => {
-    const contacts = activeEnemyContacts.current;
-    contacts.forEach((_, id) => {
-      if (!enemiesPositions[id]) {
-        contacts.delete(id);
-      }
-    });
-  }, [enemiesPositions]);
 
   // User data for collision detection
   const playerUserData = useMemo<PlayerUserData>(
@@ -128,7 +127,7 @@ export function usePlayerBehavior(): UsePlayerBehaviorReturn {
       type: "player",
       characterId: selectedCharacterId,
     }),
-    [selectedCharacterId]
+    [selectedCharacterId],
   );
 
   return {

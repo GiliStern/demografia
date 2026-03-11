@@ -6,6 +6,7 @@ export interface WeaponRuntime {
   duration: number;
   amount: number;
   cooldown: number;
+  pierce: number;
 }
 
 export const buildWeaponRuntime = (
@@ -17,6 +18,7 @@ export const buildWeaponRuntime = (
   duration: stats.duration,
   amount: stats.amount,
   cooldown: (stats.cooldown ?? Number.POSITIVE_INFINITY) * playerStats.cooldown,
+  pierce: stats.pierce ?? 0,
 });
 
 export const shouldFire = (

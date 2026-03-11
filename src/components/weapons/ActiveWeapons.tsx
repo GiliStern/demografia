@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { buildWeaponRenderList } from "@/utils/weapons/weaponUtils";
 import type { WeaponComponentRegistry } from "@/types";
-import { useGameStore } from "@/store/gameStore";
+import { useWeaponsStore } from "@/store/weaponsStore";
 import { WeaponId } from "../../types";
 import { ProjectileWeapon } from "./ProjectileWeapon";
 import { NearestProjectileWeapon } from "./NearestProjectileWeapon";
@@ -24,7 +24,7 @@ const weaponComponentRegistry: WeaponComponentRegistry = {
 };
 
 export const ActiveWeapons = () => {
-  const activeWeaponIds = useGameStore((state) => state.activeWeapons);
+  const activeWeaponIds = useWeaponsStore((state) => state.activeWeapons);
 
   const renderList = useMemo(
     () =>

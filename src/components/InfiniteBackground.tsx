@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
-import { useGameStore } from "@/store/gameStore";
+import { getPlayerPositionSnapshot } from "@/store/gameStoreAccess";
 import { usePauseAwareFrame } from "../hooks/game/usePauseAwareFrame";
 import { bg } from "@/assets/assetPaths";
 import {
@@ -28,7 +28,7 @@ export const InfiniteBackground = () => {
   }, [texture]);
 
   usePauseAwareFrame(() => {
-    const { playerPosition } = useGameStore.getState();
+    const playerPosition = getPlayerPositionSnapshot();
 
     const map = materialRef.current?.map;
     if (!map) return;

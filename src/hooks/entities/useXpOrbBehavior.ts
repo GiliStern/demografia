@@ -4,7 +4,9 @@ import type {
   RapierRigidBody,
   IntersectionEnterHandler,
 } from "@react-three/rapier";
-import { useGameStore } from "@/store/gameStore";
+import { useXpOrbsStore } from "@/store/gameStore";
+import { usePlayerStore } from "@/store/playerStore";
+import { useSessionStore } from "@/store/sessionStore";
 import type { RigidBodyUserData, XpOrbUserData } from "@/types";
 import type {
   UseXpOrbBehaviorParams,
@@ -27,11 +29,11 @@ export function useXpOrbBehavior({
   const rigidBody = useRef<RapierRigidBody>(null);
 
   // Zustand selectors - selective to prevent unnecessary re-renders
-  const playerPosition = useGameStore((state) => state.playerPosition);
-  const isPaused = useGameStore((state) => state.isPaused);
-  const isRunning = useGameStore((state) => state.isRunning);
-  const addXp = useGameStore((state) => state.addXp);
-  const removeXpOrb = useGameStore((state) => state.removeXpOrb);
+  const playerPosition = usePlayerStore((state) => state.playerPosition);
+  const isPaused = useSessionStore((state) => state.isPaused);
+  const isRunning = useSessionStore((state) => state.isRunning);
+  const addXp = useSessionStore((state) => state.addXp);
+  const removeXpOrb = useXpOrbsStore((state) => state.removeXpOrb);
 
   // Local state and refs
   const [isAttracted, setIsAttracted] = useState(false);

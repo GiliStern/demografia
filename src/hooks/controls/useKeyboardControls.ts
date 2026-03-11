@@ -1,7 +1,10 @@
 import { useEffect, useRef } from "react";
+import type { MoveInput } from "@/types/hooks/controls";
 
-export const useKeyboardControls = () => {
-  const inputRef = useRef({ x: 0, y: 0 });
+export const useKeyboardControls = (
+  onChange?: (input: MoveInput) => void,
+) => {
+  const inputRef = useRef<MoveInput>({ x: 0, y: 0 });
 
   useEffect(() => {
     const keys = new Set<string>();
@@ -18,10 +21,12 @@ export const useKeyboardControls = () => {
       const left = keys.has("ArrowLeft") || keys.has("a") || keys.has("A");
       const right = keys.has("ArrowRight") || keys.has("d") || keys.has("D");
 
-      inputRef.current = {
+      const nextInput = {
         x: (right ? 1 : 0) - (left ? 1 : 0),
         y: (up ? 1 : 0) - (down ? 1 : 0),
       };
+      inputRef.current = nextInput;
+      onChange?.(nextInput);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => handleKeyChange(event, true);
@@ -34,7 +39,7 @@ export const useKeyboardControls = () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, []);
+  }, [onChange]);
 
   return inputRef;
 };

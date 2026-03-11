@@ -1,4 +1,4 @@
-import type { RefObject, MutableRefObject } from "react";
+import type { RefObject } from "react";
 import type {
   RapierRigidBody,
   IntersectionEnterHandler,
@@ -9,7 +9,6 @@ import type {
   EnemyId,
   EnemyUserData,
   PlayerUserData,
-  ProjectileUserData,
   XpOrbUserData,
 } from "../../types";
 
@@ -43,25 +42,6 @@ export interface UsePlayerBehaviorReturn {
   playerUserData: PlayerUserData;
   handleIntersection: (payload: IntersectionEnterPayload) => void;
   handleIntersectionExit: (payload: IntersectionExitPayload) => void;
-}
-
-// ===========================
-// Projectile Behavior Hook Types
-// ===========================
-
-export interface ProjectileBehaviorParams {
-  id: string;
-  velocity: { x: number; y: number };
-  duration: number;
-  damage: number;
-  onDespawn: () => void;
-}
-
-export interface ProjectileBehaviorResult {
-  rigidBodyRef: MutableRefObject<RapierRigidBody | null>;
-  frameIndex: number;
-  handleIntersection: (payload: IntersectionEnterPayload) => void;
-  projectileUserData: ProjectileUserData;
 }
 
 // ===========================
