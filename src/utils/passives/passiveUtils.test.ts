@@ -3,6 +3,7 @@ import {
   accumulatePassiveEffects,
   applyPassivesToPlayerStats,
   applyPassivesToWeaponStats,
+  resolvePassiveEffects,
 } from "./passiveUtils";
 import { PassiveId } from "@/types";
 import type { PlayerStats, WeaponStats, PassiveStatDelta } from "@/types";
@@ -55,6 +56,22 @@ describe("passiveUtils", () => {
       });
       expect(result.add).toBeDefined();
       expect(result.mult).toBeDefined();
+    });
+
+    it("Privilege adds +20 maxHealth per level (flat)", () => {
+      expect(resolvePassiveEffects(PassiveId.Privilege, 1).add?.maxHealth).toBe(
+        20,
+      );
+      expect(resolvePassiveEffects(PassiveId.Privilege, 3).add?.maxHealth).toBe(
+        60,
+      );
+      expect(resolvePassiveEffects(PassiveId.Privilege, 5).add?.maxHealth).toBe(
+        100,
+      );
+      const result = applyPassivesToPlayerStats(BASE_PLAYER_STATS, {
+        add: { maxHealth: 100 },
+      });
+      expect(result.maxHealth).toBe(200);
     });
 
     it("stacks effects from multiple passives with levels", () => {

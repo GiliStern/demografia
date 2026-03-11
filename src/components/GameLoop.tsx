@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useSessionStore } from "@/store/sessionStore";
 import { useGameStore } from "@/store/gameStore";
+import { usePlayerStore } from "@/store/playerStore";
 import { performanceMonitor } from "../utils/performance/performanceMonitor";
 import { getEnemyManager } from "@/simulation/enemyManager";
 import { getProjectileManager } from "@/simulation/projectileManager";
@@ -12,6 +13,17 @@ export const GameLoop = () => {
 
   useFrame((state, delta) => {
     updateTimer(delta);
+
+    // MDA recovery: heal by recovery * delta (HP per second) when running and not paused
+    const session = useSessionStore.getState();
+    if (session.isRunning && !session.isPaused && delta > 0) {
+      const effectiveStats = usePlayerStore
+        .getState()
+        .getEffectivePlayerStats();
+      if (effectiveStats.recovery > 0) {
+        usePlayerStore.getState().heal(effectiveStats.recovery * delta);
+      }
+    }
 
     // Track performance
     performanceMonitor.updateFrame(delta);
@@ -29,7 +41,8 @@ export const GameLoop = () => {
     const gl = state.gl as {
       info?: { render?: { drawCalls?: number; calls?: number } };
     };
-    const drawCalls = gl?.info?.render?.drawCalls ?? gl?.info?.render?.calls ?? 0;
+    const drawCalls =
+      gl?.info?.render?.drawCalls ?? gl?.info?.render?.calls ?? 0;
     performanceMonitor.setDrawCalls(drawCalls);
 
     // Log stats every 5 seconds in development

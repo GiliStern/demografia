@@ -40,6 +40,7 @@ export interface GameState {
 
 export interface PlayerStore {
   currentHealth: number;
+  lastEffectiveMaxHealth: number;
   playerStats: PlayerStats;
   playerPosition: { x: number; y: number };
   playerDirection: { x: number; y: number };

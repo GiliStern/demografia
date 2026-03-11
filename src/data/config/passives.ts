@@ -65,7 +65,7 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     },
   },
 
-  // === פריווילגיה (Privilege) - Hollow Heart equivalent: +20% Max Health per level ===
+  // === פריווילגיה (Privilege) - Hollow Heart equivalent: +20 Max Health per level (flat) ===
   [PassiveId.Privilege]: {
     id: PassiveId.Privilege,
     name_he: "פריווילגיה",
@@ -74,28 +74,28 @@ export const PASSIVES: Record<PassiveId, PassiveData> = {
     levels: [
       {
         level: 1,
-        description: "+20% בריאות",
-        statChanges: { mult: { maxHealth: 1.2 } },
+        description: "+20 בריאות מקסימלית",
+        statChanges: { add: { maxHealth: 20 } },
       },
       {
         level: 2,
-        description: "+20% בריאות",
-        statChanges: { mult: { maxHealth: 1.2 } },
+        description: "+20 בריאות מקסימלית",
+        statChanges: { add: { maxHealth: 20 } },
       },
       {
         level: 3,
-        description: "+20% בריאות",
-        statChanges: { mult: { maxHealth: 1.2 } },
+        description: "+20 בריאות מקסימלית",
+        statChanges: { add: { maxHealth: 20 } },
       },
       {
         level: 4,
-        description: "+20% בריאות",
-        statChanges: { mult: { maxHealth: 1.2 } },
+        description: "+20 בריאות מקסימלית",
+        statChanges: { add: { maxHealth: 20 } },
       },
       {
         level: 5,
-        description: "+20% בריאות",
-        statChanges: { mult: { maxHealth: 1.2 } },
+        description: "+20 בריאות מקסימלית",
+        statChanges: { add: { maxHealth: 20 } },
       },
     ],
     sprite_config: {
