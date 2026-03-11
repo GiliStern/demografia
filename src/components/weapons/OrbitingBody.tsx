@@ -11,6 +11,11 @@ import { type OrbitingOrb } from "@/hooks/weapons/useOrbitWeapon";
 import { Sprite } from "../Sprite";
 import { usePauseAwareFrame } from "@/hooks/game/usePauseAwareFrame";
 import { getSpinningSpriteIndex } from "@/utils/entities/enemyAnimation";
+import { getGameplayContext } from "@/simulation/gameplayContext";
+import { getEnemyManager } from "@/simulation/enemyManager";
+
+const ORBIT_COLLISION_RADIUS = 0.5;
+const ORBIT_HIT_COOLDOWN = 0.3;
 
 export interface OrbitingBodyProps {
   orb: OrbitingOrb;
@@ -18,6 +23,7 @@ export interface OrbitingBodyProps {
   baseAngle: MutableRefObject<number>;
   playerPosition: { x: number; y: number };
   damage: number;
+  knockback: number;
   spriteConfig: SpriteConfig;
   shouldSpin?: boolean;
 }
@@ -26,7 +32,7 @@ const computeOrbitPosition = (
   orb: OrbitingOrb,
   baseAngle: number,
   radius: number,
-  playerPosition: { x: number; y: number }
+  playerPosition: { x: number; y: number },
 ) => {
   // Angle = per-orb offset plus shared base angle so all orbiters rotate together.
   const angle = orb.angleOffset + baseAngle;
@@ -43,16 +49,17 @@ export const OrbitingBody = ({
   baseAngle,
   playerPosition,
   damage,
+  knockback,
   spriteConfig,
   shouldSpin,
 }: OrbitingBodyProps) => {
   const bodyRef = useRef<RapierRigidBody>(null);
   const positionRef = useRef<[number, number, number]>([0, 0, 0]);
+  const lastHitByEnemyRef = useRef<Map<string, number>>(new Map());
   const [spriteIndex, setSpriteIndex] = useState(spriteConfig.index);
   const lastFrameRef = useRef(spriteConfig.index);
 
-  const shouldAnimate =
-    shouldSpin && (spriteConfig.spriteFrameCount ?? 0) >= 2;
+  const shouldAnimate = shouldSpin && (spriteConfig.spriteFrameCount ?? 0) >= 2;
 
   useFrame((state) => {
     if (shouldAnimate) {
@@ -72,10 +79,38 @@ export const OrbitingBody = ({
       orb,
       baseAngle.current,
       radius,
-      playerPosition
+      playerPosition,
     );
     positionRef.current = [x, y, 0];
     bodyRef.current?.setNextKinematicTranslation({ x, y, z: 0 });
+
+    // Collision with enemies (enemies have no physics bodies, so we check manually)
+    const now = performance.now() / 1000;
+    const enemyPositions = getEnemyManager().getEnemyPositions();
+    const applyEnemyHit =
+      getGameplayContext().getProjectileTickContext().applyEnemyHit;
+
+    for (const [enemyId, enemyPos] of enemyPositions) {
+      const dx = enemyPos.x - x;
+      const dy = enemyPos.y - y;
+      const distSq = dx * dx + dy * dy;
+      if (distSq > ORBIT_COLLISION_RADIUS * ORBIT_COLLISION_RADIUS) continue;
+
+      const lastHit = lastHitByEnemyRef.current.get(enemyId) ?? 0;
+      if (now - lastHit < ORBIT_HIT_COOLDOWN) continue;
+
+      lastHitByEnemyRef.current.set(enemyId, now);
+
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const hitDir = len > 0.01 ? { x: dx / len, y: dy / len } : { x: 1, y: 0 };
+
+      applyEnemyHit({
+        enemyId,
+        damage,
+        knockback,
+        hitDir,
+      });
+    }
   });
 
   return (

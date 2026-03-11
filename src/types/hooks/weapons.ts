@@ -39,6 +39,7 @@ export interface OrbitWeaponInstance {
   spriteConfig: SpriteConfig;
   shouldSpin?: boolean;
   damage: number;
+  knockback: number;
   radius: number;
   baseAngleRef: MutableRefObject<number>;
   playerPosition: { x: number; y: number };

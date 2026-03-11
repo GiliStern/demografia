@@ -38,6 +38,7 @@ const buildOrbitRuntime = (stats: WeaponStats, playerStats: PlayerStats) => {
   const cooldownMultiplier = playerStats.cooldown || 1;
   return {
     damage: stats.damage * (playerStats.might || 1),
+    knockback: stats.knockback ?? 1,
     angularSpeed: stats.speed,
     radius: stats.area * playerStats.area * ORBIT_RADIUS_MULTIPLIER,
     respawnDelay: cooldownStat * cooldownMultiplier,
@@ -132,6 +133,7 @@ export const useOrbitWeapon = ({
     spriteConfig,
     shouldSpin: Boolean(weapon?.shouldSpin),
     damage: runtime.damage,
+    knockback: runtime.knockback,
     radius: runtime.radius,
     baseAngleRef,
     playerPosition,
