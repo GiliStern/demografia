@@ -16,6 +16,7 @@ export const UI_STRINGS = {
     unlocked: "נפתח",
     press_to_start: "לחץ להתחיל",
     paused: "המשחק בהשהיה",
+    pause: "השהיה",
     mute_music: "השתק מוזיקה",
     unmute_music: "הפעל מוזיקה",
   },

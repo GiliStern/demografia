@@ -1,4 +1,5 @@
 import { styled } from "@linaria/react";
+import { Pause } from "lucide-react";
 import { usePlayerStore } from "@/store/playerStore";
 import { useSessionStore } from "@/store/sessionStore";
 import { useWeaponsStore } from "@/store/weaponsStore";
@@ -24,15 +25,58 @@ const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  @media (max-width: 768px) {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+  }
+`;
+
+const PauseButton = styled.button`
+  display: none;
+  order: 3;
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid white;
+  color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    display: flex;
+    order: 1;
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.2);
+  }
 `;
 
 const LevelSection = styled.div`
   width: 30%;
+  order: 1;
+
+  @media (max-width: 768px) {
+    width: auto;
+    min-width: 0;
+    order: 3;
+  }
 `;
 
 const LevelText = styled.div`
   font-size: 24px;
   font-weight: bold;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
 `;
 
 const XPBarContainer = styled.div`
@@ -50,10 +94,25 @@ const XPBarFill = styled.div<{ percent: number }>`
   transition: width 0.2s;
 `;
 
+const TimerWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  order: 2;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+`;
+
 const Timer = styled.div`
   font-size: 32px;
   font-weight: bold;
   font-family: monospace;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
 `;
 
 const HealthBarContainer = styled.div`
@@ -113,6 +172,7 @@ export const InGameHUD = () => {
   const xp = useSessionStore((state) => state.xp);
   const nextLevelXp = useSessionStore((state) => state.nextLevelXp);
   const runTimer = useSessionStore((state) => state.runTimer);
+  const togglePause = useSessionStore((state) => state.togglePause);
   const activeWeapons = useWeaponsStore((state) => state.activeWeapons);
   const getEffectivePlayerStats = usePlayerStore(
     (state) => state.getEffectivePlayerStats,
@@ -135,6 +195,22 @@ export const InGameHUD = () => {
     <HUDContainer>
       {/* Top Bar */}
       <TopBar>
+        {/* Pause button - mobile only, top left */}
+        <PauseButton
+          type="button"
+          onClick={togglePause}
+          aria-label={UI_STRINGS.common.pause}
+        >
+          <Pause size={24} strokeWidth={2.5} />
+        </PauseButton>
+
+        {/* Timer - centered on mobile */}
+        <TimerWrapper>
+          <Timer>
+            {minutes}:{seconds}
+          </Timer>
+        </TimerWrapper>
+
         {/* Level & XP */}
         <LevelSection>
           <LevelText>
@@ -144,11 +220,6 @@ export const InGameHUD = () => {
             <XPBarFill percent={xpPercent} />
           </XPBarContainer>
         </LevelSection>
-
-        {/* Timer */}
-        <Timer>
-          {minutes}:{seconds}
-        </Timer>
       </TopBar>
 
       {/* Health Bar */}
