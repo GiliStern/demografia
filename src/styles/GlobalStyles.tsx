@@ -49,5 +49,15 @@ export const globalStyles = css`
     #root * {
       font-family: "Playpen Sans Hebrew", cursive;
     }
+
+    @keyframes floatingDamageFade {
+      0%,
+      70% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
   }
 `;

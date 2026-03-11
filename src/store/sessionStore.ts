@@ -83,6 +83,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
     resetGameplayContext();
     gameStore.resetXpOrbs();
     gameStore.clearProjectiles();
+    gameStore.clearFloatingDamage();
 
     const musicMuted = useSettingsStore.getState().musicMuted;
     playMusic(music.tlvBg, true, musicMuted);
@@ -102,6 +103,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
     resetGameplayContext();
     gameStore.resetXpOrbs();
     gameStore.clearProjectiles();
+    gameStore.clearFloatingDamage();
     set({
       ...INITIAL_SESSION_STATE,
       isRunning: false,
@@ -139,6 +141,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
 
   endGame: () => {
     stopMusic();
+    useGameStore.getState().clearFloatingDamage();
     set({
       isRunning: false,
       isGameOver: true,

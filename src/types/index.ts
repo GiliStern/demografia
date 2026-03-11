@@ -28,7 +28,11 @@ export {
 } from "./domain";
 
 // Upgrades
-export type { PassiveUpgradeOption, UpgradeOption, WeaponUpgradeOption } from "./upgrades";
+export type {
+  PassiveUpgradeOption,
+  UpgradeOption,
+  WeaponUpgradeOption,
+} from "./upgrades";
 export { ItemKind } from "./upgrades";
 
 // Weapons
@@ -70,6 +74,8 @@ export type {
 // Store
 export type {
   CoreGameState,
+  FloatingDamageEntry,
+  FloatingDamageStore,
   GameSlice,
   GameState,
   GameStore,

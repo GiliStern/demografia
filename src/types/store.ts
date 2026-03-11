@@ -102,10 +102,7 @@ export interface ProjectilesStore {
   getProjectiles: () => ReadonlyMap<string, CentralizedProjectile>;
 }
 
-export type CoreGameState = Omit<
-  GameState,
-  "activeWeapons" | "activeItems"
->;
+export type CoreGameState = Omit<GameState, "activeWeapons" | "activeItems">;
 
 export interface GameSlice extends CoreGameState {
   startGame: (characterId: CharacterId) => void;
@@ -123,7 +120,25 @@ export interface GameSlice extends CoreGameState {
   collectPickup: (pickupId: FloorPickupId) => void;
 }
 
-export type GameStore = ViewportStore & XpOrbsStore & ProjectilesStore;
+export interface FloatingDamageEntry {
+  id: string;
+  x: number;
+  y: number;
+  damage: number;
+  createdAt: number;
+}
+
+export interface FloatingDamageStore {
+  floatingDamageEntries: FloatingDamageEntry[];
+  addFloatingDamage: (x: number, y: number, damage: number) => void;
+  removeFloatingDamage: (id: string) => void;
+  clearFloatingDamage: () => void;
+}
+
+export type GameStore = ViewportStore &
+  XpOrbsStore &
+  ProjectilesStore &
+  FloatingDamageStore;
 
 export type StoreCreator<StoreState> = StateCreator<
   GameStore,

@@ -12,10 +12,13 @@ import {
 import { createViewportStore } from "./viewportStore";
 import { createXpOrbsStore } from "./xpOrbsStore";
 import { createProjectilesStore } from "./projectilesStore";
+import { createFloatingDamageStore } from "./floatingDamageStore";
+
 const useGameStore = create<GameStore>()((...args) => ({
   ...createViewportStore(...args),
   ...createXpOrbsStore(...args),
   ...createProjectilesStore(...args),
+  ...createFloatingDamageStore(...args),
 }));
 
 export { useGameStore };
@@ -24,6 +27,7 @@ export { useGameStore };
 export const useViewportStore = useGameStore;
 export const useXpOrbsStore = useGameStore;
 export const useProjectilesStore = useGameStore;
+export const useFloatingDamageStore = useGameStore;
 
 const BASE_WEAPON_POOL: WeaponId[] = [
   WeaponId.Sabra,
@@ -78,7 +82,9 @@ export const resolveLevelProgression = ({
   };
 };
 
-export const collectUpgradeChoices = (state: UpgradeChoiceState): UpgradeOption[] => {
+export const collectUpgradeChoices = (
+  state: UpgradeChoiceState,
+): UpgradeOption[] => {
   const choices: UpgradeOption[] = [];
 
   // Upgradable existing weapons
@@ -117,7 +123,7 @@ export const collectUpgradeChoices = (state: UpgradeChoiceState): UpgradeOption[
         isNew: true,
         currentLevel: 0,
       });
-    }
+    },
   );
 
   // Upgradable existing passives
@@ -146,14 +152,16 @@ export const collectUpgradeChoices = (state: UpgradeChoiceState): UpgradeOption[
           passiveId,
           isNew: true,
           currentLevel: 0,
-        })
+        }),
       );
   }
 
   return choices;
 };
 
-export const buildUpgradeChoices = (state: UpgradeChoiceState): UpgradeOption[] => {
+export const buildUpgradeChoices = (
+  state: UpgradeChoiceState,
+): UpgradeOption[] => {
   // Shuffle and return first 3 choices (or fewer if not enough available)
   return shuffleArray(collectUpgradeChoices(state)).slice(0, 3);
 };

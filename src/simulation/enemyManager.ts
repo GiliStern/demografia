@@ -14,8 +14,9 @@ import { getEnemySpriteIndex } from "@/utils/entities/enemyAnimation";
 const CONTACT_RADIUS = 0.5;
 const CONTACT_DAMAGE_INTERVAL = 0.5;
 const KNOCKBACK_DAMPING = 0.85;
-const KNOCKBACK_STRENGTH = 4;
+const KNOCKBACK_STRENGTH = 8;
 const FLASH_DURATION = 0.1;
+const DEATH_ANIMATION_DURATION = 0.35;
 
 export interface EnemyPosition {
   x: number;
@@ -34,6 +35,8 @@ export interface EnemyRuntimeState {
   knockbackResistance: number;
   knockbackVelocity: { x: number; y: number };
   flashTimer: number;
+  /** Seconds remaining for death animation (knockback + whiteout); 0 = alive */
+  deathAnimationRemaining: number;
   textureUrl: string;
   spriteIndex: number;
   baseSpriteIndex: number;
@@ -136,6 +139,7 @@ export function createEnemyManager(): EnemyManager {
         knockbackResistance: stats.knockbackResistance ?? 0,
         knockbackVelocity: { x: 0, y: 0 },
         flashTimer: 0,
+        deathAnimationRemaining: 0,
         textureUrl: spriteConfig.textureUrl,
         spriteIndex: baseIndex,
         baseSpriteIndex: baseIndex,
@@ -149,6 +153,10 @@ export function createEnemyManager(): EnemyManager {
       if (!enemy) return;
       const newHp = Math.max(0, enemy.hp - damage);
       enemy.hp = newHp;
+      if (newHp <= 0) {
+        enemy.deathAnimationRemaining = DEATH_ANIMATION_DURATION;
+        enemy.flashTimer = DEATH_ANIMATION_DURATION;
+      }
     },
 
     applyHit(id, damage, knockback, hitDir) {
@@ -156,7 +164,10 @@ export function createEnemyManager(): EnemyManager {
       if (!enemy) return;
       const newHp = Math.max(0, enemy.hp - damage);
       enemy.hp = newHp;
-      enemy.flashTimer = FLASH_DURATION;
+      enemy.flashTimer = newHp <= 0 ? DEATH_ANIMATION_DURATION : FLASH_DURATION;
+      if (newHp <= 0) {
+        enemy.deathAnimationRemaining = DEATH_ANIMATION_DURATION;
+      }
       const effectiveKnockback = Math.max(
         0,
         knockback - enemy.knockbackResistance,
@@ -221,14 +232,27 @@ export function createEnemyManager(): EnemyManager {
       const toRemove: string[] = [];
 
       for (const enemy of roster.values()) {
+        if (enemy.deathAnimationRemaining > 0) {
+          enemy.position.x += enemy.knockbackVelocity.x * delta;
+          enemy.position.y += enemy.knockbackVelocity.y * delta;
+          enemy.knockbackVelocity.x *= KNOCKBACK_DAMPING;
+          enemy.knockbackVelocity.y *= KNOCKBACK_DAMPING;
+          enemy.deathAnimationRemaining -= delta;
+          if (enemy.deathAnimationRemaining <= 0) {
+            deathEvents.push({
+              id: enemy.id,
+              typeId: enemy.typeId,
+              position: { ...enemy.position },
+              xpDrop: enemy.xpDrop,
+            });
+            toRemove.push(enemy.id);
+          }
+          continue;
+        }
+
         if (enemy.hp <= 0) {
-          deathEvents.push({
-            id: enemy.id,
-            typeId: enemy.typeId,
-            position: { ...enemy.position },
-            xpDrop: enemy.xpDrop,
-          });
-          toRemove.push(enemy.id);
+          enemy.deathAnimationRemaining = DEATH_ANIMATION_DURATION;
+          enemy.flashTimer = DEATH_ANIMATION_DURATION;
           continue;
         }
 

@@ -13,6 +13,7 @@ import { LevelUpOverlay } from "./LevelUpOverlay";
 import { GameLoop } from "./GameLoop";
 import { XpOrbsManager } from "./XpOrbsManager";
 import { BatchedProjectileRenderer } from "./BatchedProjectileRenderer";
+import { FloatingDamageNumbers } from "./FloatingDamageNumbers";
 import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
 import { useSessionStore } from "@/store/sessionStore";
 
@@ -63,6 +64,7 @@ export const GameCanvas = ({ $menuVisible = false }: GameCanvasProps) => {
           {/* Batched rendering outside physics - run projectiles first (damage), then enemies (movement + death) */}
           <BatchedProjectileRenderer />
           <BatchedEnemyRenderer />
+          <FloatingDamageNumbers />
         </Suspense>
       </Canvas>
       <LevelUpOverlay />

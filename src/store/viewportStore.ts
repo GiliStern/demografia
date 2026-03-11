@@ -5,4 +5,3 @@ export const createViewportStore: StoreCreator<ViewportStore> = (set) => ({
 
   updateViewportBounds: (bounds) => set({ viewportBounds: bounds }),
 });
-

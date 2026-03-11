@@ -63,7 +63,11 @@ describe("enemyManager", () => {
       getCullDistance: () => 9999,
       reportContactDamage: vi.fn(),
     };
-    const deathEvents = manager.tick(0.016, 0, ctx);
+    let deathEvents: ReturnType<typeof manager.tick> = [];
+    for (let t = 0; t < 50; t++) {
+      deathEvents = manager.tick(0.016, t * 0.016, ctx);
+      if (deathEvents.length > 0) break;
+    }
 
     expect(deathEvents).toHaveLength(1);
     const ev = deathEvents[0]!;
@@ -201,7 +205,7 @@ describe("enemyManager", () => {
 
       const enemy = manager.getEnemy("e1");
       expect(enemy!.knockbackVelocity.x).toBeGreaterThan(0);
-      expect(enemy!.knockbackVelocity.x).toBeLessThan(4); // less than full impulse (knockback=1, resistance=0)
+      expect(enemy!.knockbackVelocity.x).toBeLessThan(8); // less than full impulse (knockback=1, resistance=0)
     });
   });
 });

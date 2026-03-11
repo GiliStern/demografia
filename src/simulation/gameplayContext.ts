@@ -78,8 +78,15 @@ function createDefaultGameplayContext(): GameplayContext {
         getEnemyManager().getEnemyPositions() as EnemyPositionMap,
       getViewportBounds: () => useGameStore.getState().viewportBounds,
       getPlayerPosition: () => usePlayerStore.getState().playerPosition,
-      applyEnemyHit: ({ enemyId, damage, knockback, hitDir }) =>
-        getEnemyManager().applyHit(enemyId, damage, knockback, hitDir),
+      applyEnemyHit: ({ enemyId, damage, knockback, hitDir }) => {
+        getEnemyManager().applyHit(enemyId, damage, knockback, hitDir);
+        const position = getEnemyManager().getEnemyPositions().get(enemyId);
+        if (position) {
+          useGameStore
+            .getState()
+            .addFloatingDamage(position.x, position.y, damage);
+        }
+      },
     }),
 
     getEnemyTickContext: (): EnemyTickContext => ({
