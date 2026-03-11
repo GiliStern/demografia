@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import type { ProjectileData, WeaponId } from "@/types";
-import type { CentralizedProjectile } from "@/types";
+import type { CentralizedProjectile, ProjectileData, WeaponId } from "@/types";
 import { getWeapon } from "@/data/config/weaponsNormalized";
 import { getGameplayContext } from "@/simulation/gameplayContext";
 import { resolveDirection } from "@/utils/weapons/weaponUtils";
@@ -47,20 +46,28 @@ export interface WeaponBehaviorDescriptor {
  * Use this for all projectile-based weapons to ensure consistent behavior.
  */
 export function useWeaponFiringLoop(
-  descriptor: WeaponBehaviorDescriptor
+  descriptor: WeaponBehaviorDescriptor,
 ): void {
-  const { weaponId, targeting, useStagger = false, spreadStep = 0.1 } =
-    descriptor;
+  const {
+    weaponId,
+    targeting,
+    useStagger = false,
+    spreadStep = 0.1,
+  } = descriptor;
   const behaviorType = descriptor.behaviorType ?? "normal";
 
   const lastFireTime = useRef(0);
-  const pendingShots = useRef<ProjectileData[]>([]);
+  const pendingShots = useRef<number[]>([]);
   const nextStaggerTime = useRef<number | null>(null);
 
   const ctx = getGameplayContext();
   const weaponData = getWeapon(weaponId);
 
-  const produceShots = (time: number, runtime: WeaponRuntime): ProjectileData[] => {
+  const produceSingleShot = (
+    index: number,
+    time: number,
+    runtime: WeaponRuntime,
+  ): ProjectileData => {
     const pos = ctx.getPlayerPosition();
     const position = { x: pos.x, y: pos.y, z: 0 };
 
@@ -69,16 +76,20 @@ export function useWeaponFiringLoop(
         const dir = ctx.getPlayerDirection();
         const direction = resolveDirection(dir.x, dir.y);
         const baseVelocity = buildVelocity(direction, runtime.speed);
+        const offset = spreadStep * (index - (runtime.amount - 1) / 2);
         return createSpreadProjectiles({
-          amount: runtime.amount,
-          baseVelocity,
-          spreadStep,
+          amount: 1,
+          baseVelocity: {
+            x: baseVelocity.x + offset,
+            y: baseVelocity.y + offset,
+          },
+          spreadStep: 0,
           position,
           duration: runtime.duration,
           damage: runtime.damage,
           pierce: runtime.pierce,
-          idFactory: (idx) => `${weaponId}-${time}-${idx}`,
-        });
+          idFactory: () => `${weaponId}-${time}-${index}`,
+        })[0]!;
       }
       case "nearestEnemy": {
         const playerPos = ctx.getPlayerPosition();
@@ -88,42 +99,41 @@ export function useWeaponFiringLoop(
           resolveDirection(playerDir.x, playerDir.y);
         const baseVelocity = buildVelocity(targetDir, runtime.speed);
         return createSpreadProjectiles({
-          amount: runtime.amount || 1,
+          amount: 1,
           baseVelocity,
           spreadStep: 0,
           position,
           duration: runtime.duration,
           damage: runtime.damage,
           pierce: runtime.pierce,
-          idFactory: (idx) => `${weaponId}-${time}-${idx}`,
-        });
+          idFactory: () => `${weaponId}-${time}-${index}`,
+        })[0]!;
       }
       case "radial": {
         const dirs = radialDirections(runtime.amount);
+        const dir = dirs[index] ?? dirs[0] ?? { x: 1, y: 0 };
         return createDirectionalProjectiles({
-          directions: dirs,
+          directions: [dir],
           speed: runtime.speed,
           position,
           damage: runtime.damage,
           duration: runtime.duration,
           pierce: runtime.pierce,
-          idFactory: (idx) => `${weaponId}-${time}-${idx}`,
-        });
+          idFactory: () => `${weaponId}-${time}-${index}`,
+        })[0]!;
       }
       case "randomDirection": {
-        return Array.from({ length: runtime.amount }).map((_, idx) => {
-          const angle = Math.random() * Math.PI * 2;
-          const vx = Math.cos(angle) * runtime.speed;
-          const vy = Math.sin(angle) * runtime.speed;
-          return {
-            id: `${weaponId}-${time}-${idx}`,
-            position,
-            velocity: { x: vx, y: vy },
-            duration: runtime.duration,
-            damage: runtime.damage,
-            pierce: runtime.pierce,
-          };
-        });
+        const angle = Math.random() * Math.PI * 2;
+        const vx = Math.cos(angle) * runtime.speed;
+        const vy = Math.sin(angle) * runtime.speed;
+        return {
+          id: `${weaponId}-${time}-${index}`,
+          position,
+          velocity: { x: vx, y: vy },
+          duration: runtime.duration,
+          damage: runtime.damage,
+          pierce: runtime.pierce,
+        };
       }
       case "arc": {
         const cfg = descriptor.arcConfig ?? {
@@ -131,23 +141,28 @@ export function useWeaponFiringLoop(
           minAngle: Math.PI / 4,
           angleSpan: Math.PI / 2,
         };
-        return Array.from({ length: runtime.amount }).map((_, idx) => {
-          const angle = Math.random() * cfg.angleSpan + cfg.minAngle;
-          return {
-            id: `${weaponId}-${time}-${idx}`,
-            position,
-            velocity: {
-              x: Math.cos(angle) * runtime.speed,
-              y: Math.sin(angle) * runtime.speed,
-            },
-            duration: runtime.duration,
-            damage: runtime.damage,
-            pierce: runtime.pierce,
-          };
-        });
+        const angle = Math.random() * cfg.angleSpan + cfg.minAngle;
+        return {
+          id: `${weaponId}-${time}-${index}`,
+          position,
+          velocity: {
+            x: Math.cos(angle) * runtime.speed,
+            y: Math.sin(angle) * runtime.speed,
+          },
+          duration: runtime.duration,
+          damage: runtime.damage,
+          pierce: runtime.pierce,
+        };
       }
       default:
-        return [];
+        return {
+          id: `${weaponId}-${time}-${index}`,
+          position,
+          velocity: { x: 0, y: 0 },
+          duration: runtime.duration,
+          damage: runtime.damage,
+          pierce: runtime.pierce,
+        };
     }
   };
 
@@ -161,40 +176,46 @@ export function useWeaponFiringLoop(
   const fire = (time: number, runtime: WeaponRuntime) => {
     if (!weaponData) return;
 
-    const shots = produceShots(time, runtime);
     const overrides = getOverrides();
+    const amount = Math.max(
+      1,
+      targeting === "nearestEnemy" ? runtime.amount || 1 : runtime.amount,
+    );
 
     if (useStagger) {
-      const immediateShots = enqueueStaggeredShots({
-        shots,
+      const { immediateIndex } = enqueueStaggeredShots({
+        amount,
         time,
         pendingShots,
         nextStaggerTime,
       });
-      if (immediateShots.length > 0) {
-        const centralized = immediateShots.map((shot) =>
+      if (immediateIndex !== null) {
+        const shot = produceSingleShot(immediateIndex, time, runtime);
+        const centralized = toCentralizedProjectile(
+          shot,
+          weaponData,
+          weaponId,
+          time,
+          behaviorType,
+          overrides,
+        );
+        ctx.addProjectiles([centralized]);
+      }
+    } else {
+      const centralized: CentralizedProjectile[] = [];
+      for (let i = 0; i < amount; i++) {
+        const shot = produceSingleShot(i, time, runtime);
+        centralized.push(
           toCentralizedProjectile(
             shot,
             weaponData,
             weaponId,
             time,
             behaviorType,
-            overrides
-          )
+            overrides,
+          ),
         );
-        ctx.addProjectiles(centralized);
       }
-    } else {
-      const centralized = shots.map((shot) =>
-        toCentralizedProjectile(
-          shot,
-          weaponData,
-          weaponId,
-          time,
-          behaviorType,
-          overrides
-        )
-      );
       ctx.addProjectiles(centralized);
     }
 
@@ -220,20 +241,21 @@ export function useWeaponFiringLoop(
         time,
         pendingShots,
         nextStaggerTime,
-        setProjectiles: (updater) => {
-          const released =
-            typeof updater === "function" ? updater([]) : updater;
-          if (released.length > 0 && weaponData) {
+        produceShot: (index) => produceSingleShot(index, time, runtime),
+        setProjectiles: (released) => {
+          const shots =
+            typeof released === "function" ? released([]) : released;
+          if (shots.length > 0 && weaponData) {
             const overrides = getOverrides();
-            const centralized = released.map((shot) =>
+            const centralized = shots.map((shot) =>
               toCentralizedProjectile(
                 shot,
                 weaponData,
                 weaponId,
                 time,
                 behaviorType,
-                overrides
-              )
+                overrides,
+              ),
             );
             ctx.addProjectiles(centralized);
           }
