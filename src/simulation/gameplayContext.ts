@@ -98,7 +98,8 @@ function createDefaultGameplayContext(): GameplayContext {
 let _context: GameplayContext | null = null;
 
 export function getGameplayContext(): GameplayContext {
-  return _context ?? createDefaultGameplayContext();
+  _context ??= createDefaultGameplayContext();
+  return _context;
 }
 
 export function setGameplayContext(ctx: GameplayContext | null): void {

@@ -7,7 +7,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     name_he: "חתולי רחוב",
     stats: {
       hp: 5,
-      damage: 2,
+      damage: 0.3,
       speed: 2,
       knockback_resistance: 0,
       xpDrop: 30,
@@ -24,7 +24,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     name_he: "היפסטר",
     stats: {
       hp: 10,
-      damage: 4,
+      damage: 0.5,
       speed: 2,
       knockback_resistance: 0.1,
       xpDrop: 50,
@@ -41,7 +41,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     name_he: "תייר",
     stats: {
       hp: 12,
-      damage: 5,
+      damage: 0.7,
       speed: 2,
       knockback_resistance: 0.2,
       xpDrop: 60,
@@ -58,7 +58,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     name_he: "נחיל קורקינטים",
     stats: {
       hp: 14,
-      damage: 3,
+      damage: 0.9,
       speed: 3,
       knockback_resistance: 0,
       xpDrop: 70,
@@ -75,7 +75,7 @@ export const ENEMIES: Record<EnemyId, EnemyData> = {
     name_he: "טיקטוקיסט",
     stats: {
       hp: 16,
-      damage: 6,
+      damage: 1.1,
       speed: 8,
       knockback_resistance: 0.3,
       xpDrop: 80,
