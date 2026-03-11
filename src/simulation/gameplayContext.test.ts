@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getGameplayContext,
   setGameplayContext,
+  resetGameplayContext,
   type GameplayContext,
 } from "./gameplayContext";
 import { createEnemyManager } from "./enemyManager";
@@ -86,5 +87,12 @@ describe("gameplayContext", () => {
     const deathEvents = manager.tick(0.016, 0, tickCtx);
     expect(deathEvents).toHaveLength(1);
     expect(deathEvents[0]!.id).toBe("e1");
+  });
+
+  it("resetGameplayContext causes next getGameplayContext to return a fresh instance", () => {
+    const ctx1 = getGameplayContext();
+    resetGameplayContext();
+    const ctx2 = getGameplayContext();
+    expect(ctx1).not.toBe(ctx2);
   });
 });

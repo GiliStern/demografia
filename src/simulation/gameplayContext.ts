@@ -105,3 +105,12 @@ export function getGameplayContext(): GameplayContext {
 export function setGameplayContext(ctx: GameplayContext | null): void {
   _context = ctx;
 }
+
+/**
+ * Resets the gameplay context so the next getGameplayContext() creates a fresh
+ * instance. Call when starting a new game to clear internal state (e.g. contact
+ * damage throttle) that would otherwise carry over from the previous session.
+ */
+export function resetGameplayContext(): void {
+  _context = null;
+}

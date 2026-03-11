@@ -11,6 +11,7 @@ const weaponSprites = {
 };
 
 const weaponIcons = {
+  prickly: icons.prickly,
   chair: icons.chair,
   chicken: icons.chicken,
   pita: icons.pita,
@@ -65,7 +66,7 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     },
     sprite_config: {
       textureUrl: weaponSprites.prickly,
-      iconUrl: weaponSprites.prickly,
+      iconUrl: weaponIcons.prickly,
       index: 0,
       spriteFrameSize: 256,
       scale: 1,
