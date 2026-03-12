@@ -9,6 +9,7 @@ import pitaIcon from "./icons/pita_icon.png";
 import srulikIcon from "./icons/srulik_icon.png";
 import starOfDavidIcon from "./icons/star_of_david_icon.png";
 import kingOfPitasIcon from "./icons/king_of_pitas_icon.png";
+import coinIcon from "./sprites/passive-items/coin.png";
 import tlvBg from "./music/tlv_bg.mpeg";
 
 import hitSfx from "./sfx/hit.wav";
@@ -64,6 +65,7 @@ export const icons = {
   srulik: srulikIcon,
   kingOfPitas: kingOfPitasIcon,
   starOfDavid: starOfDavidIcon,
+  coin: coinIcon,
 };
 
 export const music = {

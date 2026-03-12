@@ -3,9 +3,10 @@ import { styled } from "@linaria/react";
 
 import { useSessionStore } from "@/store/sessionStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useProgressStore } from "@/store/progressStore";
 import { UI_STRINGS } from "../../data/config/ui";
 import { AppButton } from "../ui/AppButton";
-import { banners } from "@/assets/assetPaths";
+import { banners, icons } from "@/assets/assetPaths";
 import { useMenuNavigation } from "@/hooks/controls/useMenuNavigation";
 import { Music, Volume2, VolumeOff, VolumeX } from "lucide-react";
 
@@ -109,11 +110,40 @@ const VersionText = styled.div`
   }
 `;
 
+const CoinDisplay = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 24px;
+  color: #ffd700;
+
+  @media (max-width: 480px) {
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    gap: 6px;
+  }
+`;
+
+const CoinIcon = styled.img`
+  width: 32px;
+  height: 32px;
+
+  @media (max-width: 480px) {
+    width: 24px;
+    height: 24px;
+  }
+`;
+
 export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
   const resumeGame = useSessionStore((state) => state.resumeGame);
   const isPaused = useSessionStore((state) => state.isPaused);
   const isRunning = useSessionStore((state) => state.isRunning);
   const canResume = isRunning && isPaused;
+  const coins = useProgressStore((state) => state.coins);
   const buttonColumnRef = useRef<HTMLDivElement>(null);
   const musicMuted = useSettingsStore((state) => state.musicMuted);
   const setMusicMuted = useSettingsStore((state) => state.setMusicMuted);
@@ -136,6 +166,10 @@ export const MainMenu = ({ onShowCharacterSelection }: MainMenuProps) => {
 
   return (
     <MenuContainer data-menu-container="true">
+      <CoinDisplay>
+        <CoinIcon src={icons.coin} alt="" aria-hidden />
+        <span>{coins}</span>
+      </CoinDisplay>
       {!canResume && (
         <BannerImage src={banners.main} alt={UI_STRINGS.menu.title} />
       )}

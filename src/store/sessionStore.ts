@@ -17,6 +17,7 @@ import { resetGameplayContext } from "../simulation/gameplayContext";
 import { playMusic, playSfx, stopMusic } from "../utils/assets/audioManager";
 import { music, sfx } from "../assets/assetPaths";
 import { useSettingsStore } from "./settingsStore";
+import { useProgressStore } from "./progressStore";
 
 export interface SessionState {
   isRunning: boolean;
@@ -143,6 +144,10 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
     stopMusic();
     playSfx(sfx.applause);
     useGameStore.getState().clearFloatingDamage();
+    const runGold = get().gold;
+    if (runGold > 0) {
+      useProgressStore.getState().addCoins(runGold);
+    }
     set({
       isRunning: false,
       isGameOver: true,
