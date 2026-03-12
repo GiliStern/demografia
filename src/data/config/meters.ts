@@ -8,8 +8,8 @@ export const METER_CONFIG = {
   sprite_config: {
     textureUrl: sprites.meter,
     index: 0,
-    scale: 3,
-    spriteFrameSize: 400,
+    scale: 2,
+    spriteFrameSize: 315,
   },
   hp: METER_HP,
   collisionRadius: METER_COLLISION_RADIUS,

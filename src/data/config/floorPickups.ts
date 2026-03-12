@@ -17,7 +17,7 @@ export const FLOOR_PICKUPS: Record<FloorPickupId, FloorPickupData> = {
     sprite_config: {
       textureUrl: getPickupTexture("coins"),
       index: 0,
-      scale: 1,
+      scale: 0.5,
       spriteFrameSize: 100,
     },
   },
@@ -29,7 +29,7 @@ export const FLOOR_PICKUPS: Record<FloorPickupId, FloorPickupData> = {
     sprite_config: {
       textureUrl: getPickupTexture("buchta"),
       index: 0,
-      scale: 2,
+      scale: 1.5,
       spriteFrameSize: 156,
     },
   },
@@ -41,7 +41,7 @@ export const FLOOR_PICKUPS: Record<FloorPickupId, FloorPickupData> = {
     sprite_config: {
       textureUrl: getPickupTexture("massive_wad_of_cash"),
       index: 0,
-      scale: 2,
+      scale: 1.5,
       spriteFrameSize: 156,
     },
   },
