@@ -14,6 +14,10 @@ import { usePlayerStore } from "@/store/playerStore";
 import { useSessionStore } from "@/store/sessionStore";
 import { useWeaponsStore } from "@/store/weaponsStore";
 import { getEnemyManager } from "./enemyManager";
+import { getMeterManager } from "./meterManager";
+import { resolveMeterDrop } from "@/data/config/meterDrops";
+import { FLOOR_PICKUPS } from "@/data/config/floorPickups";
+import { generatePrefixedId } from "@/utils/common/idGenerator";
 import { createContactDamageReporter } from "./enemyManager";
 import { getCullDistance } from "@/utils/rendering/viewportBounds";
 import { VIEWPORT_CONFIG } from "@/data/config/viewportConfig";
@@ -78,6 +82,7 @@ function createDefaultGameplayContext(): GameplayContext {
     getProjectileTickContext: (): TickContext => ({
       getEnemyPositions: () =>
         getEnemyManager().getEnemyPositions() as EnemyPositionMap,
+      getMeterPositions: () => getMeterManager().getMeterPositions(),
       getViewportBounds: () => useGameStore.getState().viewportBounds,
       getPlayerPosition: () => usePlayerStore.getState().playerPosition,
       applyEnemyHit: ({ enemyId, damage, knockback, hitDir }) => {
@@ -89,6 +94,28 @@ function createDefaultGameplayContext(): GameplayContext {
             .addFloatingDamage(position.x, position.y, damage);
         }
         playSfx(sfx.hit);
+      },
+      onMeterHit: (meterId) => {
+        const position = getMeterManager().destroyMeter(meterId);
+        if (!position) return;
+
+        const playerLevel = useSessionStore.getState().level;
+        const luck = usePlayerStore.getState().getEffectivePlayerStats().luck;
+        const pickupId = resolveMeterDrop(playerLevel, luck);
+        const pickup = FLOOR_PICKUPS[pickupId];
+        if (!pickup) return;
+
+        const payload: { goldAmount?: number } | undefined =
+          pickup.goldAmount != null
+            ? { goldAmount: pickup.goldAmount }
+            : undefined;
+
+        useGameStore.getState().addFloorPickup({
+          id: generatePrefixedId("pickup"),
+          position,
+          pickupId,
+          ...(payload && { payload }),
+        });
       },
     }),
 

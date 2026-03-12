@@ -30,6 +30,13 @@ import starOfDavidSprite from "./sprites/star_of_david.png";
 import tiktokStarSprite from "./sprites/tiktok star.png";
 import touristSprite from "./sprites/tourist.png";
 import xpSprite from "./sprites/xp.png";
+import meterSprite from "./sprites/meter.png";
+
+// Floor pickup sprites (from meter drops)
+import coinSprite from "./sprites/passive-items/coin.png";
+import haminSprite from "./sprites/passive-items/hamin.png";
+import magnetSprite from "./sprites/passive-items/magnet.png";
+import massiveWadSprite from "./sprites/passive-items/massive_wad_of_cash.png";
 
 // Passive item sprites
 import candlesSprite from "./sprites/passive-items/candles.png";
@@ -94,6 +101,26 @@ export const sprites = {
   tourist: touristSprite,
   xp: xpSprite,
   kingOfPitas: kingOfPitasSprite,
+  meter: meterSprite,
+};
+
+/** Keys for floor pickup sprites */
+export type FloorPickupSpriteKey =
+  | "coins"
+  | "buchta"
+  | "massive_wad_of_cash"
+  | "hamin"
+  | "magnet"
+  | "chest";
+
+/** Sprites for floor pickups dropped by meters */
+export const floorPickupSprites: Record<FloorPickupSpriteKey, string> = {
+  coins: coinSprite,
+  buchta: protectionSprite,
+  massive_wad_of_cash: massiveWadSprite,
+  hamin: haminSprite,
+  magnet: magnetSprite,
+  chest: crownSprite,
 };
 
 export const passiveSprites: Record<PassiveId, string> = {

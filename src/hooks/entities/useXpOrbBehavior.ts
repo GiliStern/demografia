@@ -14,6 +14,7 @@ import type {
 } from "@/types/hooks/entities";
 
 const PICKUP_RANGE = 2.5; // Distance at which XP orb starts moving toward player
+const MAGNET_PULSE_RANGE = 9999; // Range when Magnet floor pickup is active
 const ATTRACTION_SPEED = 10; // Speed at which orb moves toward player
 const FLOAT_AMPLITUDE = 0.08; // Height of bobbing animation
 const FLOAT_FREQUENCY = 2.5; // Speed of bobbing animation
@@ -32,6 +33,10 @@ export function useXpOrbBehavior({
   const playerPosition = usePlayerStore((state) => state.playerPosition);
   const isPaused = useSessionStore((state) => state.isPaused);
   const isRunning = useSessionStore((state) => state.isRunning);
+  const runTimer = useSessionStore((state) => state.runTimer);
+  const magnetPulseEndTime = useSessionStore(
+    (state) => state.magnetPulseEndTime,
+  );
   const addXp = useSessionStore((state) => state.addXp);
   const removeXpOrb = useXpOrbsStore((state) => state.removeXpOrb);
 
@@ -68,8 +73,11 @@ export function useXpOrbBehavior({
       return;
     }
 
+    const attractionRange =
+      runTimer < magnetPulseEndTime ? MAGNET_PULSE_RANGE : PICKUP_RANGE;
+
     // Check if player is within attraction range
-    if (distanceToPlayer < PICKUP_RANGE) {
+    if (distanceToPlayer < attractionRange) {
       if (!isAttracted) setIsAttracted(true);
 
       // Smoothly move toward player using kinematic positioning
@@ -108,7 +116,7 @@ export function useXpOrbBehavior({
         collectOrb();
       }
     },
-    [collectOrb]
+    [collectOrb],
   );
 
   // User data for collision detection
@@ -118,7 +126,7 @@ export function useXpOrbBehavior({
       id,
       xpValue,
     }),
-    [id, xpValue]
+    [id, xpValue],
   );
 
   return {

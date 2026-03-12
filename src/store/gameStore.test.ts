@@ -116,7 +116,9 @@ describe("gameStore evolution upgrades", () => {
       passiveLevels: { [PassiveId.Wassach]: 1 },
     });
 
-    const evolutionChoice = collectUpgradeChoices(useWeaponsStore.getState()).find(
+    const evolutionChoice = collectUpgradeChoices(
+      useWeaponsStore.getState(),
+    ).find(
       (choice) =>
         choice.kind === ItemKind.Weapon &&
         choice.weaponId === WeaponId.HolyCactus &&
@@ -172,18 +174,16 @@ describe("enemy death rewards flow", () => {
     resetStore();
   });
 
-  it("adds xp orb, gold, and kill to store when applying death rewards", () => {
+  it("adds xp orb and kill to store when applying death rewards (gold from meters only)", () => {
     useSessionStore.getState().startGame(CharacterId.Srulik);
 
     const rewards = buildEnemyDeathRewards({
       position: { x: 10, y: 5 },
       xpValue: 25,
-      goldReward: 2,
       createOrbId: () => "xp-death-test",
     });
 
     useGameStore.getState().addXpOrb(rewards.xpOrb);
-    useSessionStore.getState().addGold(rewards.goldReward);
     if (rewards.killIncrement > 0) {
       useSessionStore.getState().addKill();
     }
@@ -193,7 +193,7 @@ describe("enemy death rewards flow", () => {
     expect(gameState.xpOrbsMap.get("xp-death-test")?.xpValue).toBe(25);
 
     const sessionState = useSessionStore.getState();
-    expect(sessionState.gold).toBe(2);
+    expect(sessionState.gold).toBe(0);
     expect(sessionState.killCount).toBe(1);
   });
 });

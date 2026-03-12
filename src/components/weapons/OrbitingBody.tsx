@@ -56,6 +56,7 @@ export const OrbitingBody = ({
   const bodyRef = useRef<RapierRigidBody>(null);
   const positionRef = useRef<[number, number, number]>([0, 0, 0]);
   const lastHitByEnemyRef = useRef<Map<string, number>>(new Map());
+  const lastHitByMeterRef = useRef<Map<string, number>>(new Map());
   const [spriteIndex, setSpriteIndex] = useState(spriteConfig.index);
   const lastFrameRef = useRef(spriteConfig.index);
 
@@ -84,11 +85,13 @@ export const OrbitingBody = ({
     positionRef.current = [x, y, 0];
     bodyRef.current?.setNextKinematicTranslation({ x, y, z: 0 });
 
-    // Collision with enemies (enemies have no physics bodies, so we check manually)
+    // Collision with enemies and meters (no physics bodies, so we check manually)
     const now = performance.now() / 1000;
+    const tickCtx = getGameplayContext().getProjectileTickContext();
     const enemyPositions = getEnemyManager().getEnemyPositions();
-    const applyEnemyHit =
-      getGameplayContext().getProjectileTickContext().applyEnemyHit;
+    const meterPositions = tickCtx.getMeterPositions();
+    const applyEnemyHit = tickCtx.applyEnemyHit;
+    const onMeterHit = tickCtx.onMeterHit;
 
     for (const [enemyId, enemyPos] of enemyPositions) {
       const dx = enemyPos.x - x;
@@ -110,6 +113,19 @@ export const OrbitingBody = ({
         knockback,
         hitDir,
       });
+    }
+
+    for (const [meterId, meterPos] of meterPositions) {
+      const dx = meterPos.x - x;
+      const dy = meterPos.y - y;
+      const distSq = dx * dx + dy * dy;
+      if (distSq > ORBIT_COLLISION_RADIUS * ORBIT_COLLISION_RADIUS) continue;
+
+      const lastHit = lastHitByMeterRef.current.get(meterId) ?? 0;
+      if (now - lastHit < ORBIT_HIT_COOLDOWN) continue;
+
+      lastHitByMeterRef.current.set(meterId, now);
+      onMeterHit(meterId);
     }
   });
 

@@ -12,7 +12,9 @@ import { InfiniteBackground } from "./InfiniteBackground";
 import { LevelUpOverlay } from "./LevelUpOverlay";
 import { GameLoop } from "./GameLoop";
 import { XpOrbsManager } from "./XpOrbsManager";
+import { FloorPickupsManager } from "./FloorPickupsManager";
 import { BatchedProjectileRenderer } from "./BatchedProjectileRenderer";
+import { MetersManager } from "./MetersManager";
 import { FloatingDamageNumbers } from "./FloatingDamageNumbers";
 import { VIEWPORT_CONFIG } from "../data/config/viewportConfig";
 import { useSessionStore } from "@/store/sessionStore";
@@ -60,10 +62,12 @@ export const GameCanvas = ({ $menuVisible = false }: GameCanvasProps) => {
             <ActiveWeapons />
             <WaveManager />
             <XpOrbsManager />
+            <FloorPickupsManager />
           </Physics>
-          {/* Batched rendering outside physics - run projectiles first (damage), then enemies (movement + death) */}
+          {/* Batched rendering outside physics - run projectiles first (damage), then enemies (movement + death), then meters */}
           <BatchedProjectileRenderer />
           <BatchedEnemyRenderer />
+          <MetersManager />
           <FloatingDamageNumbers />
         </Suspense>
       </Canvas>

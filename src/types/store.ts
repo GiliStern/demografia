@@ -92,6 +92,20 @@ export interface XpOrbsStore {
   resetXpOrbs: () => void;
 }
 
+export interface FloorPickupInstance {
+  id: string;
+  position: { x: number; y: number };
+  pickupId: FloorPickupId;
+  payload?: { goldAmount?: number };
+}
+
+export interface FloorPickupsStore {
+  floorPickupsMap: Map<string, FloorPickupInstance>;
+  addFloorPickup: (instance: FloorPickupInstance) => void;
+  removeFloorPickup: (id: string) => void;
+  resetFloorPickups: () => void;
+}
+
 export interface ProjectilesStore {
   addProjectile: (projectile: CentralizedProjectile) => void;
   removeProjectile: (id: string) => void;
@@ -118,7 +132,10 @@ export interface GameSlice extends CoreGameState {
   levelUp: () => void;
   applyUpgrade: (choice: UpgradeOption) => void;
   resumeFromLevelUp: () => void;
-  collectPickup: (pickupId: FloorPickupId) => void;
+  collectPickup: (
+    pickupId: FloorPickupId,
+    payload?: { goldAmount?: number },
+  ) => void;
 }
 
 export interface FloatingDamageEntry {
@@ -139,7 +156,8 @@ export interface FloatingDamageStore {
 export type GameStore = ViewportStore &
   XpOrbsStore &
   ProjectilesStore &
-  FloatingDamageStore;
+  FloatingDamageStore &
+  FloorPickupsStore;
 
 export type StoreCreator<StoreState> = StateCreator<
   GameStore,

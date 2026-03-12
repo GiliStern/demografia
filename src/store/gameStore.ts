@@ -13,12 +13,14 @@ import { createViewportStore } from "./viewportStore";
 import { createXpOrbsStore } from "./xpOrbsStore";
 import { createProjectilesStore } from "./projectilesStore";
 import { createFloatingDamageStore } from "./floatingDamageStore";
+import { createFloorPickupsStore } from "./floorPickupsStore";
 
 const useGameStore = create<GameStore>()((...args) => ({
   ...createViewportStore(...args),
   ...createXpOrbsStore(...args),
   ...createProjectilesStore(...args),
   ...createFloatingDamageStore(...args),
+  ...createFloorPickupsStore(...args),
 }));
 
 export { useGameStore };
@@ -28,6 +30,7 @@ export const useViewportStore = useGameStore;
 export const useXpOrbsStore = useGameStore;
 export const useProjectilesStore = useGameStore;
 export const useFloatingDamageStore = useGameStore;
+export const useFloorPickupsStore = useGameStore;
 
 const BASE_WEAPON_POOL: WeaponId[] = [
   WeaponId.Sabra,

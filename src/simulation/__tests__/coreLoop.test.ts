@@ -15,11 +15,16 @@ import { toCentralizedProjectile } from "@/utils/weapons/toCentralizedProjectile
 import { CharacterId, EnemyId, WeaponId } from "@/types";
 import { PauseReason } from "@/types/store";
 import { resetEnemyManager, getEnemyManager } from "../enemyManager";
-import { resetProjectileManager, getProjectileManager } from "../projectileManager";
+import {
+  resetProjectileManager,
+  getProjectileManager,
+} from "../projectileManager";
+import { resetMeterManager } from "../meterManager";
 
 const resetAll = () => {
   setGameplayContext(null);
   resetEnemyManager();
+  resetMeterManager();
   resetProjectileManager();
   useSessionStore.setState(useSessionStore.getInitialState(), true);
   usePlayerStore.setState(usePlayerStore.getInitialState(), true);
@@ -42,7 +47,12 @@ describe("core loop integration", () => {
     const weaponData = getWeapon(WeaponId.Sabra);
     if (!enemyData || !weaponData) throw new Error("Config not found");
 
-    enemyManager.spawnEnemy("e1", EnemyId.StreetCats, { x: 0.5, y: 0 }, enemyData);
+    enemyManager.spawnEnemy(
+      "e1",
+      EnemyId.StreetCats,
+      { x: 0.5, y: 0 },
+      enemyData,
+    );
     expect(enemyManager.getCount()).toBe(1);
 
     const projectile = toCentralizedProjectile(
@@ -56,7 +66,7 @@ describe("core loop integration", () => {
       weaponData,
       WeaponId.Sabra,
       0,
-      "normal"
+      "normal",
     );
     projectileManager.addProjectile(projectile);
 
@@ -112,9 +122,24 @@ describe("core loop integration", () => {
     const weaponData = getWeapon(WeaponId.Sabra);
     if (!enemyData || !weaponData) throw new Error("Config not found");
 
-    enemyManager.spawnEnemy("e1", EnemyId.StreetCats, { x: 0.5, y: 0 }, enemyData);
-    enemyManager.spawnEnemy("e2", EnemyId.StreetCats, { x: 1.5, y: 0 }, enemyData);
-    enemyManager.spawnEnemy("e3", EnemyId.StreetCats, { x: 2.5, y: 0 }, enemyData);
+    enemyManager.spawnEnemy(
+      "e1",
+      EnemyId.StreetCats,
+      { x: 0.5, y: 0 },
+      enemyData,
+    );
+    enemyManager.spawnEnemy(
+      "e2",
+      EnemyId.StreetCats,
+      { x: 1.5, y: 0 },
+      enemyData,
+    );
+    enemyManager.spawnEnemy(
+      "e3",
+      EnemyId.StreetCats,
+      { x: 2.5, y: 0 },
+      enemyData,
+    );
 
     expect(enemyManager.getCount()).toBe(3);
 
@@ -131,8 +156,8 @@ describe("core loop integration", () => {
         weaponData,
         WeaponId.Sabra,
         0,
-        "normal"
-      )
+        "normal",
+      ),
     );
     projectileManager.addProjectiles(projectiles);
 

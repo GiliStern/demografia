@@ -13,11 +13,14 @@ import { usePlayerStore } from "./playerStore";
 import { useWeaponsStore } from "./weaponsStore";
 import { resolveLevelProgression, buildUpgradeChoices } from "./gameStore";
 import { resetEnemyManager } from "../simulation/enemyManager";
+import { resetMeterManager } from "../simulation/meterManager";
 import { resetGameplayContext } from "../simulation/gameplayContext";
 import { playMusic, playSfx, stopMusic } from "../utils/assets/audioManager";
 import { music, sfx } from "../assets/assetPaths";
 import { useSettingsStore } from "./settingsStore";
 import { useProgressStore } from "./progressStore";
+
+const MAGNET_PULSE_DURATION = 3;
 
 export interface SessionState {
   isRunning: boolean;
@@ -33,6 +36,8 @@ export interface SessionState {
   killCount: number;
   selectedCharacterId: CharacterId;
   upgradeChoices: UpgradeOption[];
+  /** When runTimer exceeds this, magnet pulse ends. 0 = no pulse. */
+  magnetPulseEndTime: number;
 }
 
 const INITIAL_SESSION_STATE: SessionState = {
@@ -49,6 +54,7 @@ const INITIAL_SESSION_STATE: SessionState = {
   killCount: 0,
   selectedCharacterId: CharacterId.Srulik,
   upgradeChoices: [],
+  magnetPulseEndTime: 0,
 };
 
 export interface SessionActions {
@@ -65,7 +71,10 @@ export interface SessionActions {
   levelUp: () => void;
   applyUpgrade: (choice: UpgradeOption) => void;
   resumeFromLevelUp: () => void;
-  collectPickup: (pickupId: FloorPickupId) => void;
+  collectPickup: (
+    pickupId: FloorPickupId,
+    payload?: { goldAmount?: number },
+  ) => void;
 }
 
 export type SessionStore = SessionState & SessionActions;
@@ -81,10 +90,12 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
     const gameStore = useGameStore.getState();
     useWeaponsStore.getState().resetWeapons([character.startingWeaponId]);
     resetEnemyManager();
+    resetMeterManager();
     resetGameplayContext();
     gameStore.resetXpOrbs();
     gameStore.clearProjectiles();
     gameStore.clearFloatingDamage();
+    gameStore.resetFloorPickups();
 
     const musicMuted = useSettingsStore.getState().musicMuted;
     playMusic(music.tlvBg, true, musicMuted);
@@ -101,10 +112,12 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
     stopMusic();
     const gameStore = useGameStore.getState();
     resetEnemyManager();
+    resetMeterManager();
     resetGameplayContext();
     gameStore.resetXpOrbs();
     gameStore.clearProjectiles();
     gameStore.clearFloatingDamage();
+    gameStore.resetFloorPickups();
     set({
       ...INITIAL_SESSION_STATE,
       isRunning: false,
@@ -280,12 +293,21 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
       upgradeChoices: [],
     }),
 
-  collectPickup: (pickupId) => {
+  collectPickup: (pickupId, payload) => {
     const pickup = FLOOR_PICKUPS[pickupId];
     if (!pickup) return;
 
+    const goldAmount = payload?.goldAmount ?? pickup.goldAmount ?? 0;
+    if (goldAmount > 0) {
+      get().addGold(goldAmount);
+    }
+
     if (pickup.healAmount) {
       usePlayerStore.getState().heal(pickup.healAmount);
+    }
+
+    if (pickupId === FloorPickupId.Magnet) {
+      set({ magnetPulseEndTime: get().runTimer + MAGNET_PULSE_DURATION });
     }
   },
 }));

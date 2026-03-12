@@ -37,6 +37,7 @@ describe("projectileManager", () => {
 
       const ctx = {
         getEnemyPositions: () => new Map([["enemy-1", { x: 0.5, y: 0 }]]),
+        getMeterPositions: () => new Map(),
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 0, y: 0 }),
         applyEnemyHit: ({
@@ -50,6 +51,7 @@ describe("projectileManager", () => {
         }) => {
           damageCalls.push({ id: enemyId, damage });
         },
+        onMeterHit: () => {},
       };
 
       manager.tick(0.1, 0.1, ctx);
@@ -77,6 +79,7 @@ describe("projectileManager", () => {
       ]);
       const ctx = {
         getEnemyPositions: () => enemyMap,
+        getMeterPositions: () => new Map(),
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 0, y: 0 }),
         applyEnemyHit: ({
@@ -90,6 +93,7 @@ describe("projectileManager", () => {
         }) => {
           damageCalls.push({ id: enemyId, damage });
         },
+        onMeterHit: () => {},
       };
 
       manager.tick(0.1, 0.1, ctx);
@@ -125,6 +129,7 @@ describe("projectileManager", () => {
 
       const ctx = {
         getEnemyPositions: () => new Map([["e1", { x: 0.5, y: 0 }]]),
+        getMeterPositions: () => new Map(),
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 0, y: 0 }),
         applyEnemyHit: ({
@@ -136,6 +141,7 @@ describe("projectileManager", () => {
           knockback: number;
           hitDir: { x: number; y: number };
         }) => damageCalls.push({ id: enemyId, damage }),
+        onMeterHit: () => {},
       };
 
       manager.tick(0.1, 0.1, ctx);
@@ -167,6 +173,7 @@ describe("projectileManager", () => {
 
       const ctx = {
         getEnemyPositions: () => new Map([["enemy-1", { x: 0.5, y: 0 }]]),
+        getMeterPositions: () => new Map(),
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 0, y: 0 }),
         applyEnemyHit: (params: {
@@ -175,6 +182,7 @@ describe("projectileManager", () => {
           knockback: number;
           hitDir: { x: number; y: number };
         }) => hits.push(params),
+        onMeterHit: () => {},
       };
 
       manager.tick(0.1, 0.1, ctx);
@@ -206,10 +214,12 @@ describe("projectileManager", () => {
       // Put enemy at (0.3, 0) so the stationary projectile (0,0) is inside collision radius.
       const ctx = {
         getEnemyPositions: () => new Map([["e1", { x: 0.3, y: 0 }]]),
+        getMeterPositions: () => new Map(),
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 0, y: 0 }),
         applyEnemyHit: (params: { hitDir: { x: number; y: number } }) =>
           hits.push({ hitDir: params.hitDir }),
+        onMeterHit: () => {},
       };
 
       manager.tick(0.1, 0.1, ctx);

@@ -15,7 +15,7 @@ describe("enemyLifecycle", () => {
         position: { x: 12, y: -4 },
         xpValue: 30,
       },
-      goldReward: 1,
+      goldReward: 0,
       killIncrement: 1,
     });
   });

@@ -75,6 +75,8 @@ export type {
 export type {
   CoreGameState,
   FloatingDamageEntry,
+  FloorPickupInstance,
+  FloorPickupsStore,
   FloatingDamageStore,
   GameSlice,
   GameState,

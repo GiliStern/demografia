@@ -52,9 +52,11 @@ describe("gameplayContext", () => {
       reportContactDamage: vi.fn(),
       getProjectileTickContext: () => ({
         getEnemyPositions: () => new Map(),
+        getMeterPositions: () => new Map(),
         getViewportBounds: () => null,
         getPlayerPosition: () => ({ x: 10, y: 20 }),
         applyEnemyHit: vi.fn(),
+        onMeterHit: vi.fn(),
       }),
       getEnemyTickContext: () => ({
         getPlayerPosition: () => ({ x: 10, y: 20 }),

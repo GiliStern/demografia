@@ -17,7 +17,7 @@ interface BuildEnemyDeathRewardsInput {
 export const buildEnemyDeathRewards = ({
   position,
   xpValue,
-  goldReward = 1,
+  goldReward = 0,
   createOrbId = () => generatePrefixedId("xp"),
 }: BuildEnemyDeathRewardsInput): EnemyDeathRewards => {
   return {

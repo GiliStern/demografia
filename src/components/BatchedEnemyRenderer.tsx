@@ -38,7 +38,6 @@ function toBatchable(
  */
 export const BatchedEnemyRenderer = () => {
   const addXpOrb = useXpOrbsStore((state) => state.addXpOrb);
-  const addGold = useSessionStore((state) => state.addGold);
   const addKill = useSessionStore((state) => state.addKill);
 
   const enemyManager = getEnemyManager();
@@ -55,7 +54,6 @@ export const BatchedEnemyRenderer = () => {
           xpValue: ev.xpDrop,
         });
         addXpOrb(rewards.xpOrb);
-        addGold(rewards.goldReward);
         if (rewards.killIncrement > 0) {
           addKill();
         }
@@ -66,7 +64,7 @@ export const BatchedEnemyRenderer = () => {
       const batchableEntities = snapshot.map((e) => toBatchable(e, playerPos));
       return batchEntitiesByTexture(batchableEntities);
     },
-    [enemyManager, tickContext, addXpOrb, addGold, addKill],
+    [enemyManager, tickContext, addXpOrb, addKill],
   );
 
   const { batchKeys, batchDataRef, spriteSyncRefs } =

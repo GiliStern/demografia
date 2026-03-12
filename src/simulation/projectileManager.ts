@@ -11,6 +11,7 @@ import type { ViewportBounds } from "@/types";
 import { advanceProjectile } from "@/utils/projectiles/projectileRuntime";
 import { reflectInBounds } from "@/utils/weapons/weaponMath";
 import type { EnemyPositionMap } from "@/utils/game/waveUtils";
+import { METER_COLLISION_RADIUS } from "@/data/config/meters";
 
 const COLLISION_RADIUS = 0.5;
 
@@ -64,9 +65,11 @@ export interface ApplyEnemyHitParams {
 
 export interface TickContext {
   getEnemyPositions: () => EnemyPositionMap;
+  getMeterPositions: () => ReadonlyMap<string, { x: number; y: number }>;
   getViewportBounds: () => ViewportBounds | null;
   getPlayerPosition: () => { x: number; y: number };
   applyEnemyHit: (params: ApplyEnemyHitParams) => void;
+  onMeterHit: (meterId: string) => void;
 }
 
 export interface ProjectileManager {
@@ -122,12 +125,15 @@ export function createProjectileManager(): ProjectileManager {
     tick(delta, currentTime, ctx) {
       const {
         getEnemyPositions,
+        getMeterPositions,
         getViewportBounds,
         getPlayerPosition,
         applyEnemyHit,
+        onMeterHit,
       } = ctx;
       const toRemove: string[] = [];
       const currentEnemies = getEnemyPositions();
+      const currentMeters = getMeterPositions();
       const viewportBounds = getViewportBounds();
       const playerPosition = getPlayerPosition();
 
@@ -160,6 +166,7 @@ export function createProjectileManager(): ProjectileManager {
         const y1 = newPosition.y;
 
         let hitEnemy = false;
+        let hitMeter = false;
         let shouldRemoveOnHit = false;
         for (const [enemyId, enemyPos] of enemyEntries(currentEnemies)) {
           if (
@@ -205,9 +212,30 @@ export function createProjectileManager(): ProjectileManager {
           }
         }
 
+        if (!hitEnemy) {
+          for (const [meterId, meterPos] of currentMeters) {
+            if (
+              segmentIntersectsCircle(
+                x0,
+                y0,
+                x1,
+                y1,
+                meterPos.x,
+                meterPos.y,
+                METER_COLLISION_RADIUS,
+              )
+            ) {
+              onMeterHit(meterId);
+              hitMeter = true;
+              shouldRemoveOnHit = true;
+              break;
+            }
+          }
+        }
+
         if (shouldRemoveOnHit) {
           toRemove.push(projectile.id);
-        } else if (hitEnemy) {
+        } else if (hitEnemy || hitMeter) {
           const existing = projectiles.get(projectile.id);
           if (existing) {
             projectiles.set(projectile.id, {

@@ -46,10 +46,18 @@ export enum PassiveId {
 }
 
 export enum FloorPickupId {
+  /** מטבעות (Coins) */
+  Coins = "coins",
+  /** בוחטה (Buchta / Gold Bag) */
+  Buchta = "buchta",
+  /** ווחאד בוכטה (Massive wad of cash / Rich Coin Bag) */
+  MassiveWadOfCash = "massive_wad_of_cash",
   /** חמין */
   Hamin = "hamin",
   /** תיבה */
   Chest = "chest",
+  /** מגנט (Magnet) - later */
+  Magnet = "magnet",
 }
 
 export interface PlayerStats {
@@ -100,6 +108,10 @@ export interface FloorPickupData {
   name_he: string;
   description_he: string;
   healAmount?: number;
+  /** Gold amount for currency pickups (Coins, Buchta, MassiveWadOfCash) */
+  goldAmount?: number;
+  /** Sprite config for floor pickup rendering */
+  sprite_config?: SpriteConfig;
 }
 
 export enum CharacterId {
