@@ -25,7 +25,7 @@ export const WAVES: WavesConfig = {
       time_start: 120,
       time_end: 240,
       enemies: [
-        { id: EnemyId.StreetCats, spawn_interval: 1.0, max_active: 20 },
+        { id: EnemyId.StreetCats, spawn_interval: 0.5, max_active: 20 },
         { id: EnemyId.Hipster, spawn_interval: 1.5, max_active: 20 },
         {
           id: EnemyId.ScooterSwarm,
@@ -39,7 +39,18 @@ export const WAVES: WavesConfig = {
       time_start: 240,
       time_end: 360,
       enemies: [
-        { id: EnemyId.StreetCats, spawn_interval: 1.0, max_active: 20 },
+        {
+          id: EnemyId.StreetCats,
+          spawn_interval: 1.0,
+          max_active: 20,
+          group_spawn: true,
+        },
+        {
+          id: EnemyId.Hipster,
+          spawn_interval: 1.5,
+          max_active: 20,
+          group_spawn: true,
+        },
         { id: EnemyId.TiktokStar, spawn_interval: 3.0, max_active: 5 },
       ],
     },
@@ -47,9 +58,19 @@ export const WAVES: WavesConfig = {
       time_start: 360,
       time_end: 480,
       enemies: [
-        { id: EnemyId.StreetCats, spawn_interval: 1.0, max_active: 20 },
+        { id: EnemyId.StreetCats, spawn_interval: 1.0, max_active: 40 },
         { id: EnemyId.Tourist, spawn_interval: 2.0, max_active: 15 },
         { id: EnemyId.TiktokStar, spawn_interval: 3.0, max_active: 5 },
+      ],
+    },
+    {
+      time_start: 480,
+      time_end: 600,
+      enemies: [
+        { id: EnemyId.StreetCats, spawn_interval: 0.5, max_active: 40 },
+        { id: EnemyId.Hipster, spawn_interval: 1, max_active: 20 },
+        { id: EnemyId.Tourist, spawn_interval: 1, max_active: 20 },
+        { id: EnemyId.TiktokStar, spawn_interval: 2, max_active: 5 },
       ],
     },
   ],

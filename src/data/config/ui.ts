@@ -68,4 +68,12 @@ export const UI_STRINGS = {
   achievements: {
     title: "הישגים",
   },
+  game_over: {
+    you_lost: "הפסדת!",
+    you_won: "ניצחת!",
+    waves_complete: "כל הגלים הושלמו!",
+    new_highscore: "שיא חדש!",
+    highscore_table: "שיאים",
+    kills: "הריגות",
+  },
 } as const;

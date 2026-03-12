@@ -6,6 +6,10 @@ import { performanceMonitor } from "../utils/performance/performanceMonitor";
 import { getEnemyManager } from "@/simulation/enemyManager";
 import { getProjectileManager } from "@/simulation/projectileManager";
 import { useRef } from "react";
+import { WaveId } from "@/data/config/waves";
+import { getStageLastWaveEndTime } from "@/data/config/wavesNormalized";
+
+const DEFAULT_STAGE = WaveId.TelAviv;
 
 export const GameLoop = () => {
   const updateTimer = useSessionStore((state) => state.updateTimer);
@@ -13,6 +17,17 @@ export const GameLoop = () => {
 
   useFrame((state, delta) => {
     updateTimer(delta);
+
+    // Win condition: last wave over, all enemies dead, player still alive
+    const sessionState = useSessionStore.getState();
+    if (sessionState.isRunning && !sessionState.isPaused) {
+      const lastWaveEnd = getStageLastWaveEndTime(DEFAULT_STAGE);
+      const enemyCount = getEnemyManager().getCount();
+      if (sessionState.runTimer >= lastWaveEnd && enemyCount === 0) {
+        useSessionStore.getState().endGame({ won: true });
+        return;
+      }
+    }
 
     // MDA recovery: heal by recovery * delta (HP per second) when running and not paused
     const session = useSessionStore.getState();

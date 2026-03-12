@@ -26,6 +26,8 @@ export interface GameState {
   isPaused: boolean;
   pauseReason: PauseReason;
   isGameOver: boolean;
+  gameWon: boolean;
+  newHighScore: boolean;
   runTimer: number;
   level: number;
   xp: number;
@@ -125,7 +127,7 @@ export interface GameSlice extends CoreGameState {
   pauseGame: () => void;
   resumeGame: () => void;
   togglePause: () => void;
-  endGame: () => void;
+  endGame: (options?: { won?: boolean }) => void;
   updateTimer: (delta: number) => void;
   addXp: (amount: number) => void;
   addGold: (amount: number) => void;

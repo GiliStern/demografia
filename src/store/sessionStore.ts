@@ -27,6 +27,8 @@ export interface SessionState {
   isPaused: boolean;
   pauseReason: PauseReason;
   isGameOver: boolean;
+  gameWon: boolean;
+  newHighScore: boolean;
   runTimer: number;
   level: number;
   xp: number;
@@ -45,6 +47,8 @@ const INITIAL_SESSION_STATE: SessionState = {
   isPaused: false,
   pauseReason: PauseReason.None,
   isGameOver: false,
+  gameWon: false,
+  newHighScore: false,
   runTimer: 0,
   level: 1,
   xp: 0,
@@ -64,7 +68,7 @@ export interface SessionActions {
   pauseGame: () => void;
   resumeGame: () => void;
   togglePause: () => void;
-  endGame: () => void;
+  endGame: (options?: { won?: boolean }) => void;
   updateTimer: (delta: number) => void;
   addXp: (amount: number) => void;
   addGold: (amount: number) => void;
@@ -153,17 +157,23 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
       };
     }),
 
-  endGame: () => {
+  endGame: (options) => {
+    const won = options?.won ?? false;
     stopMusic();
     playSfx(sfx.applause);
     useGameStore.getState().clearFloatingDamage();
-    const runGold = get().gold;
+    const { runTimer, gold: runGold, killCount } = get();
     if (runGold > 0) {
       useProgressStore.getState().addCoins(runGold);
     }
+    const newHighScore = useProgressStore
+      .getState()
+      .addHighScore({ time: runTimer, killCount, gold: runGold });
     set({
       isRunning: false,
       isGameOver: true,
+      gameWon: won,
+      newHighScore,
       isPaused: false,
       pauseReason: PauseReason.None,
     });
